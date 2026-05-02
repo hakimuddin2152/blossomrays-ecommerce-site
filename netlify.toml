@@ -1,0 +1,16 @@
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+[build.environment]
+  NODE_VERSION = "20"
+  NPM_FLAGS = "--legacy-peer-deps"
+
+# Stripe webhook requires raw body — disable body parsing for this route
+[[headers]]
+  for = "/api/stripe/webhook"
+  [headers.values]
+    Content-Type = "application/json"
