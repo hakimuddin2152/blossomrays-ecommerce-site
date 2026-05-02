@@ -3,9 +3,6 @@
 -- Run in Supabase SQL Editor
 -- ============================================================
 
--- Enable UUID extension
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
 -- ============================================================
 -- PROFILES (extends auth.users)
 -- ============================================================
@@ -42,7 +39,7 @@ CREATE TRIGGER on_auth_user_created
 -- PRODUCTS
 -- ============================================================
 CREATE TABLE IF NOT EXISTS public.products (
-  id                UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name              TEXT NOT NULL,
   slug              TEXT NOT NULL UNIQUE,
   tagline           TEXT,
@@ -134,7 +131,7 @@ ON CONFLICT (slug) DO NOTHING;
 -- ORDERS
 -- ============================================================
 CREATE TABLE IF NOT EXISTS public.orders (
-  id                        UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                        UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id                   UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
   guest_email               TEXT,
   status                    TEXT NOT NULL DEFAULT 'pending'
@@ -153,7 +150,7 @@ CREATE TABLE IF NOT EXISTS public.orders (
 -- ORDER ITEMS
 -- ============================================================
 CREATE TABLE IF NOT EXISTS public.order_items (
-  id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   order_id    UUID NOT NULL REFERENCES public.orders(id) ON DELETE CASCADE,
   product_id  UUID NOT NULL REFERENCES public.products(id) ON DELETE RESTRICT,
   quantity    INTEGER NOT NULL CHECK (quantity > 0),
