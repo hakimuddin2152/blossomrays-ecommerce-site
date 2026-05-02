@@ -114,7 +114,7 @@ VALUES
     1799,
     NULL,
     100,
-    'lavender',
+    'millennium',
     ARRAY[
       '/images/millenium/1.jpg',
       '/images/millenium/2.jpg',
