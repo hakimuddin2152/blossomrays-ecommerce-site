@@ -2,7 +2,6 @@ node_modules
 .env.*
 .next/
 .DS_Store
-Images/
 tsconfig.tsbuildinfo
 scripts/seed.mjs
 
