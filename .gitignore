@@ -1,2 +1,9 @@
 node_modules
 .env.*
+.next/
+.DS_Store
+tsconfig.tsbuildinfo
+scripts/seed.mjs
+
+# Local Netlify folder
+.netlify
