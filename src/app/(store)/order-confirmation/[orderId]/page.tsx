@@ -1,3 +1,4 @@
+import Stripe from 'stripe'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { stripe } from '@/lib/stripe/server'
@@ -6,13 +7,6 @@ import Button from '@/components/ui/Button'
 
 interface Props {
   params: Promise<{ orderId: string }>
-}
-
-interface StripeLineItem {
-  id: string
-  description: string | null
-  quantity: number | null
-  amount_total: number
 }
 
 export default async function OrderConfirmationPage({ params }: Props) {
@@ -34,30 +28,13 @@ export default async function OrderConfirmationPage({ params }: Props) {
   }
 
   // --- Stripe fallback when DB has no record ---
-  let stripeSession: {
-    id: string
-    amount_total: number | null
-    customer_details: { email?: string | null; name?: string | null } | null
-    shipping_details: {
-      name?: string | null
-      address?: {
-        line1?: string | null
-        line2?: string | null
-        city?: string | null
-        state?: string | null
-        postal_code?: string | null
-        country?: string | null
-      } | null
-    } | null
-    line_items: { data: StripeLineItem[] }
-  } | null = null
+  let stripeSession: Stripe.Response<Stripe.Checkout.Session> | null = null
 
   if (!dbOrder && isStripeSession) {
     try {
-      const session = await stripe.checkout.sessions.retrieve(orderId, {
+      stripeSession = await stripe.checkout.sessions.retrieve(orderId, {
         expand: ['line_items'],
       })
-      stripeSession = session as typeof stripeSession
     } catch {
       // Stripe lookup failed
     }
@@ -164,6 +141,7 @@ export default async function OrderConfirmationPage({ params }: Props) {
   const session = stripeSession!
   const shipping = session.shipping_details
   const total = session.amount_total ?? 0
+  const lineItems = session.line_items?.data ?? []
 
   return (
     <div className="bg-cream min-h-screen">
@@ -180,9 +158,9 @@ export default async function OrderConfirmationPage({ params }: Props) {
             </span>
           </div>
 
-          {session.line_items?.data?.length > 0 && (
+          {lineItems.length > 0 && (
             <div className="border-t border-cream-dark pt-4 space-y-3">
-              {session.line_items.data.map((item) => (
+              {lineItems.map((item) => (
                 <div key={item.id} className="flex items-center gap-3">
                   <div className="flex-1">
                     <p className="font-body text-sm font-medium text-plum">{item.description}</p>
