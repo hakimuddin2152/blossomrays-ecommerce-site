@@ -5,5 +5,9 @@ node_modules
 tsconfig.tsbuildinfo
 scripts/seed.mjs
 
+# Angular
+.angular/
+dist/
+
 # Local Netlify folder
 .netlify

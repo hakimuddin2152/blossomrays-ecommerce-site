@@ -1,0 +1,205 @@
+import { Component, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { CartService } from '../../services/cart.service';
+import { formatPrice } from '../../utils/format-price';
+
+@Component({
+  selector: 'app-checkout',
+  standalone: true,
+  imports: [RouterLink, CommonModule, ReactiveFormsModule],
+  template: `
+    <div class="bg-cream min-h-screen">
+      <!-- Empty cart redirect -->
+      <ng-container *ngIf="items().length === 0">
+        <div class="min-h-screen flex items-center justify-center">
+          <div class="text-center space-y-4">
+            <p class="font-body text-muted text-lg">Your cart is empty.</p>
+            <a routerLink="/products" class="btn-outline inline-flex">Browse Products</a>
+          </div>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="items().length > 0">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 py-14">
+          <h1 class="font-display text-4xl font-semibold text-plum mb-10">Checkout</h1>
+
+          <form [formGroup]="form" (ngSubmit)="onSubmit()">
+            <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+              <!-- Shipping form -->
+              <div class="lg:col-span-3 space-y-6">
+                <div class="bg-white border border-cream-dark p-6 space-y-5">
+                  <h2 class="font-display text-xl font-semibold text-plum">Shipping Information</h2>
+
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="sm:col-span-2">
+                      <label class="block font-body text-[11px] uppercase tracking-widest text-muted mb-1.5">Full Name *</label>
+                      <input formControlName="full_name" type="text" placeholder="Jane Smith" class="input-field"
+                        [class.border-red-400]="fieldInvalid('full_name')" />
+                      <p *ngIf="fieldInvalid('full_name')" class="font-body text-xs text-red-500 mt-1">Full name is required</p>
+                    </div>
+
+                    <div class="sm:col-span-2">
+                      <label class="block font-body text-[11px] uppercase tracking-widest text-muted mb-1.5">Email *</label>
+                      <input formControlName="email" type="email" placeholder="you@example.com" class="input-field"
+                        [class.border-red-400]="fieldInvalid('email')" />
+                      <p *ngIf="fieldInvalid('email')" class="font-body text-xs text-red-500 mt-1">Valid email is required</p>
+                    </div>
+
+                    <div class="sm:col-span-2">
+                      <label class="block font-body text-[11px] uppercase tracking-widest text-muted mb-1.5">Street Address *</label>
+                      <input formControlName="street_line_1" type="text" placeholder="123 Main St" class="input-field"
+                        [class.border-red-400]="fieldInvalid('street_line_1')" />
+                      <p *ngIf="fieldInvalid('street_line_1')" class="font-body text-xs text-red-500 mt-1">Address is required</p>
+                    </div>
+
+                    <div class="sm:col-span-2">
+                      <label class="block font-body text-[11px] uppercase tracking-widest text-muted mb-1.5">Apt / Unit</label>
+                      <input formControlName="street_line_2" type="text" placeholder="Apt 4B" class="input-field" />
+                    </div>
+
+                    <div>
+                      <label class="block font-body text-[11px] uppercase tracking-widest text-muted mb-1.5">City *</label>
+                      <input formControlName="city" type="text" placeholder="Toronto" class="input-field"
+                        [class.border-red-400]="fieldInvalid('city')" />
+                    </div>
+
+                    <div>
+                      <label class="block font-body text-[11px] uppercase tracking-widest text-muted mb-1.5">Province / State *</label>
+                      <input formControlName="state" type="text" placeholder="ON" class="input-field"
+                        [class.border-red-400]="fieldInvalid('state')" />
+                    </div>
+
+                    <div>
+                      <label class="block font-body text-[11px] uppercase tracking-widest text-muted mb-1.5">Postal Code *</label>
+                      <input formControlName="zip" type="text" placeholder="M5V 1J1" class="input-field"
+                        [class.border-red-400]="fieldInvalid('zip')" />
+                    </div>
+
+                    <div>
+                      <label class="block font-body text-[11px] uppercase tracking-widest text-muted mb-1.5">Country *</label>
+                      <input formControlName="country" type="text" placeholder="CA" class="input-field"
+                        [class.border-red-400]="fieldInvalid('country')" />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Error -->
+                <div *ngIf="error()" class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 font-body text-sm">
+                  {{ error() }}
+                </div>
+              </div>
+
+              <!-- Order summary -->
+              <div class="lg:col-span-2">
+                <div class="bg-white border border-cream-dark p-6 space-y-4 sticky top-28">
+                  <h2 class="font-display text-xl font-semibold text-plum">Order Summary</h2>
+
+                  <div *ngFor="let item of items()" class="flex gap-3 py-2 border-b border-cream-dark last:border-0">
+                    <img [src]="item.product.images[0] || '/images/lavender/1.jpg'" [alt]="item.product.name"
+                      class="w-12 h-12 object-cover bg-cream flex-shrink-0" />
+                    <div class="flex-1 min-w-0">
+                      <p class="font-body text-[13px] font-medium text-plum truncate">{{ item.product.name }}</p>
+                      <p class="font-body text-[11px] text-muted">Qty: {{ item.quantity }}</p>
+                    </div>
+                    <span class="font-body text-[13px] font-semibold text-plum flex-shrink-0">
+                      {{ formatPrice(item.product.price * item.quantity) }}
+                    </span>
+                  </div>
+
+                  <div class="space-y-2 font-body text-sm pt-2">
+                    <div class="flex justify-between">
+                      <span class="text-muted">Subtotal</span>
+                      <span class="text-plum">{{ formatPrice(subtotal()) }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span class="text-muted">Shipping</span>
+                      <span class="text-plum">{{ subtotal() >= 3000 ? 'Free' : formatPrice(999) }}</span>
+                    </div>
+                  </div>
+
+                  <hr class="border-cream-dark" />
+
+                  <div class="flex justify-between font-body font-semibold text-plum">
+                    <span>Total</span>
+                    <span>{{ formatPrice(subtotal() >= 3000 ? subtotal() : subtotal() + 999) }}</span>
+                  </div>
+
+                  <button type="submit" [disabled]="loading()" class="btn-primary w-full">
+                    {{ loading() ? 'Processing...' : 'Proceed to Payment' }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </ng-container>
+    </div>
+  `,
+})
+export class CheckoutComponent {
+  private readonly cartService = inject(CartService);
+  private readonly fb = inject(FormBuilder);
+
+  readonly items = this.cartService.items;
+  readonly subtotal = this.cartService.subtotal;
+  readonly formatPrice = formatPrice;
+  readonly loading = signal(false);
+  readonly error = signal<string | null>(null);
+
+  readonly form = this.fb.group({
+    full_name: ['', [Validators.required, Validators.minLength(2)]],
+    email: ['', [Validators.required, Validators.email]],
+    street_line_1: ['', [Validators.required, Validators.minLength(3)]],
+    street_line_2: [''],
+    city: ['', [Validators.required, Validators.minLength(2)]],
+    state: ['', [Validators.required, Validators.minLength(2)]],
+    zip: ['', [Validators.required, Validators.minLength(4)]],
+    country: ['CA', [Validators.required, Validators.minLength(2), Validators.maxLength(2)]],
+  });
+
+  fieldInvalid(field: string): boolean {
+    const ctrl = this.form.get(field);
+    return !!(ctrl?.invalid && ctrl?.touched);
+  }
+
+  async onSubmit(): Promise<void> {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+    this.loading.set(true);
+    this.error.set(null);
+
+    const { email, ...shipping } = this.form.value;
+
+    try {
+      const res = await fetch('/.netlify/functions/stripe-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items: this.items(),
+          shipping,
+          email,
+        }),
+      });
+
+      const json = await res.json();
+
+      if (!res.ok) {
+        this.error.set(json.error ?? 'Something went wrong. Please try again.');
+        return;
+      }
+
+      if (json.url) {
+        this.cartService.clearCart();
+        window.location.href = json.url;
+      }
+    } catch {
+      this.error.set('Network error. Please check your connection and try again.');
+    } finally {
+      this.loading.set(false);
+    }
+  }
+}

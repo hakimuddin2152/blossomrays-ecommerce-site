@@ -1,16 +1,35 @@
 [build]
   command = "npm run build"
-  publish = ".next"
+  publish = "dist/blossomrays/browser"
+  functions = "netlify/functions"
 
 [build.environment]
   NODE_VERSION = "20"
-  NPM_FLAGS = "--legacy-peer-deps"
+  NPM_FLAGS = "--registry https://registry.npmjs.org/"
 
-[[plugins]]
-  package = "@netlify/plugin-nextjs"
+[functions]
+  node_bundler = "esbuild"
 
-# Stripe webhook requires raw body — disable body parsing for this route
-[[headers]]
-  for = "/api/stripe/webhook"
-  [headers.values]
-    Content-Type = "application/json"
+# SPA fallback — all routes served by index.html (Angular handles routing)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  conditions = { Role = [""] }
+
+# Redirect old Next.js API paths to Netlify Functions
+[[redirects]]
+  from = "/api/stripe/checkout"
+  to = "/.netlify/functions/stripe-checkout"
+  status = 200
+
+[[redirects]]
+  from = "/api/stripe/webhook"
+  to = "/.netlify/functions/stripe-webhook"
+  status = 200
+
+[[redirects]]
+  from = "/api/orders"
+  to = "/.netlify/functions/orders"
+  status = 200
+
