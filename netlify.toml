@@ -16,7 +16,6 @@
   from = "/*"
   to = "/index.html"
   status = 200
-  conditions = { Role = [""] }
 
 # Redirect old Next.js API paths to Netlify Functions
 [[redirects]]
