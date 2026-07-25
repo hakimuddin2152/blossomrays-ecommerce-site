@@ -14,12 +14,15 @@ export class AuthService {
   readonly loading = signal(true);
 
   constructor() {
-    // Initialize session
-    this.supabase.auth.getSession().then(({ data }) => {
-      this.user.set(data.session?.user ?? null);
-      if (data.session?.user) this._loadProfile(data.session.user.id);
-      this.loading.set(false);
-    });
+    // Initialize session — .catch() prevents a failed network call (e.g.
+    // placeholder credentials in dev) from reaching Zone.js and blocking render.
+    this.supabase.auth.getSession()
+      .then(({ data }) => {
+        this.user.set(data.session?.user ?? null);
+        if (data.session?.user) this._loadProfile(data.session.user.id);
+      })
+      .catch(() => { /* credentials not configured or network error — stay logged out */ })
+      .finally(() => { this.loading.set(false); });
 
     // Subscribe to auth changes
     this.supabase.auth.onAuthStateChange((_event: string, session: Session | null) => {
