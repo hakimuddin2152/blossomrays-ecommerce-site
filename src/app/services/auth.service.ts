@@ -65,7 +65,7 @@ export class AuthService {
       .from('profiles')
       .select('*')
       .eq('id', userId)
-      .single();
+      .maybeSingle();
     this.profile.set(data ?? null);
   }
 }
