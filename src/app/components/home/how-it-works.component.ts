@@ -24,7 +24,7 @@ const steps = [
   standalone: true,
   imports: [CommonModule],
   template: `
-    <section class="py-24 bg-white">
+    <section class="py-24 bg-cream-light">
       <div class="max-w-7xl mx-auto px-4 sm:px-6">
         <div class="text-center max-w-xl mx-auto mb-16 space-y-3">
           <p class="section-eyebrow">Simple as 1-2-3</p>
@@ -33,14 +33,14 @@ const steps = [
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-10 relative">
           <!-- Connecting line (desktop) -->
-          <div class="hidden md:block absolute top-8 left-1/6 right-1/6 h-px bg-cream-dark"></div>
+          <div class="hidden md:block absolute top-8 left-[20%] right-[20%] h-px bg-cream-dark"></div>
 
           <div *ngFor="let s of steps" class="text-center space-y-4 relative">
-            <div class="w-16 h-16 mx-auto border border-gold/40 flex items-center justify-center bg-white relative z-10">
-              <span class="font-display text-xl font-semibold text-gold">{{ s.step }}</span>
+            <div class="w-14 h-14 mx-auto border border-gold/40 flex items-center justify-center bg-white relative z-10">
+              <span class="font-display text-lg font-semibold text-gold">{{ s.step }}</span>
             </div>
             <h3 class="font-display text-xl font-semibold text-plum">{{ s.title }}</h3>
-            <p class="font-body text-sm text-muted leading-relaxed max-w-xs mx-auto">{{ s.desc }}</p>
+            <p class="font-body text-[13px] text-muted leading-relaxed max-w-xs mx-auto">{{ s.desc }}</p>
           </div>
         </div>
       </div>

@@ -2,8 +2,11 @@ import { Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 import { CartService } from '../../services/cart.service';
 import { formatPrice } from '../../utils/format-price';
+import { APP_CONFIG } from '../../tokens/app-config.token';
 
 @Component({
   selector: 'app-checkout',
@@ -115,7 +118,7 @@ import { formatPrice } from '../../utils/format-price';
                     </div>
                     <div class="flex justify-between">
                       <span class="text-muted">Shipping</span>
-                      <span class="text-plum">{{ subtotal() >= 3000 ? 'Free' : formatPrice(999) }}</span>
+                      <span class="text-plum">{{ subtotal() >= config.freeShippingThreshold ? 'Free' : formatPrice(config.shippingCost) }}</span>
                     </div>
                   </div>
 
@@ -123,7 +126,7 @@ import { formatPrice } from '../../utils/format-price';
 
                   <div class="flex justify-between font-body font-semibold text-plum">
                     <span>Total</span>
-                    <span>{{ formatPrice(subtotal() >= 3000 ? subtotal() : subtotal() + 999) }}</span>
+                    <span>{{ formatPrice(subtotal() >= config.freeShippingThreshold ? subtotal() : subtotal() + config.shippingCost) }}</span>
                   </div>
 
                   <button type="submit" [disabled]="loading()" class="btn-primary w-full">
@@ -141,6 +144,22 @@ import { formatPrice } from '../../utils/format-price';
 export class CheckoutComponent {
   private readonly cartService = inject(CartService);
   private readonly fb = inject(FormBuilder);
+
+  /**
+   * INTERVIEW: HttpClient
+   * Provided via provideHttpClient() in app.config.ts.
+   * Returns Observables; firstValueFrom() converts to Promise for async/await.
+   * The authInterceptor automatically attaches the Bearer token to this call.
+   */
+  private readonly http = inject(HttpClient);
+
+  /**
+   * INTERVIEW: InjectionToken
+   * APP_CONFIG is not a class — it's a typed config object provided via token.
+   * inject(APP_CONFIG) reads from the root injector (factory default applies).
+   * This avoids magic numbers scattered across components.
+   */
+  readonly config = inject(APP_CONFIG);
 
   readonly items = this.cartService.items;
   readonly subtotal = this.cartService.subtotal;
@@ -175,29 +194,40 @@ export class CheckoutComponent {
     const { email, ...shipping } = this.form.value;
 
     try {
-      const res = await fetch('/.netlify/functions/stripe-checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      /**
+       * INTERVIEW: HttpClient vs fetch
+       *
+       * this.http.post<T>() returns an Observable<T>.
+       * firstValueFrom() converts it to a Promise so we can use async/await.
+       *
+       * Advantages over fetch:
+       *   • Typed response body (generic <T>)
+       *   • Interceptors run automatically (authInterceptor adds JWT)
+       *   • Error handling via catchError / throwError operators
+       *   • Progress events for uploads
+       *   • Testable with HttpClientTestingModule
+       *
+       * The authInterceptor adds Authorization: Bearer <token> to this POST,
+       * so Netlify can optionally verify the caller is authenticated.
+       */
+      const json = await firstValueFrom(
+        this.http.post<{ url: string }>('/.netlify/functions/stripe-checkout', {
           items: this.items(),
           shipping,
           email,
         }),
-      });
-
-      const json = await res.json();
-
-      if (!res.ok) {
-        this.error.set(json.error ?? 'Something went wrong. Please try again.');
-        return;
-      }
+      );
 
       if (json.url) {
         this.cartService.clearCart();
         window.location.href = json.url;
       }
-    } catch {
-      this.error.set('Network error. Please check your connection and try again.');
+    } catch (err: unknown) {
+      // HttpClient throws HttpErrorResponse on non-2xx status
+      const message =
+        (err as { error?: { error?: string } })?.error?.error
+        ?? 'Something went wrong. Please try again.';
+      this.error.set(message);
     } finally {
       this.loading.set(false);
     }

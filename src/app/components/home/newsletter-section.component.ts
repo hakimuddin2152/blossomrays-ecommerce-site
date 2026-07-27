@@ -29,7 +29,7 @@ import { FormsModule } from '@angular/forms';
           <button
             type="submit"
             [disabled]="submitted()"
-            class="btn-primary bg-gold border-gold hover:bg-white hover:text-plum hover:border-white whitespace-nowrap"
+            class="btn-primary hover:bg-white hover:text-plum hover:border-white whitespace-nowrap"
           >
             {{ submitted() ? 'Subscribed ✓' : 'Subscribe' }}
           </button>

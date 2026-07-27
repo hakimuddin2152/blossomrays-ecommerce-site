@@ -31,22 +31,21 @@ const benefits = [
       <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-cream-dark">
         <div
           *ngFor="let b of benefits"
-          class="flex items-center gap-5 px-8 lg:px-12 py-9 group cursor-default"
+          class="flex items-center gap-5 px-8 lg:px-12 py-8 group cursor-default"
         >
           <div
-            class="flex-shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:scale-110"
-            [style.background]="b.accent + '18'"
+            class="flex-shrink-0 w-12 h-12 flex items-center justify-center transition-all duration-300 group-hover:scale-110"
             [style.color]="b.accent"
           >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-6 h-6">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" class="w-7 h-7">
               <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="b.svgPath"/>
             </svg>
           </div>
-          <div class="space-y-1">
-            <h3 class="font-body text-[14px] font-semibold text-plum group-hover:text-gold transition-colors duration-200">
+          <div class="space-y-0.5">
+            <h3 class="font-body text-[13px] font-semibold text-plum group-hover:text-gold transition-colors duration-200">
               {{ b.title }}
             </h3>
-            <p class="font-body text-[13px] text-muted leading-relaxed">{{ b.description }}</p>
+            <p class="font-body text-[12px] text-muted leading-relaxed">{{ b.description }}</p>
           </div>
         </div>
       </div>

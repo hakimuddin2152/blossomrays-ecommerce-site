@@ -33,16 +33,19 @@
 
 @layer components {
 
+  /* ── Buttons ── */
+  /* Gold fill = primary CTA throughout the site */
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2
            px-8 py-3.5 font-body text-[11px] font-semibold tracking-[0.18em] uppercase
-           text-white bg-plum border border-plum
+           text-white bg-gold border border-gold
            transition-all duration-200 ease-out
-           hover:bg-gold hover:border-gold
-           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plum/30
+           hover:bg-[#B8895A] hover:border-[#B8895A]
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/40
            disabled:opacity-40 disabled:cursor-not-allowed;
   }
 
+  /* Ink outline = secondary/ghost CTA */
   .btn-outline {
     @apply inline-flex items-center justify-center gap-2
            px-8 py-3.5 font-body text-[11px] font-semibold tracking-[0.18em] uppercase
@@ -59,28 +62,31 @@
            transition-colors duration-200 hover:text-plum;
   }
 
+  /* ── Cards ── */
   .card {
     @apply bg-white border border-cream-dark
            transition-all duration-300;
   }
 
+  /* ── Form controls ── */
   .input-field {
     @apply w-full border border-cream-dark bg-white
            px-4 py-3 font-body text-sm text-plum placeholder:text-muted
-           focus:outline-none focus:ring-1 focus:ring-plum/30 focus:border-plum/40
+           focus:outline-none focus:ring-1 focus:ring-gold/40 focus:border-gold/50
            transition-colors duration-200;
   }
 
+  /* ── Section typography helpers ── */
   .section-eyebrow {
-    @apply font-body text-[11px] font-semibold tracking-[0.22em] uppercase text-muted;
+    @apply font-body text-[10px] font-semibold tracking-[0.28em] uppercase text-gold;
   }
 
   .section-title {
-    @apply font-display text-4xl md:text-5xl lg:text-[3.5rem] font-semibold text-plum;
+    @apply font-display text-4xl md:text-5xl lg:text-[3.25rem] font-semibold text-plum leading-[1.08];
   }
 
   .section-subtitle {
-    @apply font-body text-base text-muted leading-relaxed;
+    @apply font-body text-[15px] text-muted leading-relaxed;
   }
 
   .badge {

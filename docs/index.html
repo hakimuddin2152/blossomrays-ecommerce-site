@@ -1,0 +1,2740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BlossomRays — Angular Architecture Docs</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/typescript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+  <style>
+    :root {
+      --sidebar-w: 280px;
+      --top-h: 56px;
+      --accent: #7c3aed;
+      --accent-light: #ede9fe;
+      --text: #1e293b;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --code-bg: #282c34;
+      --tag-green: #dcfce7;
+      --tag-green-text: #166534;
+      --tag-blue: #dbeafe;
+      --tag-blue-text: #1e40af;
+      --tag-orange: #ffedd5;
+      --tag-orange-text: #9a3412;
+      --tag-purple: #ede9fe;
+      --tag-purple-text: #5b21b6;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* ── TOP BAR ── */
+    #topbar {
+      position: fixed; top: 0; left: 0; right: 0; height: var(--top-h);
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; padding: 0 20px;
+      z-index: 100;
+      gap: 12px;
+    }
+    #topbar .logo {
+      font-size: 18px; font-weight: 700; color: var(--accent);
+      display: flex; align-items: center; gap: 8px;
+    }
+    #topbar .logo span { font-weight: 300; color: var(--muted); font-size: 14px; }
+    #search-box {
+      margin-left: auto;
+      padding: 6px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 13px;
+      width: 240px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    #search-box:focus { border-color: var(--accent); }
+
+    /* ── SIDEBAR ── */
+    #sidebar {
+      position: fixed; top: var(--top-h); left: 0;
+      width: var(--sidebar-w);
+      height: calc(100vh - var(--top-h));
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      padding: 16px 0;
+      z-index: 90;
+    }
+    .nav-section {
+      padding: 8px 16px 4px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 12px;
+    }
+    .nav-section:first-child { margin-top: 0; }
+    .nav-link {
+      display: block;
+      padding: 7px 16px 7px 20px;
+      font-size: 13px;
+      color: var(--text);
+      text-decoration: none;
+      border-left: 2px solid transparent;
+      transition: all 0.15s;
+    }
+    .nav-link:hover { background: var(--bg); color: var(--accent); }
+    .nav-link.active {
+      background: var(--accent-light);
+      color: var(--accent);
+      border-left-color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* ── MAIN CONTENT ── */
+    #main {
+      margin-left: var(--sidebar-w);
+      margin-top: var(--top-h);
+      padding: 40px 48px;
+      max-width: 960px;
+    }
+
+    /* ── SECTION ── */
+    .doc-section {
+      margin-bottom: 60px;
+      padding-bottom: 40px;
+      border-bottom: 1px solid var(--border);
+    }
+    .doc-section:last-child { border-bottom: none; }
+
+    .section-eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    h1 { font-size: 32px; font-weight: 800; color: var(--text); margin-bottom: 12px; }
+    h2 { font-size: 24px; font-weight: 700; color: var(--text); margin: 32px 0 12px; }
+    h3 { font-size: 18px; font-weight: 600; color: var(--text); margin: 24px 0 8px; }
+    h4 { font-size: 14px; font-weight: 600; color: var(--muted); margin: 16px 0 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    p { margin-bottom: 12px; font-size: 15px; color: #334155; }
+    ul, ol { margin: 8px 0 12px 20px; }
+    li { font-size: 15px; color: #334155; margin-bottom: 4px; }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── CODE BLOCKS ── */
+    .code-block {
+      margin: 16px 0;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid #3f4451;
+    }
+    .code-header {
+      background: #21252b;
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #3f4451;
+    }
+    .code-filename {
+      font-size: 12px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      color: #abb2bf;
+    }
+    .code-tag {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 99px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .tag-ts { background: #1a3a5c; color: #61afef; }
+    .tag-sql { background: #1a3a2a; color: #98c379; }
+    .tag-bash { background: #3a1a2a; color: #e06c75; }
+    .tag-html { background: #3a2a1a; color: #e5c07b; }
+
+    pre { margin: 0 !important; }
+    pre code.hljs {
+      font-size: 13px;
+      font-family: 'SF Mono', 'Fira Code', 'Fira Mono', monospace;
+      line-height: 1.7;
+      padding: 20px !important;
+    }
+
+    /* ── CALLOUT ── */
+    .callout {
+      border-left: 4px solid;
+      border-radius: 0 8px 8px 0;
+      padding: 12px 16px;
+      margin: 16px 0;
+      font-size: 14px;
+    }
+    .callout-info { border-color: #3b82f6; background: #eff6ff; color: #1e40af; }
+    .callout-warning { border-color: #f59e0b; background: #fffbeb; color: #92400e; }
+    .callout-success { border-color: #10b981; background: #ecfdf5; color: #065f46; }
+    .callout-danger { border-color: #ef4444; background: #fef2f2; color: #991b1b; }
+    .callout strong { display: block; margin-bottom: 4px; font-weight: 700; }
+
+    /* ── BADGE TAGS ── */
+    .badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: 700;
+      margin: 2px 4px 2px 0;
+    }
+    .badge-green { background: var(--tag-green); color: var(--tag-green-text); }
+    .badge-blue { background: var(--tag-blue); color: var(--tag-blue-text); }
+    .badge-orange { background: var(--tag-orange); color: var(--tag-orange-text); }
+    .badge-purple { background: var(--tag-purple); color: var(--tag-purple-text); }
+
+    /* ── COMPARISON TABLE ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 14px;
+    }
+    th {
+      background: var(--bg);
+      padding: 10px 14px;
+      text-align: left;
+      border: 1px solid var(--border);
+      font-weight: 600;
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    td {
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      vertical-align: top;
+    }
+    tr:hover td { background: var(--bg); }
+
+    /* ── FLOW DIAGRAM ── */
+    .flow {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 16px 0;
+      padding: 16px;
+      background: var(--bg);
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+    .flow-step {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .flow-step.accent { background: var(--accent); color: white; border-color: var(--accent); }
+    .flow-arrow { color: var(--muted); font-size: 18px; font-weight: 700; }
+
+    /* ── GRID ── */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 16px 0;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+    }
+    .card h4 { margin-top: 0; }
+
+    /* ── ARCHITECTURE BOX ── */
+    .arch-box {
+      background: #0f172a;
+      color: #e2e8f0;
+      border-radius: 10px;
+      padding: 24px;
+      font-family: 'SF Mono', monospace;
+      font-size: 13px;
+      line-height: 1.8;
+      margin: 16px 0;
+      white-space: pre;
+      overflow-x: auto;
+    }
+    .arch-box .dim { color: #475569; }
+    .arch-box .hi { color: #818cf8; }
+    .arch-box .green { color: #34d399; }
+    .arch-box .yellow { color: #fbbf24; }
+    .arch-box .red { color: #f87171; }
+    .arch-box .cyan { color: #67e8f9; }
+
+    /* ── SEARCH HIGHLIGHT ── */
+    mark { background: #fef08a; border-radius: 2px; padding: 0 2px; }
+
+    /* ── PRINT / SEARCH HIDDEN ── */
+    .hidden { display: none !important; }
+
+    /* ── SCROLL BEHAVIOR ── */
+    html { scroll-behavior: smooth; }
+
+    /* ── BACK TO TOP ── */
+    #back-to-top {
+      position: fixed;
+      bottom: 24px; right: 24px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 40px; height: 40px;
+      font-size: 18px;
+      cursor: pointer;
+      display: none;
+      align-items: center; justify-content: center;
+      box-shadow: 0 4px 12px rgba(124,58,237,0.4);
+      z-index: 200;
+    }
+    #back-to-top.visible { display: flex; }
+
+    @media (max-width: 768px) {
+      #sidebar { display: none; }
+      #main { margin-left: 0; padding: 24px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════ TOP BAR ═══════════════════ -->
+<div id="topbar">
+  <div class="logo">
+    🌸 BlossomRays <span>Angular Architecture Docs</span>
+  </div>
+  <input id="search-box" type="text" placeholder="🔍  Search docs..." />
+</div>
+
+<!-- ═══════════════════ SIDEBAR ═══════════════════ -->
+<nav id="sidebar">
+  <div class="nav-section">Getting Started</div>
+  <a class="nav-link" href="#overview">App Overview</a>
+  <a class="nav-link" href="#tech-stack">Tech Stack</a>
+  <a class="nav-link" href="#project-structure">Project Structure</a>
+  <a class="nav-link" href="#purchase-flow">Purchase Flow</a>
+
+  <div class="nav-section">Angular Core</div>
+  <a class="nav-link" href="#bootstrap">App Bootstrap</a>
+  <a class="nav-link" href="#standalone">Standalone Components</a>
+  <a class="nav-link" href="#routing">Routing & Lazy Loading</a>
+  <a class="nav-link" href="#guards">Route Guards</a>
+  <a class="nav-link" href="#di">Dependency Injection</a>
+  <a class="nav-link" href="#injection-token">InjectionToken</a>
+  <a class="nav-link" href="#signals">Signals (State)</a>
+  <a class="nav-link" href="#computed-effects">Computed & Effects</a>
+  <a class="nav-link" href="#pipes">Pipes</a>
+  <a class="nav-link" href="#template-syntax">Template Syntax</a>
+  <a class="nav-link" href="#directives">Custom Directives</a>
+  <a class="nav-link" href="#defer">@defer Blocks</a>
+  <a class="nav-link" href="#rxjs">RxJS + async pipe</a>
+  <a class="nav-link" href="#httpclient">HttpClient + Interceptor</a>
+  <a class="nav-link" href="#reactive-forms">Reactive Forms & Validators</a>
+
+  <div class="nav-section">Services</div>
+  <a class="nav-link" href="#supabase-service">SupabaseService</a>
+  <a class="nav-link" href="#auth-service">AuthService</a>
+  <a class="nav-link" href="#cart-service">CartService</a>
+  <a class="nav-link" href="#product-service">ProductService</a>
+  <a class="nav-link" href="#order-service">OrderService</a>
+
+  <div class="nav-section">Backend & Data</div>
+  <a class="nav-link" href="#netlify-functions">Netlify Functions</a>
+  <a class="nav-link" href="#stripe-checkout">Stripe Checkout</a>
+  <a class="nav-link" href="#stripe-webhook">Stripe Webhook</a>
+  <a class="nav-link" href="#database">Database Schema</a>
+  <a class="nav-link" href="#rls">Row Level Security</a>
+
+  <div class="nav-section">Patterns & Concepts</div>
+  <a class="nav-link" href="#security">Security Patterns</a>
+  <a class="nav-link" href="#state-management">State Management</a>
+  <a class="nav-link" href="#utility-patterns">Utility Patterns</a>
+  <a class="nav-link" href="#interview-qa">Interview Q&amp;A</a>
+</nav>
+
+<!-- ═══════════════════ MAIN CONTENT ═══════════════════ -->
+<main id="main">
+
+  <!-- ══════════════ OVERVIEW ══════════════ -->
+  <section id="overview" class="doc-section">
+    <div class="section-eyebrow">Getting Started</div>
+    <h1>BlossomRays E-Commerce App</h1>
+    <p>A full-stack fragrance e-commerce platform selling car air fresheners, candles, perfumes, and accessories. Built with <strong>Angular 17 standalone components</strong>, <strong>Supabase</strong> for auth + database, <strong>Stripe</strong> for payments, and deployed on <strong>Netlify</strong> with serverless functions.</p>
+
+    <div class="callout callout-info">
+      <strong>📖 How to use these docs</strong>
+      Use the sidebar to navigate. Each section covers a concept with the <em>actual source code from this repo</em> — not contrived examples. Use the search box to find any topic.
+    </div>
+
+    <h2>High-Level Architecture</h2>
+    <div class="arch-box"><span class="dim">┌─────────────────────────────────────────────────────────────┐</span>
+<span class="dim">│</span>                      <span class="hi">BROWSER</span>                               <span class="dim">│</span>
+<span class="dim">│</span>   <span class="green">Angular 17 SPA</span>                                            <span class="dim">│</span>
+<span class="dim">│</span>   <span class="dim">──────────────────────────────────────────────────</span>         <span class="dim">│</span>
+<span class="dim">│</span>   <span class="yellow">Standalone Components</span>  →  <span class="yellow">Signals (state)</span>                 <span class="dim">│</span>
+<span class="dim">│</span>   <span class="yellow">Lazy-loaded routes</span>     →  <span class="yellow">Route Guards</span>                    <span class="dim">│</span>
+<span class="dim">│</span>   <span class="yellow">Services (DI)</span>          →  <span class="yellow">Tailwind CSS</span>                    <span class="dim">│</span>
+<span class="dim">└──────────────────────────────────┬──────────────────────────┘</span>
+                                   <span class="dim">│  HTTP calls</span>
+          <span class="dim">┌───────────────────────┴───────────────────────┐</span>
+          <span class="dim">▼</span>                                               <span class="dim">▼</span>
+<span class="dim">┌─────────────────┐</span>                             <span class="dim">┌─────────────────┐</span>
+<span class="dim">│</span> <span class="cyan">Netlify Functions</span> <span class="dim">│</span>                             <span class="dim">│</span>   <span class="cyan">Supabase</span>        <span class="dim">│</span>
+<span class="dim">│</span>  stripe-checkout <span class="dim">│</span>                             <span class="dim">│</span>  PostgreSQL DB   <span class="dim">│</span>
+<span class="dim">│</span>  stripe-webhook  <span class="dim">│</span>                             <span class="dim">│</span>  Auth (JWT)      <span class="dim">│</span>
+<span class="dim">│</span>  orders          <span class="dim">│</span>                             <span class="dim">│</span>  Row-Level Sec.  <span class="dim">│</span>
+<span class="dim">└────────┬────────┘</span>                             <span class="dim">└─────────────────┘</span>
+         <span class="dim">│</span>
+         <span class="dim">▼</span>
+<span class="dim">┌─────────────────┐</span>
+<span class="dim">│</span>    <span class="red">Stripe API</span>     <span class="dim">│</span>
+<span class="dim">│</span>  Hosted Checkout <span class="dim">│</span>
+<span class="dim">│</span>  Webhooks        <span class="dim">│</span>
+<span class="dim">└─────────────────┘</span></div>
+  </section>
+
+  <!-- ══════════════ TECH STACK ══════════════ -->
+  <section id="tech-stack" class="doc-section">
+    <div class="section-eyebrow">Getting Started</div>
+    <h1>Tech Stack</h1>
+    <table>
+      <thead><tr><th>Layer</th><th>Technology</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>Frontend Framework</td><td><strong>Angular 17</strong> (standalone)</td><td>Production-grade, opinionated, TypeScript-first SPA framework</td></tr>
+        <tr><td>Styling</td><td><strong>Tailwind CSS 3.4</strong></td><td>Utility-first CSS — no component library needed, fully custom design</td></tr>
+        <tr><td>Reactive State</td><td><strong>Angular Signals</strong></td><td>New in Angular 16/17 — synchronous reactive primitives, no RxJS boilerplate for local state</td></tr>
+        <tr><td>Auth &amp; Database</td><td><strong>Supabase</strong> (PostgreSQL + Auth)</td><td>Open-source Firebase alternative — gives us JWT auth + Postgres with RLS in one SDK</td></tr>
+        <tr><td>Payments</td><td><strong>Stripe Checkout</strong></td><td>Hosted PCI-compliant checkout — we never handle raw card data</td></tr>
+        <tr><td>Serverless API</td><td><strong>Netlify Functions</strong></td><td>TypeScript serverless — no Express server to maintain, scales to zero, co-located with frontend</td></tr>
+        <tr><td>Hosting</td><td><strong>Netlify</strong></td><td>CDN-edge static hosting with integrated function runtime</td></tr>
+        <tr><td>Utilities</td><td><strong>clsx + tailwind-merge</strong></td><td>Safe conditional class composition without duplicates</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Key Commands</h2>
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">terminal</span><span class="code-tag tag-bash">BASH</span></div>
+      <pre><code class="language-bash">npm run dev        # Start Angular dev server (ng serve)
+npm run build      # Production build (ng build)
+npm run type-check # TypeScript check only (tsc --noEmit)</code></pre>
+    </div>
+  </section>
+
+  <!-- ══════════════ PROJECT STRUCTURE ══════════════ -->
+  <section id="project-structure" class="doc-section">
+    <div class="section-eyebrow">Getting Started</div>
+    <h1>Project Structure</h1>
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">workspace layout</span><span class="code-tag tag-bash">TREE</span></div>
+      <pre><code class="language-bash">src/
+  main.ts                     ← Entry point — bootstraps the app
+  app/
+    app.component.ts          ← Root shell (Navbar + RouterOutlet + Footer)
+    app.config.ts             ← provideRouter, provideAnimations
+    app.routes.ts             ← All route definitions (lazy-loaded)
+    components/               ← Reusable UI components
+      layout/                 ← Navbar, Footer, AnnouncementBar
+      cart/                   ← CartDrawer overlay
+      home/                   ← Hero, Benefits, Testimonials, etc.
+      products/               ← ProductCard
+    pages/                    ← One component per route
+      home/ products/ cart/
+      checkout/ login/ register/
+      account/ account-orders/ account-order-detail/
+      admin/ admin-orders/ admin-products/
+      order-confirmation/ not-found/
+    guards/
+      auth.guard.ts           ← Redirect to /login if not authenticated
+      admin.guard.ts          ← Redirect to / if not admin role
+    services/
+      supabase.service.ts     ← Supabase client singleton
+      auth.service.ts         ← Auth state + profile (signals)
+      cart.service.ts         ← Cart state + localStorage (signals)
+      product.service.ts      ← Product catalog (Supabase + static fallback)
+      order.service.ts        ← Order CRUD via Supabase
+    pipes/
+      format-price.pipe.ts    ← Cents → "CA$17.99"
+    types/
+      index.ts                ← All TypeScript interfaces
+    utils/
+      cn.ts                   ← clsx + tailwind-merge helper
+      format-price.ts         ← Standalone format function
+netlify/
+  functions/
+    stripe-checkout.ts        ← POST: validate cart → create Stripe session
+    stripe-webhook.ts         ← POST: Stripe events → write orders to DB
+    orders.ts                 ← GET/PATCH order by ID
+supabase/
+  migrations/                 ← SQL schema files (run in Supabase SQL editor)</code></pre>
+    </div>
+  </section>
+
+  <!-- ══════════════ PURCHASE FLOW ══════════════ -->
+  <section id="purchase-flow" class="doc-section">
+    <div class="section-eyebrow">Getting Started</div>
+    <h1>Purchase Flow (End-to-End)</h1>
+    <p>Understanding this flow is critical. It spans the frontend, two serverless functions, Stripe, and the database.</p>
+
+    <div class="flow">
+      <div class="flow-step accent">1. Browse /products</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">2. CartService.addItem()</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">3. /checkout form</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step accent">4. POST stripe-checkout fn</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">5. Stripe validates prices</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step accent">6. Stripe Hosted Checkout</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">7. Stripe fires webhook</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step accent">8. stripe-webhook fn creates order</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">9. /order-confirmation</div>
+    </div>
+
+    <div class="callout callout-warning">
+      <strong>⚠️ Key Security Point</strong>
+      Prices from the client are NEVER trusted. The serverless function re-validates prices against Supabase (or a hardcoded <code>TRUSTED_PRODUCTS</code> map) before creating the Stripe session. A user cannot manipulate the cart price in devtools to checkout at $0.
+    </div>
+
+    <h3>Cart → Checkout data shape</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">POST /.netlify/functions/stripe-checkout</span><span class="code-tag tag-ts">TS</span></div>
+      <pre><code class="language-typescript">// Body sent by the Angular checkout page:
+{
+  items: [
+    { product: { id: 'b1f1a000-...', name: 'Rose Air Freshener', price: 1799, slug: '...' }, quantity: 2 }
+  ],
+  shipping: {
+    full_name: 'Jane Doe',
+    street_line_1: '123 Main St',
+    city: 'Toronto', state: 'ON', zip: 'M5V1A1', country: 'CA'
+  },
+  email: 'jane@example.com'
+}</code></pre>
+    </div>
+  </section>
+
+  <!-- ══════════════ BOOTSTRAP ══════════════ -->
+  <section id="bootstrap" class="doc-section">
+    <div class="section-eyebrow">Angular Core</div>
+    <h1>App Bootstrap</h1>
+    <p>Angular 17 uses <strong>standalone bootstrap</strong> — no <code>NgModule</code> at all. The entry point calls <code>bootstrapApplication()</code> with the root component and a config object.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">src/main.ts</span><span class="code-tag tag-ts">TS</span></div>
+      <pre><code class="language-typescript">import { bootstrapApplication } from '@angular/platform-browser';
+import { appConfig } from './app/app.config';
+import { AppComponent } from './app/app.component';
+
+// bootstrapApplication() replaces the old platformBrowserDynamic().bootstrapModule(AppModule)
+// It accepts: root component + ApplicationConfig (providers)
+bootstrapApplication(AppComponent, appConfig)
+  .catch((err) => console.error(err));</code></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">src/app/app.config.ts</span><span class="code-tag tag-ts">TS</span></div>
+      <pre><code class="language-typescript">import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
+import { provideRouter, withRouterConfig } from '@angular/router';
+import { provideAnimations } from '@angular/platform-browser/animations';
+import { routes } from './app.routes';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    // Zone.js change detection with event coalescing (batches multiple events
+    // into one CD cycle — reduces unnecessary re-renders)
+    provideZoneChangeDetection({ eventCoalescing: true }),
+
+    // Registers the router with all routes + config
+    provideRouter(
+      routes,
+      withRouterConfig({ onSameUrlNavigation: 'reload' }),
+    ),
+
+    // Enables Angular animation engine (required for @angular/animations)
+    provideAnimations(),
+  ],
+};</code></pre>
+    </div>
+
+    <div class="callout callout-info">
+      <strong>💡 Why no NgModule?</strong>
+      Standalone mode (Angular 14+, default from 17) eliminates the <code>NgModule</code> indirection. Every component declares its own imports. This enables better tree-shaking and makes the dependency graph explicit at the component level.
+    </div>
+
+    <h2>Root Shell Component</h2>
+    <p>The root component is the layout shell — it hosts the global nav, footer, and <code>&lt;router-outlet&gt;</code> which renders the active route's component.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">src/app/app.component.ts</span><span class="code-tag tag-ts">TS</span></div>
+      <pre><code class="language-typescript">@Component({
+  selector: 'app-root',
+  standalone: true,
+  // Imports: only what THIS component's template uses
+  imports: [RouterOutlet, NavbarComponent, FooterComponent, AnnouncementBarComponent],
+  template: `
+    &lt;app-announcement-bar /&gt;
+    &lt;app-navbar /&gt;
+    &lt;main&gt;
+      &lt;router-outlet /&gt;   &lt;!-- Active route renders here --&gt;
+    &lt;/main&gt;
+    &lt;app-footer /&gt;
+  `,
+})
+export class AppComponent {}</code></pre>
+    </div>
+
+    <table>
+      <thead><tr><th>Old Pattern (NgModule)</th><th>New Pattern (Standalone)</th></tr></thead>
+      <tbody>
+        <tr><td><code>platformBrowserDynamic().bootstrapModule(AppModule)</code></td><td><code>bootstrapApplication(AppComponent, appConfig)</code></td></tr>
+        <tr><td>Declare components in <code>@NgModule.declarations</code></td><td>Import directly in <code>@Component.imports</code></td></tr>
+        <tr><td>Register services in <code>@NgModule.providers</code></td><td><code>providedIn: 'root'</code> or <code>appConfig.providers</code></td></tr>
+        <tr><td><code>RouterModule.forRoot(routes)</code> in NgModule</td><td><code>provideRouter(routes)</code> in appConfig</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ══════════════ STANDALONE COMPONENTS ══════════════ -->
+  <section id="standalone" class="doc-section">
+    <div class="section-eyebrow">Angular Core</div>
+    <h1>Standalone Components</h1>
+    <p>Every component in this app is <strong>standalone</strong> (<code>standalone: true</code>). This means each component self-declares its dependencies instead of relying on a shared NgModule.</p>
+
+    <h2>Anatomy of a Standalone Component</h2>
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">src/app/components/layout/navbar.component.ts (excerpt)</span><span class="code-tag tag-ts">TS</span></div>
+      <pre><code class="language-typescript">import { Component, inject, signal, computed } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { CartService } from '../../services/cart.service';
+import { AuthService } from '../../services/auth.service';
+import { CartDrawerComponent } from '../cart/cart-drawer.component';
+
+@Component({
+  selector: 'app-navbar',
+  standalone: true,                        // ← marks as standalone
+  imports: [                               // ← only what this template needs
+    RouterLink,                            // for routerLink directive
+    CommonModule,                          // for *ngIf, *ngFor
+    FormsModule,                           // for [(ngModel)]
+    CartDrawerComponent,                   // child standalone component
+  ],
+  template: `...`,                         // inline or templateUrl
+})
+export class NavbarComponent {
+  private cart = inject(CartService);      // inject() instead of constructor param
+  private auth = inject(AuthService);
+
+  totalItems = this.cart.totalItems;       // computed signal from CartService
+}</code></pre>
+    </div>
+
+    <h2>Template Syntax (Control Flow)</h2>
+    <p>Angular 17 introduced the new built-in control flow syntax (<code>@if</code>, <code>@for</code>, <code>@switch</code>) replacing <code>*ngIf</code> and <code>*ngFor</code>. Both styles exist in this codebase.</p>
+
+    <div class="grid-2">
+      <div class="card">
+        <h4>Old: Structural Directives</h4>
+        <div class="code-block">
+          <div class="code-header"><span class="code-filename">using *ngIf, *ngFor</span><span class="code-tag tag-html">HTML</span></div>
+          <pre><code class="language-typescript">// Requires CommonModule in imports
+&lt;div *ngIf="user"&gt;
+  Welcome {{ user.email }}
+&lt;/div&gt;
+
+&lt;div *ngFor="let item of items"&gt;
+  {{ item.name }}
+&lt;/div&gt;</code></pre>
+        </div>
+      </div>
+      <div class="card">
+        <h4>New: Built-in Control Flow (Angular 17)</h4>
+        <div class="code-block">
+          <div class="code-header"><span class="code-filename">no import needed</span><span class="code-tag tag-html">HTML</span></div>
+          <pre><code class="language-typescript">// No CommonModule needed — built into compiler
+@if (user) {
+  Welcome {{ user.email }}
+}
+
+@for (item of items; track item.id) {
+  {{ item.name }}
+}</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-success">
+      <strong>✅ Interview Insight</strong>
+      The new <code>@if / @for</code> syntax enables <strong>deferred loading</strong> with <code>@defer</code> blocks — you can lazy-load parts of a template, not just routes. This is more granular than lazy-loaded routes.
+    </div>
+  </section>
+
+  <!-- ══════════════ ROUTING ══════════════ -->
+  <section id="routing" class="doc-section">
+    <div class="section-eyebrow">Angular Core</div>
+    <h1>Routing &amp; Lazy Loading</h1>
+    <p>All routes are defined in <code>app.routes.ts</code>. Every page component is <strong>lazy-loaded</strong> — Angular splits each route into a separate JS chunk and only downloads it when the user navigates there.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">src/app/app.routes.ts</span><span class="code-tag tag-ts">TS</span></div>
+      <pre><code class="language-typescript">import { Routes } from '@angular/router';
+import { authGuard } from './guards/auth.guard';
+import { adminGuard } from './guards/admin.guard';
+
+export const routes: Routes = [
+  // ── Public routes ──
+  {
+    path: '',
+    loadComponent: () =>
+      import('./pages/home/home.component')
+        .then((m) => m.HomeComponent),
+    // dynamic import() → separate JS chunk loaded on first visit
+  },
+  {
+    path: 'products/:slug',  // ← :slug is a route param, accessed via ActivatedRoute
+    loadComponent: () =>
+      import('./pages/product-detail/product-detail.component')
+        .then((m) => m.ProductDetailComponent),
+  },
+
+  // ── Auth-protected routes ──
+  {
+    path: 'account',
+    canActivate: [authGuard],   // ← guard runs before component loads
+    loadComponent: () =>
+      import('./pages/account/account.component')
+        .then((m) => m.AccountComponent),
+  },
+
+  // ── Admin routes: requires BOTH guards ──
+  {
+    path: 'admin',
+    canActivate: [authGuard, adminGuard],  // ← all guards must pass (AND logic)
+    loadComponent: () =>
+      import('./pages/admin/admin.component')
+        .then((m) => m.AdminComponent),
+  },
+
+  // ── Wildcard — must be last ──
+  {
+    path: '**',
+    loadComponent: () =>
+      import('./pages/not-found/not-found.component')
+        .then((m) => m.NotFoundComponent),
+  },
+];</code></pre>
+    </div>
+
+    <h2>How Lazy Loading Works</h2>
+    <div class="flow">
+      <div class="flow-step">User navigates to /admin</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">Router checks canActivate guards</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">Guard returns true</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step accent">Browser fetches admin-chunk.js</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">AdminComponent renders in &lt;router-outlet&gt;</div>
+    </div>
+
+    <h2>Reading Route Parameters</h2>
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">inside a page component (e.g. product-detail)</span><span class="code-tag tag-ts">TS</span></div>
+      <pre><code class="language-typescript">import { Component, inject, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+
+@Component({ standalone: true, ... })
+export class ProductDetailComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+
+  ngOnInit() {
+    // Snapshot: read once
+    const slug = this.route.snapshot.paramMap.get('slug');
+
+    // Observable: reacts to param changes (same component, different param)
+    this.route.paramMap.subscribe(params => {
+      const slug = params.get('slug');
+    });
+  }
+}</code></pre>
+    </div>
+
+    <h2>Router Navigation in Code</h2>
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">programmatic navigation</span><span class="code-tag tag-ts">TS</span></div>
+      <pre><code class="language-typescript">// In AuthService — redirect after sign out
+private router = inject(Router);
+
+async signOut(): Promise<void> {
+  await this.supabase.auth.signOut();
+  this.router.navigate(['/']);   // navigate to home
+}
+
+// Navigate with query params
+this.router.navigate(['/products'], { queryParams: { category: 'rose' } });
+
+// Navigate with route params
+this.router.navigate(['/order-confirmation', orderId]);</code></pre>
+    </div>
+  </section>
+
+  <!-- ══════════════ GUARDS ══════════════ -->
+  <section id="guards" class="doc-section">
+    <div class="section-eyebrow">Angular Core</div>
+    <h1>Route Guards</h1>
+    <p>Guards decide whether a route can be activated. This app uses <strong>functional guards</strong> (Angular 14+) — plain functions that return <code>true | false | UrlTree</code>. They replace the old class-based <code>CanActivate</code> interface.</p>
+
+    <div class="grid-2">
+      <div>
+        <div class="code-block">
+          <div class="code-header"><span class="code-filename">src/app/guards/auth.guard.ts</span><span class="code-tag tag-ts">TS</span></div>
+          <pre><code class="language-typescript">import { inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { AuthService } from '../services/auth.service';
+
+// Functional guard — just a function, no class needed
+export const authGuard = () => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+
+  // auth.user() reads the signal synchronously
+  if (auth.user()) return true;
+
+  // Return UrlTree instead of router.navigate()
+  // UrlTree is the modern way — router handles the redirect
+  return router.createUrlTree(['/login']);
+};</code></pre>
+        </div>
+      </div>
+      <div>
+        <div class="code-block">
+          <div class="code-header"><span class="code-filename">src/app/guards/admin.guard.ts</span><span class="code-tag tag-ts">TS</span></div>
+          <pre><code class="language-typescript">import { inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { AuthService } from '../services/auth.service';
+
+export const adminGuard = () => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+
+  // isAdmin() checks profile().role === 'admin'
+  if (auth.isAdmin()) return true;
+
+  // Non-admins go to homepage, not login
+  return router.createUrlTree(['/']);
+};</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <h2>Guard Chaining (AND logic)</h2>
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">app.routes.ts — admin route requires both guards</span><span class="code-tag tag-ts">TS</span></div>
+      <pre><code class="language-typescript">// canActivate runs guards left-to-right
+// If authGuard fails → redirect to /login (adminGuard never runs)
+// If authGuard passes → adminGuard runs → if fails → redirect to /
+// If both pass → component loads
+{
+  path: 'admin',
+  canActivate: [authGuard, adminGuard],
+  loadComponent: () => import('./pages/admin/admin.component')
+    .then((m) => m.AdminComponent),
+}</code></pre>
+    </div>
+
+    <table>
+      <thead><tr><th>Old Class-Based Guard</th><th>New Functional Guard</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><pre style="font-size:11px;background:#f1f5f9;padding:8px;border-radius:4px;">@Injectable({ providedIn: 'root' })
+class AuthGuard implements CanActivate {
+  canActivate() { ... }
+}</pre></td>
+          <td><pre style="font-size:11px;background:#f1f5f9;padding:8px;border-radius:4px;">export const authGuard = () => {
+  const auth = inject(AuthService);
+  return auth.user() || createUrlTree(['/login']);
+};</pre></td>
+        </tr>
+        <tr><td>Requires <code>@Injectable</code> decorator</td><td>Plain function, tree-shakeable</td></tr>
+        <tr><td>Must implement interface</td><td>No interface required</td></tr>
+        <tr><td>Uses constructor injection</td><td>Uses <code>inject()</code> function</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ══════════════ DEPENDENCY INJECTION ══════════════ -->
+  <section id="di" class="doc-section">
+    <div class="section-eyebrow">Angular Core</div>
+    <h1>Dependency Injection</h1>
+    <p>Angular's DI system provides services to components and other services. This app uses the modern <code>inject()</code> function throughout instead of constructor parameter injection.</p>
+
+    <h2>inject() Function vs Constructor Injection</h2>
+    <div class="grid-2">
+      <div>
+        <h4>Old: Constructor Injection</h4>
+        <div class="code-block">
+          <div class="code-header"><span class="code-filename">classic pattern</span><span class="code-tag tag-ts">TS</span></div>
+          <pre><code class="language-typescript">@Component({...})
+export class MyComponent {
+  constructor(
+    private cart: CartService,
+    private auth: AuthService,
+    private router: Router,
+  ) {}
+}</code></pre>
+        </div>
+      </div>
+      <div>
+        <h4>New: inject() Function</h4>
+        <div class="code-block">
+          <div class="code-header"><span class="code-filename">used throughout this app</span><span class="code-tag tag-ts">TS</span></div>
+          <pre><code class="language-typescript">@Component({...})
+export class MyComponent {
+  // inject() called in field initializer context
+  // — cleaner, no constructor boilerplate
+  private cart = inject(CartService);
+  private auth = inject(AuthService);
+  private router = inject(Router);
+}</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <h2>Service Registration: providedIn: 'root'</h2>
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">src/app/services/cart.service.ts (header)</span><span class="code-tag tag-ts">TS</span></div>
+      <pre><code class="language-typescript">@Injectable({ providedIn: 'root' })
+//           ^^^^^^^^^^^^^^^^^^^
+// This registers the service in the ROOT injector.
+// Angular creates ONE instance shared across the entire app.
+// No need to add it to any providers array.
+// The service is also tree-shaken if never injected.
+export class CartService {
+  ...
+}</code></pre>
+    </div>
+
+    <h2>Injecting a Service into Another Service</h2>
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">src/app/services/auth.service.ts</span><span class="code-tag tag-ts">TS</span></div>
+      <pre><code class="language-typescript">@Injectable({ providedIn: 'root' })
+export class AuthService {
+  // Services can inject other services using inject()
+  private readonly supabase = inject(SupabaseService).client;
+  //                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Injects SupabaseService, then immediately accesses .client getter
+  // SupabaseService is also providedIn: 'root' — same instance app-wide
+  private readonly router = inject(Router);
+
+  readonly user = signal<User | null>(null);
+  ...
+}</code></pre>
+    </div>
+
+    <div class="callout callout-info">
+      <strong>💡 Injection Context</strong>
+      <code>inject()</code> must be called during component construction (field initializers, constructor body, or within an injection context). You cannot call it inside a lifecycle hook like <code>ngOnInit()</code> or inside an async callback.
+    </div>
+  </section>
+
+  <!-- ══════════════ SIGNALS ══════════════ -->
+  <section id="signals" class="doc-section">
+    <div class="section-eyebrow">Angular Core</div>
+    <h1>Signals — Reactive State</h1>
+    <p>Angular 16+ introduced <strong>Signals</strong> as a first-class reactive primitive. They are synchronous, pull-based, and integrate with Angular's change detection. This app uses signals for <em>all</em> local state instead of RxJS Subjects or BehaviorSubjects.</p>
+
+    <h2>What is a Signal?</h2>
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">signals — mental model</span><span class="code-tag tag-ts">TS</span></div>
+      <pre><code class="language-typescript">import { signal } from '@angular/core';
+
+// Create a signal — like a reactive variable
+const count = signal(0);
+
+// Read value (always call as a function)
+console.log(count()); // 0
+
+// Write value
+count.set(5);
+
+// Update based on previous value (like setState with callback)
+count.update(prev => prev + 1);
+
+// In templates — no () needed, Angular unwraps automatically
+// {{ count }}  ← Angular handles the subscription</code></pre>
+    </div>
+
+    <h2>Signals in AuthService</h2>
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">src/app/services/auth.service.ts</span><span class="code-tag tag-ts">TS</span></div>
+      <pre><code class="language-typescript">@Injectable({ providedIn: 'root' })
+export class AuthService {
+  // Three pieces of reactive state — all signals
+  readonly user    = signal<User | null>(null);    // current Supabase user
+  readonly profile = signal<Profile | null>(null); // DB profile row (has role)
+  readonly loading = signal(true);                  // async init in progress
+
+  constructor() {
+    // Initial session fetch
+    this.supabase.auth.getSession()
+      .then(({ data }) => {
+        this.user.set(data.session?.user ?? null);  // ← set() writes the signal
+        if (data.session?.user) this._loadProfile(data.session.user.id);
+      })
+      .finally(() => { this.loading.set(false); }); // always clear loading
+
+    // Supabase auth state changes (login, logout, token refresh)
+    this.supabase.auth.onAuthStateChange((_event, session) => {
+      this.user.set(session?.user ?? null);
+      if (session?.user) {
+        this._loadProfile(session.user.id);
+      } else {
+        this.profile.set(null);
+      }
+    });
+  }
+
+  isAdmin(): boolean {
+    return this.profile()?.role === 'admin'; // ← read signal with ()
+  }
+}</code></pre>
+    </div>
+
+    <h2>Signals in CartService</h2>
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">src/app/services/cart.service.ts</span><span class="code-tag tag-ts">TS</span></div>
+      <pre><code class="language-typescript">@Injectable({ providedIn: 'root' })
+export class CartService {
+  // signal initialized from localStorage — persists across page refreshes
+  readonly items = signal<CartItem[]>(this._load());
+
+  addItem(product: Product, quantity = 1): void {
+    this.items.update((current) => {  // ← update() for immutable updates
+      const existing = current.find((i) => i.product.id === product.id);
+      if (existing) {
+        // Map creates new array — signals are immutable (reference change triggers re-render)
+        return current.map((i) =>
+          i.product.id === product.id
+            ? { ...i, quantity: i.quantity + quantity }
+            : i,
+        );
+      }
+      return [...current, { product, quantity }]; // spread to new array
+    });
+  }
+
+  removeItem(productId: string): void {
+    // filter returns a new array — triggering change detection
+    this.items.update((current) =>
+      current.filter((i) => i.product.id !== productId),
+    );
+  }
+}</code></pre>
+    </div>
+
+    <table>
+      <thead><tr><th>Concept</th><th>RxJS (old)</th><th>Signals (new)</th></tr></thead>
+      <tbody>
+        <tr><td>Create</td><td><code>new BehaviorSubject(0)</code></td><td><code>signal(0)</code></td></tr>
+        <tr><td>Read</td><td><code>.getValue()</code> or subscribe</td><td><code>mySignal()</code></td></tr>
+        <tr><td>Write</td><td><code>.next(newValue)</code></td><td><code>mySignal.set(newValue)</code></td></tr>
+        <tr><td>Update</td><td><code>.next(prev + 1)</code></td><td><code>mySignal.update(v => v + 1)</code></td></tr>
+        <tr><td>Derived</td><td><code>pipe(map(...))</code></td><td><code>computed(() => ...)</code></td></tr>
+        <tr><td>Side effect</td><td><code>subscribe()</code></td><td><code>effect(() => ...)</code></td></tr>
+        <tr><td>Async</td><td>Natural (Observables)</td><td>Use async/await + signal.set()</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ══════════════ COMPUTED & EFFECTS ══════════════ -->
+  <section id="computed-effects" class="doc-section">
+    <div class="section-eyebrow">Angular Core</div>
+    <h1>Computed Signals &amp; Effects</h1>
+
+    <h2>computed() — Derived State</h2>
+    <p>A <code>computed()</code> creates a <strong>read-only derived signal</strong>. It only recalculates when its dependencies (other signals it reads) change. Memoized automatically.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">src/app/services/cart.service.ts</span><span class="code-tag tag-ts">TS</span></div>
+      <pre><code class="language-typescript">import { signal, computed } from '@angular/core';
+
+readonly items = signal<CartItem[]>([]);
+
+// computed() reads items() — recalculates automatically when items changes
+readonly totalItems = computed(() =>
+  this.items().reduce((sum, i) => sum + i.quantity, 0),
+  // If items = [{qty:2}, {qty:3}] → totalItems() = 5
+);
+
+readonly subtotal = computed(() =>
+  this.items().reduce((sum, i) => sum + i.product.price * i.quantity, 0),
+  // Returns cents: 1799 * 2 = 3598 → $35.98
+);
+
+// In the Navbar template:
+// {{ cart.totalItems() }}  — or just {{ totalItems }} if it's a component property
+// Angular tracks the dependency and re-renders when totalItems changes</code></pre>
+    </div>
+
+    <h2>effect() — Side Effects on Signal Change</h2>
+    <p>An <code>effect()</code> runs a callback whenever any signal it reads changes. It's Angular's answer to React's <code>useEffect</code> — but with automatic dependency tracking.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">src/app/services/cart.service.ts — localStorage persistence</span><span class="code-tag tag-ts">TS</span></div>
+      <pre><code class="language-typescript">import { signal, computed, effect } from '@angular/core';
+
+constructor() {
+  // effect() automatically tracks which signals are read inside
+  // Runs once immediately, then re-runs whenever items() changes
+  effect(() => {
+    try {
+      // This reads items() → items becomes a dependency of this effect
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.items()));
+      // Whenever items signal changes → this effect re-runs → cart is persisted
+    } catch {
+      // Ignore storage quota errors (private browsing, etc.)
+    }
+  });
+}
+
+// Equivalent in RxJS would be:
+// this.items$.subscribe(items => localStorage.setItem(...))
+// But effect() is automatic, no teardown/unsubscribe needed</code></pre>
+    </div>
+
+    <div class="callout callout-warning">
+      <strong>⚠️ effect() Rules</strong>
+      <code>effect()</code> must be called in an injection context (constructor or field initializer). It auto-cleans up when the component/service is destroyed. Never call <code>effect()</code> inside a method — only at construction time.
+    </div>
+  </section>
+
+  <!-- ══════════════ PIPES ══════════════ -->
+  <section id="pipes" class="doc-section">
+    <div class="section-eyebrow">Angular Core</div>
+    <h1>Pipes</h1>
+    <p>Pipes transform values in templates. They are declared inline (similar to components), and <strong>pure pipes</strong> (the default) are memoized — Angular only re-runs them when the input reference changes.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">src/app/pipes/format-price.pipe.ts</span><span class="code-tag tag-ts">TS</span></div>
+      <pre><code class="language-typescript">import { Pipe, PipeTransform } from '@angular/core';
+
+@Pipe({
+  name: 'formatPrice',      // name used in templates: {{ price | formatPrice }}
+  standalone: true,          // standalone pipe — import directly into components
+  pure: true,                // DEFAULT — memoized, re-runs only when input changes
+  // pure: false             // impure — re-runs every CD cycle (expensive, avoid)
+})
+export class FormatPricePipe implements PipeTransform {
+  // transform(value, ...args): receives the piped value + optional arguments
+  transform(cents: number): string {
+    // Intl.NumberFormat for locale-aware currency formatting
+    return new Intl.NumberFormat('en-CA', {
+      style: 'currency',
+      currency: 'CAD',
+    }).format(cents / 100);
+    // 1799 → "CA$17.99"
+  }
+}</code></pre>
+    </div>
+
+    <h2>Using the Pipe</h2>
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">any component template that imports FormatPricePipe</span><span class="code-tag tag-html">HTML</span></div>
+      <pre><code class="language-typescript">// 1. Import in component:
+@Component({
+  standalone: true,
+  imports: [FormatPricePipe],
+  template: `
+    &lt;p&gt;{{ product.price | formatPrice }}&lt;/p&gt;
+    &lt;!-- Outputs: CA$17.99 --&gt;
+
+    &lt;p&gt;Subtotal: {{ cart.subtotal() | formatPrice }}&lt;/p&gt;
+    &lt;!-- Outputs: CA$35.98 --&gt;
+  `
+})
+export class ProductCardComponent { ... }</code></pre>
+    </div>
+
+    <h2>Why Pure Pipes Are Efficient</h2>
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">how Angular handles pipe caching</span><span class="code-tag tag-ts">TS</span></div>
+      <pre><code class="language-typescript">// Pure pipe — Angular caches result by input value
+{{ 1799 | formatPrice }}  // "CA$17.99" — computed once
+{{ 1799 | formatPrice }}  // "CA$17.99" — returned from cache, no recompute
+
+// Only recalculates when input changes:
+{{ product.price | formatPrice }}
+// If product.price changes from 1799 → 2499, pipe re-runs
+// If CD cycle fires but price didn't change, pipe is skipped</code></pre>
+    </div>
+
+    <h2>Standalone Utility Function Alternative</h2>
+    <p>The app also exports a plain function for use in TypeScript code (not templates):</p>
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">src/app/utils/format-price.ts</span><span class="code-tag tag-ts">TS</span></div>
+      <pre><code class="language-typescript">// Plain function — use inside .ts files where pipes aren't available
+export function formatPrice(cents: number): string {
+  return new Intl.NumberFormat('en-CA', {
+    style: 'currency', currency: 'CAD',
+  }).format(cents / 100);
+}
+// Usage: formatPrice(1799) → "CA$17.99"</code></pre>
+    </div>
+  </section>
+
+  <!-- ══════════════ TEMPLATE SYNTAX ══════════════ -->
+  <section id="template-syntax" class="doc-section">
+    <div class="section-eyebrow">Angular Core</div>
+    <h1>Template Syntax Reference</h1>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">Angular template syntax — examples from this app</span><span class="code-tag tag-html">HTML</span></div>
+      <pre><code class="language-typescript">// ── INTERPOLATION ──────────────────────────────────────────
+{{ product.name }}
+{{ cart.totalItems() }}          // signal read in template
+
+// ── PROPERTY BINDING ───────────────────────────────────────
+[src]="product.images[0]"        // sets DOM property
+[disabled]="loading()"           // disables button while signal is true
+[class.active]="isSelected"      // conditional class
+[style.width.px]="width"         // pixel value binding
+
+// ── EVENT BINDING ──────────────────────────────────────────
+(click)="addToCart(product)"
+(submit)="onSubmit($event)"
+(keydown.enter)="search()"
+
+// ── TWO-WAY BINDING ────────────────────────────────────────
+[(ngModel)]="searchQuery"        // requires FormsModule
+
+// ── TEMPLATE REFERENCE VARIABLES ──────────────────────────
+&lt;input #emailInput type="email" /&gt;
+&lt;button (click)="submit(emailInput.value)"&gt;Go&lt;/button&gt;
+
+// ── CONTROL FLOW (Angular 17+) ─────────────────────────────
+@if (auth.user()) {
+  &lt;a routerLink="/account"&gt;My Account&lt;/a&gt;
+} @else {
+  &lt;a routerLink="/login"&gt;Login&lt;/a&gt;
+}
+
+@for (item of cart.items(); track item.product.id) {
+  &lt;app-cart-item [item]="item" /&gt;
+}
+
+@switch (order.status) {
+  @case ('paid')     { &lt;span class="badge-green"&gt;Paid&lt;/span&gt; }
+  @case ('shipped')  { &lt;span class="badge-blue"&gt;Shipped&lt;/span&gt; }
+  @default           { &lt;span&gt;{{ order.status }}&lt;/span&gt; }
+}
+
+// ── ROUTER DIRECTIVES ─────────────────────────────────────
+&lt;a routerLink="/products"&gt;Shop&lt;/a&gt;
+&lt;a [routerLink]="['/products', product.slug]"&gt;View&lt;/a&gt;
+&lt;a routerLink="/products" routerLinkActive="active"&gt;Shop&lt;/a&gt;
+
+// ── ASYNC PIPE (with Observables) ─────────────────────────
+{{ orders$ | async | json }}     // subscribes + unsubscribes automatically</code></pre>
+    </div>
+  </section>
+
+  <!-- ══════════════ INJECTION TOKEN ══════════════ -->
+  <section id="injection-token" class="doc-section">
+    <div class="section-eyebrow">Angular Core</div>
+    <h1>InjectionToken</h1>
+    <p><code>InjectionToken</code> creates a typed DI token for non-class values — config objects, primitives, feature flags. Unlike class tokens there's no name collision risk and the value is fully typed.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">src/app/tokens/app-config.token.ts</span><span class="code-tag tag-ts">TS</span></div>
+      <pre><code class="language-typescript">import { InjectionToken } from '@angular/core';
+
+export interface AppConfig {
+  storeName: string;
+  currency: string;
+  freeShippingThreshold: number;  // cents — $30.00
+  shippingCost: number;            // cents — $4.99
+  maxSearchSuggestions: number;
+}
+
+// factory() supplies the default value — no providers[] entry needed
+export const APP_CONFIG = new InjectionToken<AppConfig>('APP_CONFIG', {
+  factory: () => ({
+    storeName: 'BlossomRays',
+    currency: 'CAD',
+    freeShippingThreshold: 3000,
+    shippingCost: 499,
+    maxSearchSuggestions: 5,
+  }),
+});</code></pre>
+    </div>
+
+    <h2>Injecting the Token</h2>
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">src/app/pages/checkout/checkout.component.ts</span><span class="code-tag tag-ts">TS</span></div>
+      <pre><code class="language-typescript">// inject() works with tokens exactly the same as with class services
+private readonly config = inject(APP_CONFIG);
+
+// Use in template — no magic numbers
+// {{ subtotal() >= config.freeShippingThreshold ? 'Free' : config.shippingCost | formatPrice }}</code></pre>
+    </div>
+
+    <h2>Overriding for tests or specific components</h2>
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">unit test or component override</span><span class="code-tag tag-ts">TS</span></div>
+      <pre><code class="language-typescript">// In a TestBed:
+TestBed.configureTestingModule({
+  providers: [
+    { provide: APP_CONFIG, useValue: { freeShippingThreshold: 0, shippingCost: 0 } }
+  ]
+});
+
+// Per-component override (rare):
+@Component({
+  providers: [{ provide: APP_CONFIG, useValue: { ... } }]
+})
+class SomeComponent { ... }</code></pre>
+    </div>
+
+    <table>
+      <thead><tr><th>Token Type</th><th>Used For</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td>Class token</td><td>Services, components</td><td><code>inject(CartService)</code></td></tr>
+        <tr><td><code>InjectionToken&lt;T&gt;</code></td><td>Config objects, primitives, non-class values</td><td><code>inject(APP_CONFIG)</code></td></tr>
+        <tr><td><code>string</code> token (old)</td><td>Avoid — no type safety, collision risk</td><td><code>inject('MY_CONFIG')</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ══════════════ DIRECTIVES ══════════════ -->
+  <section id="directives" class="doc-section">
+    <div class="section-eyebrow">Angular Core</div>
+    <h1>Custom Directives</h1>
+    <p>A directive adds behaviour to a DOM element without providing its own template. Three kinds: <strong>Component</strong> (has template), <strong>Attribute</strong> (changes behaviour), <strong>Structural</strong> (reshapes DOM: <code>*ngIf</code>, <code>*ngFor</code>).</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">src/app/directives/click-outside.directive.ts</span><span class="code-tag tag-ts">TS</span></div>
+      <pre><code class="language-typescript">@Directive({
+  selector: '[appClickOutside]',   // applied as an HTML attribute
+  standalone: true,
+})
+export class ClickOutsideDirective {
+  private readonly el = inject(ElementRef);
+
+  // @Output — parent listens with (clickedOutside)="handler()"
+  @Output() clickedOutside = new EventEmitter<void>();
+
+  // @HostListener — listens to events on the HOST element or global targets
+  // 'document:click' = listen to ALL clicks on the document
+  // ['$event.target'] = pass the clicked element as the first argument
+  @HostListener('document:click', ['$event.target'])
+  onClick(target: HTMLElement): void {
+    // nativeElement.contains() returns true if target is the host OR any descendant
+    const isInside = this.el.nativeElement.contains(target);
+    if (!isInside) {
+      this.clickedOutside.emit();
+    }
+  }
+}</code></pre>
+    </div>
+
+    <h2>Usage in Template</h2>
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">navbar.component.ts — mobile menu</span><span class="code-tag tag-html">HTML</span></div>
+      <pre><code class="language-typescript">// 1. Import in the component's imports[]
+imports: [ClickOutsideDirective]
+
+// 2. Apply in template — clicking outside the div sets mobileOpen to false
+&lt;div
+  *ngIf="mobileOpen()"
+  appClickOutside
+  (clickedOutside)="mobileOpen.set(false)"
+  class="md:hidden border-b bg-white px-5 py-4"
+&gt;
+  ...mobile menu content...
+&lt;/div&gt;
+
+// 3. Also used on the desktop search wrapper to close suggestions:
+&lt;div class="relative" appClickOutside (clickedOutside)="showSuggestions.set(false)"&gt;
+  &lt;input ... /&gt;
+  &lt;!-- suggestions dropdown --&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+
+    <div class="callout callout-info">
+      <strong>💡 @HostListener vs addEventListener</strong>
+      <code>@HostListener</code> is the Angular-idiomatic way to listen to DOM events inside a directive. Angular automatically removes the listener when the directive is destroyed — no manual <code>removeEventListener</code> cleanup needed.
+    </div>
+  </section>
+
+  <!-- ══════════════ DEFER ══════════════ -->
+  <section id="defer" class="doc-section">
+    <div class="section-eyebrow">Angular Core</div>
+    <h1>@defer — Deferred Loading (Angular 17+)</h1>
+    <p><code>@defer</code> lazy-loads a <em>section of a template</em> — more granular than lazy routes. The deferred components are split into separate JS chunks downloaded only when a trigger condition fires.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">src/app/pages/home/home.component.ts</span><span class="code-tag tag-ts">TS</span></div>
+      <pre><code class="language-typescript">// ABOVE FOLD — loaded eagerly in main bundle
+&lt;app-hero-section /&gt;
+&lt;app-benefits-section /&gt;
+&lt;app-scent-highlights /&gt;
+&lt;app-how-it-works /&gt;
+
+// BELOW FOLD — deferred until the element enters the viewport
+@defer (on viewport) {
+  &lt;app-testimonials-section /&gt;
+} @placeholder {
+  // Shown BEFORE the trigger fires — just a skeleton, no JS downloaded yet
+  &lt;div class="h-64 bg-cream animate-pulse"&gt;&lt;/div&gt;
+} @loading (minimum 200ms) {
+  // Shown WHILE the JS chunk is fetching
+  // minimum 200ms prevents a flash when loading is fast
+  &lt;div class="h-64 flex items-center justify-center"&gt;Loading…&lt;/div&gt;
+}
+
+// Newsletter — deferred until browser is idle (low priority)
+@defer (on idle) {
+  &lt;app-newsletter-section /&gt;
+} @placeholder {
+  &lt;div class="h-40 bg-cream-dark/20"&gt;&lt;/div&gt;
+}</code></pre>
+    </div>
+
+    <h2>All @defer Triggers</h2>
+    <table>
+      <thead><tr><th>Trigger</th><th>When it fires</th><th>Use case</th></tr></thead>
+      <tbody>
+        <tr><td><code>on viewport</code></td><td>Element enters the viewport (IntersectionObserver)</td><td>Below-fold content</td></tr>
+        <tr><td><code>on idle</code></td><td>Browser has no pending work (requestIdleCallback)</td><td>Low-priority widgets (newsletter, chat)</td></tr>
+        <tr><td><code>on interaction</code></td><td>User clicks/focuses the placeholder</td><td>Modals, tooltips, accordions</td></tr>
+        <tr><td><code>on timer(2s)</code></td><td>After a fixed delay</td><td>Delayed banners</td></tr>
+        <tr><td><code>when condition</code></td><td>Boolean expression becomes true</td><td>Feature-flag gated UI</td></tr>
+        <tr><td><code>on immediate</code></td><td>As soon as possible after initial render</td><td>Defer without blocking FCP</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout-warning">
+      <strong>⚠️ Important:</strong> For <code>@defer</code> to create a separate chunk, the deferred component must NOT appear in any eagerly-loaded <code>imports[]</code> array. If it does, Angular bundles it eagerly anyway.
+    </div>
+  </section>
+
+  <!-- ══════════════ RXJS ══════════════ -->
+  <section id="rxjs" class="doc-section">
+    <div class="section-eyebrow">Angular Core</div>
+    <h1>RxJS Operators + async pipe</h1>
+    <p>The navbar search demonstrates a full RxJS pipeline: a <strong>Subject</strong> bridges the DOM event world with the reactive world, operator pipes transform the stream, and the <strong>async pipe</strong> subscribes in the template.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">src/app/components/layout/navbar.component.ts — search pipeline</span><span class="code-tag tag-ts">TS</span></div>
+      <pre><code class="language-typescript">import { Subject, Observable, of, from } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap, map, startWith } from 'rxjs/operators';
+
+// Subject: both Observable (can subscribe) AND Observer (can call .next())
+// Acts as the bridge between user input → RxJS pipeline
+private readonly search$ = new Subject<string>();
+
+// Observable<Product[]> derived from the Subject via pipe operators
+readonly searchSuggestions$: Observable<Product[]> = this.search$.pipe(
+
+  startWith(''),           // emit '' immediately so Observable is warm from the start
+
+  debounceTime(300),       // wait 300ms after LAST emission — no request per keypress
+
+  distinctUntilChanged(),  // skip if value didn't change since last emission
+
+  switchMap((query) => {   // cancel pending inner Observable when new query arrives
+    if (query.trim().length < 2) return of([]); // of() creates Observable from value
+
+    // from() converts Promise → Observable
+    return from(this.productService.getProducts()).pipe(
+      map((products) =>             // transform each emitted array
+        products
+          .filter(p => p.name.toLowerCase().includes(query.toLowerCase()))
+          .slice(0, this.config.maxSearchSuggestions),
+      ),
+    );
+  }),
+);
+
+// Called on (input) event — pushes value into the Subject
+onSearchInput(event: Event): void {
+  const value = (event.target as HTMLInputElement).value;
+  this.search$.next(value);   // .next() feeds the Subject
+}</code></pre>
+    </div>
+
+    <h2>async pipe in template</h2>
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">navbar template — async pipe + @let</span><span class="code-tag tag-html">HTML</span></div>
+      <pre><code class="language-typescript">// async pipe:
+//   • Subscribes to the Observable when the component renders
+//   • Automatically unsubscribes on component destroy (no memory leak)
+//   • Triggers change detection when a new value emits
+//
+// @let (Angular 17) assigns the unwrapped value to a template variable
+@let suggestions = searchSuggestions$ | async;
+
+@if (showSuggestions() && suggestions && suggestions.length > 0) {
+  &lt;div class="absolute ...suggestions dropdown..."&gt;
+    &lt;a *ngFor="let p of suggestions" [routerLink]="['/products', p.slug]"&gt;
+      {{ p.name }}
+    &lt;/a&gt;
+  &lt;/div&gt;
+}</code></pre>
+    </div>
+
+    <h2>RxJS Operator Cheat Sheet</h2>
+    <table>
+      <thead><tr><th>Operator</th><th>What it does</th><th>When to use</th></tr></thead>
+      <tbody>
+        <tr><td><code>debounceTime(ms)</code></td><td>Waits N ms after last emission</td><td>Search input, resize events</td></tr>
+        <tr><td><code>distinctUntilChanged()</code></td><td>Drops duplicate consecutive values</td><td>Prevent redundant API calls</td></tr>
+        <tr><td><code>switchMap(fn)</code></td><td>Cancels previous inner Observable on new outer emission</td><td>Search (always want latest), navigation</td></tr>
+        <tr><td><code>mergeMap(fn)</code></td><td>Concurrent inner Observables (no cancellation)</td><td>Parallel API calls</td></tr>
+        <tr><td><code>exhaustMap(fn)</code></td><td>Ignores new outer emissions while inner is active</td><td>Form submit (prevent double submit)</td></tr>
+        <tr><td><code>map(fn)</code></td><td>Transforms each emitted value</td><td>Data transformation</td></tr>
+        <tr><td><code>filter(fn)</code></td><td>Only passes values that satisfy predicate</td><td>Filtering streams</td></tr>
+        <tr><td><code>startWith(v)</code></td><td>Emits initial value before the source</td><td>Default state, warm-up</td></tr>
+        <tr><td><code>of(v)</code></td><td>Creates Observable from static value(s)</td><td>Mock data, fallback returns</td></tr>
+        <tr><td><code>from(promise)</code></td><td>Creates Observable from Promise</td><td>Wrapping async API calls</td></tr>
+        <tr><td><code>takeUntilDestroyed()</code></td><td>Auto-unsubscribes on component destroy</td><td>Any long-lived subscription in a component</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ══════════════ HTTPCLIENT ══════════════ -->
+  <section id="httpclient" class="doc-section">
+    <div class="section-eyebrow">Angular Core</div>
+    <h1>HttpClient + Functional Interceptor</h1>
+    <p>Angular's <code>HttpClient</code> makes HTTP requests that return <strong>Observables</strong> (not Promises). Interceptors sit in the pipeline to transform every request/response globally.</p>
+
+    <h2>Registration (app.config.ts)</h2>
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">src/app/app.config.ts</span><span class="code-tag tag-ts">TS</span></div>
+      <pre><code class="language-typescript">import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { authInterceptor } from './interceptors/auth.interceptor';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideZoneChangeDetection({ eventCoalescing: true }),
+    provideRouter(routes, withRouterConfig({ onSameUrlNavigation: 'reload' })),
+    provideAnimations(),
+    // Registers HttpClient + attaches interceptors in order
+    provideHttpClient(withInterceptors([authInterceptor])),
+  ],
+};</code></pre>
+    </div>
+
+    <h2>Auth Interceptor</h2>
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">src/app/interceptors/auth.interceptor.ts</span><span class="code-tag tag-ts">TS</span></div>
+      <pre><code class="language-typescript">// HttpInterceptorFn — plain function, no class needed (Angular 15+)
+export const authInterceptor: HttpInterceptorFn = (req, next) => {
+  const supabase = inject(SupabaseService);
+
+  // from() converts the Promise to Observable for use in pipe
+  return from(supabase.client.auth.getSession()).pipe(
+    switchMap(({ data }) => {
+      const token = data.session?.access_token;
+      if (!token) return next(req); // no session — pass through unchanged
+
+      // HttpRequest is IMMUTABLE — must clone() to modify
+      const authReq = req.clone({
+        setHeaders: { Authorization: `Bearer ${token}` },
+      });
+
+      return next(authReq); // pass modified request downstream
+    }),
+  );
+};</code></pre>
+    </div>
+
+    <h2>Using HttpClient in a component</h2>
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">src/app/pages/checkout/checkout.component.ts</span><span class="code-tag tag-ts">TS</span></div>
+      <pre><code class="language-typescript">private readonly http = inject(HttpClient);
+
+async onSubmit(): Promise<void> {
+  // http.post<T>() returns Observable<T>
+  // firstValueFrom() converts it to a Promise for async/await
+  // The authInterceptor automatically adds Authorization header
+  const json = await firstValueFrom(
+    this.http.post<{ url: string }>('/.netlify/functions/stripe-checkout', {
+      items: this.items(),
+      shipping,
+      email,
+    }),
+  );
+  // HttpClient throws HttpErrorResponse on non-2xx — caught in try/catch
+}</code></pre>
+    </div>
+
+    <table>
+      <thead><tr><th></th><th>fetch (browser)</th><th>HttpClient (Angular)</th></tr></thead>
+      <tbody>
+        <tr><td>Return type</td><td><code>Promise&lt;Response&gt;</code></td><td><code>Observable&lt;T&gt;</code></td></tr>
+        <tr><td>Typed response</td><td>Manual cast</td><td><code>http.get&lt;MyType&gt;(url)</code></td></tr>
+        <tr><td>Interceptors</td><td>❌ None</td><td>✅ Full pipeline</td></tr>
+        <tr><td>Error handling</td><td>Must check <code>res.ok</code> manually</td><td>Non-2xx throws <code>HttpErrorResponse</code></td></tr>
+        <tr><td>Testing</td><td>Must mock globally</td><td><code>HttpClientTestingModule</code></td></tr>
+        <tr><td>Progress events</td><td>Manual with <code>ReadableStream</code></td><td>Built-in with <code>reportProgress: true</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ══════════════ REACTIVE FORMS ══════════════ -->
+  <section id="reactive-forms" class="doc-section">
+    <div class="section-eyebrow">Angular Core</div>
+    <h1>Reactive Forms &amp; Custom Validators</h1>
+    <p>Reactive Forms manage form state in the TypeScript class (not the template). The app uses <code>FormBuilder</code> + <code>FormGroup</code> + <code>FormControl</code> with both built-in validators and a custom cross-field validator.</p>
+
+    <h2>FormBuilder Setup (Login)</h2>
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">src/app/pages/login/login.component.ts</span><span class="code-tag tag-ts">TS</span></div>
+      <pre><code class="language-typescript">private readonly fb = inject(FormBuilder);
+
+// fb.group() creates a FormGroup with named FormControls
+// Each control: [initialValue, [syncValidators], [asyncValidators]]
+readonly form = this.fb.group({
+  email:    ['', [Validators.required, Validators.email]],
+  password: ['', [Validators.required, Validators.minLength(6)]],
+});
+
+// Template binding:
+// [formGroup]="form"        — binds the group to the &lt;form&gt; element
+// formControlName="email"   — binds a specific control to an input
+// (ngSubmit)="onSubmit()"   — fires when form is submitted
+
+// Checking validity in the class:
+fieldInvalid(field: string): boolean {
+  const ctrl = this.form.get(field);
+  return !!(ctrl?.invalid && ctrl?.touched);
+  // invalid: has validation errors
+  // touched: user has visited (blurred) the field — avoids premature errors
+}
+
+async onSubmit(): Promise<void> {
+  if (this.form.invalid) {
+    this.form.markAllAsTouched(); // show errors on all untouched fields
+    return;
+  }
+  const { email, password } = this.form.value; // typed extraction
+}</code></pre>
+    </div>
+
+    <h2>Custom Cross-Field Validator (Register)</h2>
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">src/app/pages/register/register.component.ts</span><span class="code-tag tag-ts">TS</span></div>
+      <pre><code class="language-typescript">// A validator is: (control: AbstractControl) => ValidationErrors | null
+// Cross-field validator receives the whole FormGroup as AbstractControl
+function passwordMatchValidator(group: AbstractControl): ValidationErrors | null {
+  const password        = group.get('password')?.value;
+  const confirmPassword = group.get('confirm_password')?.value;
+
+  if (!password || !confirmPassword) return null; // don't flag while typing
+
+  return password === confirmPassword
+    ? null                          // valid — return null
+    : { passwordMismatch: true };   // invalid — return error object key
+}
+
+// Register at the GROUP level (second arg), not per-control
+readonly form = this.fb.group(
+  {
+    full_name:        ['', [Validators.required, Validators.minLength(2)]],
+    email:            ['', [Validators.required, Validators.email]],
+    password:         ['', [Validators.required, Validators.minLength(8)]],
+    confirm_password: ['', [Validators.required]],
+  },
+  { validators: [passwordMatchValidator] },  // ← group-level
+);
+
+// Read the group-level error (NOT from a specific control):
+passwordMismatch(): boolean {
+  const confirmTouched = this.form.get('confirm_password')?.touched;
+  return !!(confirmTouched && this.form.errors?.['passwordMismatch']);
+  //                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  //  form.errors — set by group-level validators
+  //  form.get('field').errors — set by control-level validators
+}</code></pre>
+    </div>
+
+    <h2>Built-in Validators Reference</h2>
+    <table>
+      <thead><tr><th>Validator</th><th>Error key</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>Validators.required</code></td><td><code>required</code></td><td>Non-empty value</td></tr>
+        <tr><td><code>Validators.email</code></td><td><code>email</code></td><td>Valid email format</td></tr>
+        <tr><td><code>Validators.minLength(n)</code></td><td><code>minlength</code></td><td>String length &ge; n</td></tr>
+        <tr><td><code>Validators.maxLength(n)</code></td><td><code>maxlength</code></td><td>String length &le; n</td></tr>
+        <tr><td><code>Validators.min(n)</code></td><td><code>min</code></td><td>Numeric value &ge; n</td></tr>
+        <tr><td><code>Validators.max(n)</code></td><td><code>max</code></td><td>Numeric value &le; n</td></tr>
+        <tr><td><code>Validators.pattern(regex)</code></td><td><code>pattern</code></td><td>Value matches regex</td></tr>
+        <tr><td><code>Validators.nullValidator</code></td><td>—</td><td>Always valid (placeholder)</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Form State Flags</h2>
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">FormControl / FormGroup state properties</span><span class="code-tag tag-ts">TS</span></div>
+      <pre><code class="language-typescript">ctrl.valid      // no validation errors
+ctrl.invalid    // has at least one error
+ctrl.pristine   // user has NOT changed the value
+ctrl.dirty      // user HAS changed the value
+ctrl.untouched  // user has NOT blurred the field
+ctrl.touched    // user HAS blurred the field
+
+ctrl.errors     // { required: true } | { minlength: { actual: 3, required: 8 } } | null
+ctrl.value      // current typed value
+ctrl.valueChanges  // Observable — emits on every change (RxJS integration)</code></pre>
+    </div>
+  </section>
+
+  <!-- ══════════════ SUPABASE SERVICE ══════════════ -->
+  <section id="supabase-service" class="doc-section">
+    <div class="section-eyebrow">Services</div>
+    <h1>SupabaseService</h1>
+    <p>A singleton wrapper that lazily creates the Supabase client once. All other services inject this and access <code>.client</code> to query the database.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">src/app/services/supabase.service.ts</span><span class="code-tag tag-ts">TS</span></div>
+      <pre><code class="language-typescript">import { Injectable } from '@angular/core';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { environment } from '../environments/environment';
+
+// Custom lock implementation: Supabase uses navigator.locks to serialize
+// token refreshes across browser tabs. When a second tab tries to acquire
+// the lock it throws an unhandled rejection. This noop replaces it with a
+// simple "just run the function" — correct for single-tab, silences the error.
+function noopLock<T>(
+  _name: string,
+  _opts: { mode: string },
+  fn: () => Promise<T>,
+): Promise<T> {
+  return fn(); // skip locking, just execute
+}
+
+@Injectable({ providedIn: 'root' })
+export class SupabaseService {
+  private _client: SupabaseClient | null = null;
+
+  // Lazy getter — client is only created on first access
+  get client(): SupabaseClient {
+    if (!this._client) {
+      const { supabaseUrl, supabaseAnonKey } = environment;
+
+      if (!supabaseUrl || supabaseUrl === 'YOUR_SUPABASE_URL') {
+        // GRACEFUL DEGRADATION: app still renders if credentials aren't set
+        // Uses a placeholder URL so Supabase SDK doesn't throw synchronously
+        console.warn('[SupabaseService] Credentials not configured');
+        this._client = createClient('https://placeholder.supabase.co', 'placeholder', {
+          auth: { lock: noopLock },
+        });
+      } else {
+        this._client = createClient(supabaseUrl, supabaseAnonKey, {
+          auth: { lock: noopLock },
+        });
+      }
+    }
+    return this._client;
+  }
+}</code></pre>
+    </div>
+
+    <div class="callout callout-success">
+      <strong>✅ Design Pattern: Lazy Singleton</strong>
+      The Supabase client is created on first access (getter pattern), not in the constructor. This avoids throwing errors at module load time if credentials are missing — the app still renders, and features gracefully degrade.
+    </div>
+  </section>
+
+  <!-- ══════════════ AUTH SERVICE ══════════════ -->
+  <section id="auth-service" class="doc-section">
+    <div class="section-eyebrow">Services</div>
+    <h1>AuthService</h1>
+    <p>Manages Supabase authentication state using signals. It's the source of truth for "who is logged in" across the entire app.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">src/app/services/auth.service.ts</span><span class="code-tag tag-ts">TS</span></div>
+      <pre><code class="language-typescript">@Injectable({ providedIn: 'root' })
+export class AuthService {
+  private readonly supabase = inject(SupabaseService).client;
+  private readonly router = inject(Router);
+
+  // Public reactive state — components read these signals
+  readonly user    = signal<User | null>(null);
+  readonly profile = signal<Profile | null>(null);
+  readonly loading = signal(true);   // true during initial session check
+
+  constructor() {
+    // Check existing session (e.g., user refreshes the page)
+    this.supabase.auth.getSession()
+      .then(({ data }) => {
+        this.user.set(data.session?.user ?? null);
+        if (data.session?.user) this._loadProfile(data.session.user.id);
+      })
+      .catch(() => { /* network error or missing credentials — stay logged out */ })
+      .finally(() => { this.loading.set(false); });
+
+    // Subscribe to Supabase auth events:
+    // SIGNED_IN, SIGNED_OUT, TOKEN_REFRESHED, USER_UPDATED
+    this.supabase.auth.onAuthStateChange((_event, session) => {
+      this.user.set(session?.user ?? null);
+      if (session?.user) {
+        this._loadProfile(session.user.id);
+      } else {
+        this.profile.set(null);
+      }
+    });
+  }
+
+  async signIn(email: string, password: string): Promise<string | null> {
+    const { error } = await this.supabase.auth.signInWithPassword({ email, password });
+    if (error) return 'Invalid email or password. Please try again.';
+    return null; // null = success
+  }
+
+  async signUp(email: string, password: string, fullName: string): Promise<string | null> {
+    const { error } = await this.supabase.auth.signUp({
+      email, password,
+      options: { data: { full_name: fullName } }, // stored in auth.users.raw_user_meta_data
+    });
+    if (error) return error.message;
+    return null;
+  }
+
+  async signOut(): Promise<void> {
+    await this.supabase.auth.signOut();
+    this.router.navigate(['/']); // redirect to home on logout
+  }
+
+  isAdmin(): boolean {
+    return this.profile()?.role === 'admin';
+  }
+
+  // Private — loads the user's profile row from public.profiles table
+  private async _loadProfile(userId: string): Promise<void> {
+    const { data } = await this.supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .maybeSingle(); // returns null if not found (vs .single() which throws)
+    this.profile.set(data ?? null);
+  }
+}</code></pre>
+    </div>
+
+    <h2>Auth Flow Diagram</h2>
+    <div class="flow">
+      <div class="flow-step">App loads</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step accent">getSession()</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">user.set(session.user)</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">_loadProfile(userId)</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">profile.set(data)</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step accent">loading.set(false)</div>
+    </div>
+    <div class="flow">
+      <div class="flow-step">User submits login form</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step accent">signInWithPassword()</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">Supabase fires SIGNED_IN event</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">onAuthStateChange callback</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">user + profile signals update</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step accent">All guards re-evaluate</div>
+    </div>
+  </section>
+
+  <!-- ══════════════ CART SERVICE ══════════════ -->
+  <section id="cart-service" class="doc-section">
+    <div class="section-eyebrow">Services</div>
+    <h1>CartService</h1>
+    <p>Manages the shopping cart with <strong>signal-based state</strong> and <strong>automatic localStorage persistence</strong> via <code>effect()</code>. No backend calls — pure client-side state.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">src/app/services/cart.service.ts (complete)</span><span class="code-tag tag-ts">TS</span></div>
+      <pre><code class="language-typescript">const STORAGE_KEY = 'blossomrays-cart';
+
+@Injectable({ providedIn: 'root' })
+export class CartService {
+  // Initialize signal from localStorage — restores cart across page refreshes
+  readonly items = signal<CartItem[]>(this._load());
+
+  // Derived signals — auto-update when items changes
+  readonly totalItems = computed(() =>
+    this.items().reduce((sum, i) => sum + i.quantity, 0),
+  );
+
+  readonly subtotal = computed(() =>
+    this.items().reduce((sum, i) => sum + i.product.price * i.quantity, 0),
+  );
+
+  constructor() {
+    // Side effect: persist to localStorage on every items change
+    effect(() => {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(this.items()));
+      } catch { /* quota exceeded in private browsing */ }
+    });
+  }
+
+  addItem(product: Product, quantity = 1): void {
+    this.items.update((current) => {
+      const existing = current.find((i) => i.product.id === product.id);
+      if (existing) {
+        // Always return a NEW array — signals detect changes by reference
+        return current.map((i) =>
+          i.product.id === product.id
+            ? { ...i, quantity: i.quantity + quantity }
+            : i,
+        );
+      }
+      return [...current, { product, quantity }];
+    });
+  }
+
+  removeItem(productId: string): void {
+    this.items.update((current) =>
+      current.filter((i) => i.product.id !== productId),
+    );
+  }
+
+  updateQuantity(productId: string, quantity: number): void {
+    if (quantity <= 0) {
+      this.removeItem(productId); // auto-remove when quantity goes to 0
+      return;
+    }
+    this.items.update((current) =>
+      current.map((i) =>
+        i.product.id === productId ? { ...i, quantity } : i,
+      ),
+    );
+  }
+
+  clearCart(): void {
+    this.items.set([]); // called after successful order placement
+  }
+
+  // Private: safely parse localStorage
+  private _load(): CartItem[] {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return [];
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? (parsed as CartItem[]) : [];
+    } catch {
+      return []; // JSON.parse error or localStorage unavailable
+    }
+  }
+}</code></pre>
+    </div>
+  </section>
+
+  <!-- ══════════════ PRODUCT SERVICE ══════════════ -->
+  <section id="product-service" class="doc-section">
+    <div class="section-eyebrow">Services</div>
+    <h1>ProductService</h1>
+    <p>Provides product data with a <strong>static fallback strategy</strong> — if Supabase is unavailable or unconfigured, the app still works using hardcoded product data.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">src/app/services/product.service.ts (strategy)</span><span class="code-tag tag-ts">TS</span></div>
+      <pre><code class="language-typescript">// 9 products hardcoded as static fallback
+export const STATIC_PRODUCTS: Product[] = [
+  {
+    id: 'b1f1a000-0000-4000-a000-000000000001',
+    name: 'Rose Car Air Freshener',
+    slug: 'rose-car-air-freshener',
+    price: 1799,    // ← always in cents
+    // ...
+  },
+  // ...
+];
+
+@Injectable({ providedIn: 'root' })
+export class ProductService {
+  private readonly supabase = inject(SupabaseService).client;
+
+  async getProducts(category?: string): Promise<Product[]> {
+    // 1. Try Supabase first
+    let query = this.supabase
+      .from('products')
+      .select('*')
+      .eq('is_active', true)
+      .order('created_at');
+
+    if (category) query = query.eq('category', category);
+
+    const { data, error } = await query;
+
+    if (error || !data?.length) {
+      // 2. Fall back to static data if DB unavailable
+      return category
+        ? STATIC_PRODUCTS.filter(p => p.category === category)
+        : STATIC_PRODUCTS;
+    }
+    return data as Product[];
+  }
+
+  async getProductBySlug(slug: string): Promise<Product | null> {
+    const { data } = await this.supabase
+      .from('products')
+      .select('*')
+      .eq('slug', slug)
+      .eq('is_active', true)
+      .maybeSingle();
+
+    // Falls back to static product if DB unavailable
+    return (data as Product) ?? STATIC_PRODUCTS.find(p => p.slug === slug) ?? null;
+  }
+}</code></pre>
+    </div>
+
+    <div class="callout callout-info">
+      <strong>💡 Why this pattern?</strong>
+      The static fallback means the app demo works immediately — no Supabase setup required. In production, the DB takes over. The UUIDs in <code>STATIC_PRODUCTS</code> match the seeded database rows.
+    </div>
+  </section>
+
+  <!-- ══════════════ ORDER SERVICE ══════════════ -->
+  <section id="order-service" class="doc-section">
+    <div class="section-eyebrow">Services</div>
+    <h1>OrderService</h1>
+    <p>Thin service over Supabase for order CRUD. Uses <strong>relational queries</strong> with Supabase's PostgREST <code>select()</code> syntax for joining tables.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">src/app/services/order.service.ts</span><span class="code-tag tag-ts">TS</span></div>
+      <pre><code class="language-typescript">@Injectable({ providedIn: 'root' })
+export class OrderService {
+  private readonly supabase = inject(SupabaseService).client;
+
+  // Customer: get their own orders (RLS enforces ownership)
+  async getMyOrders(): Promise<Order[]> {
+    const { data, error } = await this.supabase
+      .from('orders')
+      .select('*, order_items(*, product:products(name, category))')
+      //      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // PostgREST join syntax:
+      // * = all order columns
+      // order_items(*) = all order_item rows for this order
+      // product:products(...) = join to products table, alias as 'product'
+      .order('created_at', { ascending: false }); // newest first
+    if (error) throw new Error(error.message);
+    return (data ?? []) as Order[];
+  }
+
+  // Admin: get ALL orders (service_role key bypasses RLS in Netlify functions)
+  async getAllOrders(): Promise<Order[]> {
+    const { data, error } = await this.supabase
+      .from('orders')
+      .select('*, order_items(quantity)')
+      .order('created_at', { ascending: false });
+    if (error) throw new Error(error.message);
+    return (data ?? []) as Order[];
+  }
+
+  // Admin: change order status
+  async updateOrderStatus(orderId: string, status: string): Promise<void> {
+    const { error } = await this.supabase
+      .from('orders')
+      .update({ status, updated_at: new Date().toISOString() })
+      .eq('id', orderId);
+    if (error) throw new Error(error.message);
+  }
+}</code></pre>
+    </div>
+  </section>
+
+  <!-- ══════════════ NETLIFY FUNCTIONS ══════════════ -->
+  <section id="netlify-functions" class="doc-section">
+    <div class="section-eyebrow">Backend &amp; Data</div>
+    <h1>Netlify Functions (Serverless)</h1>
+    <p>Three serverless functions handle all backend operations. They run as AWS Lambda functions under the hood, co-located with the frontend in the same repo. No Express server needed.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">netlify.toml — function routing</span><span class="code-tag tag-bash">TOML</span></div>
+      <pre><code class="language-bash">[functions]
+  directory = "netlify/functions"
+  # Functions auto-mounted at /.netlify/functions/{filename}
+  # stripe-checkout.ts → POST /.netlify/functions/stripe-checkout
+  # stripe-webhook.ts  → POST /.netlify/functions/stripe-webhook
+  # orders.ts          → GET/PATCH /.netlify/functions/orders</code></pre>
+    </div>
+
+    <h2>Function Anatomy</h2>
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">netlify/functions/stripe-checkout.ts (structure)</span><span class="code-tag tag-ts">TS</span></div>
+      <pre><code class="language-typescript">import type { Handler, HandlerEvent } from '@netlify/functions';
+import Stripe from 'stripe';
+import { createClient } from '@supabase/supabase-js';
+
+// Environment variables are set in Netlify dashboard (not committed to git)
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: '2024-11-20.acacia',
+});
+
+// Every Netlify function exports a handler
+export const handler: Handler = async (event: HandlerEvent) => {
+  // 1. Validate HTTP method
+  if (event.httpMethod !== 'POST') {
+    return { statusCode: 405, body: JSON.stringify({ error: 'Method not allowed' }) };
+  }
+
+  // 2. Parse body
+  let body: unknown;
+  try {
+    body = JSON.parse(event.body ?? '{}');
+  } catch {
+    return { statusCode: 400, body: JSON.stringify({ error: 'Invalid JSON body' }) };
+  }
+
+  // 3. Process...
+
+  // 4. Return response (statusCode + body string)
+  return {
+    statusCode: 200,
+    body: JSON.stringify({ url: stripeSession.url }),
+  };
+};</code></pre>
+    </div>
+  </section>
+
+  <!-- ══════════════ STRIPE CHECKOUT ══════════════ -->
+  <section id="stripe-checkout" class="doc-section">
+    <div class="section-eyebrow">Backend &amp; Data</div>
+    <h1>Stripe Checkout Function</h1>
+    <p>The most security-critical code in the app. Validates cart items server-side and creates a Stripe-hosted checkout session.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">netlify/functions/stripe-checkout.ts — price validation</span><span class="code-tag tag-ts">TS</span></div>
+      <pre><code class="language-typescript">// TRUSTED price list (server-side, not from client)
+// Used as fallback if DB is unavailable
+const TRUSTED_PRODUCTS: Record<string, { name: string; price: number; stock: number; is_active: boolean }> = {
+  'b1f1a000-0000-4000-a000-000000000001': { name: 'Rose Car Air Freshener', price: 1799, stock: 100, is_active: true },
+  'b1f1a000-0000-4000-a000-000000000002': { name: 'Lavender Car Air Freshener', price: 1799, stock: 100, is_active: true },
+  'b1f1a000-0000-4000-a000-000000000003': { name: 'Millennium Car Air Freshener', price: 1799, stock: 100, is_active: true },
+};
+
+const SHIPPING_COST = 499;           // $4.99
+const FREE_SHIPPING_THRESHOLD = 3000; // $30.00
+
+// Inside handler:
+
+// 1. Validate prices against DB (uses SERVICE ROLE key — bypasses RLS)
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!, // ← server-only key, never exposed to browser
+);
+
+const { data: dbProducts } = await supabase
+  .from('products')
+  .select('id, name, price, stock, is_active')
+  .in('id', productIds);
+
+// 2. For each item, use DB price OR trusted fallback
+//    NEVER use the price sent by the client
+const validated: Record<string, { price: number }> = {};
+for (const id of productIds) {
+  const fromDb = dbProducts?.find(p => p.id === id);
+  const fromTrusted = TRUSTED_PRODUCTS[id];
+  const source = fromDb ?? fromTrusted;
+
+  if (!source?.is_active) {
+    return { statusCode: 422, body: JSON.stringify({ error: `Product ${id} unavailable` }) };
+  }
+  validated[id] = { price: source.price }; // always server price
+}
+
+// 3. Build Stripe line items using VALIDATED prices
+const lineItems = items.map(item => ({
+  price_data: {
+    currency: 'cad',
+    unit_amount: validated[item.product.id].price,  // ← server price, not client price
+    product_data: {
+      name: validated[item.product.id].name,
+      metadata: { product_id: item.product.id },   // ← stored for webhook
+    },
+  },
+  quantity: item.quantity,
+}));
+
+// 4. Create Stripe session
+const session = await stripe.checkout.sessions.create({
+  payment_method_types: ['card'],
+  mode: 'payment',
+  line_items: lineItems,
+  // Embed metadata for webhook to use
+  metadata: {
+    email,
+    shipping_address: JSON.stringify(shipping),
+  },
+  customer_email: email,
+  success_url: `${origin}/order-confirmation/{CHECKOUT_SESSION_ID}`,
+  cancel_url: `${origin}/checkout`,
+});
+
+return { statusCode: 200, body: JSON.stringify({ url: session.url }) };</code></pre>
+    </div>
+  </section>
+
+  <!-- ══════════════ STRIPE WEBHOOK ══════════════ -->
+  <section id="stripe-webhook" class="doc-section">
+    <div class="section-eyebrow">Backend &amp; Data</div>
+    <h1>Stripe Webhook Function</h1>
+    <p>Receives Stripe events after payment completes. Creates order records in the database. Uses <strong>signature verification</strong> and <strong>idempotency checks</strong>.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">netlify/functions/stripe-webhook.ts</span><span class="code-tag tag-ts">TS</span></div>
+      <pre><code class="language-typescript">export const handler: Handler = async (event: HandlerEvent) => {
+  // 1. SIGNATURE VERIFICATION — prevents fake webhook calls
+  //    Stripe signs every webhook with STRIPE_WEBHOOK_SECRET
+  //    If sig doesn't match → reject immediately
+  const sig = event.headers['stripe-signature'];
+  let stripeEvent: Stripe.Event;
+  try {
+    stripeEvent = stripe.webhooks.constructEvent(
+      event.body ?? '',
+      sig,
+      process.env.STRIPE_WEBHOOK_SECRET,
+    );
+  } catch (err) {
+    return { statusCode: 400, body: JSON.stringify({ error: 'Invalid signature' }) };
+  }
+
+  // 2. Only handle successful checkout events
+  if (stripeEvent.type !== 'checkout.session.completed') {
+    return { statusCode: 200, body: JSON.stringify({ received: true }) };
+  }
+
+  const session = stripeEvent.data.object as Stripe.Checkout.Session;
+
+  // 3. IDEMPOTENCY CHECK — webhooks can fire more than once
+  //    If we already processed this session ID, skip and return 200
+  const { data: existing } = await supabase
+    .from('orders')
+    .select('id')
+    .eq('stripe_session_id', session.id)
+    .single();
+
+  if (existing) {
+    return { statusCode: 200, body: JSON.stringify({ skipped: 'duplicate' }) };
+  }
+
+  // 4. Fetch actual line items from Stripe (prices already validated on checkout)
+  const lineItems = await stripe.checkout.sessions.listLineItems(session.id, {
+    expand: ['data.price.product'],
+  });
+
+  // 5. Write order to Supabase (using service_role key — RLS bypassed)
+  const { data: order } = await supabase
+    .from('orders')
+    .insert({
+      stripe_session_id: session.id,
+      email,
+      status: 'paid',
+      shipping_address: shippingAddress, // JSONB column
+      subtotal, shipping: SHIPPING_COST, total,
+    })
+    .select('id')
+    .single();
+
+  // 6. Write order_items
+  await supabase.from('order_items').insert(orderItems.map(i => ({
+    order_id: order.id,
+    product_id: i.product_id,
+    quantity: i.quantity,
+    unit_price: i.unit_price,
+  })));
+
+  return { statusCode: 200, body: JSON.stringify({ received: true, orderId: order.id }) };
+};</code></pre>
+    </div>
+
+    <div class="callout callout-danger">
+      <strong>🔒 Security: Why Webhook Signature Verification Matters</strong>
+      Without <code>stripe.webhooks.constructEvent()</code>, any attacker could POST to your webhook endpoint with fake "payment completed" data and get orders created without paying. Stripe signs each event with a secret — always verify it.
+    </div>
+  </section>
+
+  <!-- ══════════════ DATABASE ══════════════ -->
+  <section id="database" class="doc-section">
+    <div class="section-eyebrow">Backend &amp; Data</div>
+    <h1>Database Schema</h1>
+    <p>PostgreSQL via Supabase. The schema uses UUIDs as primary keys, stores money as integers (cents), and uses JSONB for flexible address storage.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">supabase/migrations/001_initial_schema.sql (key tables)</span><span class="code-tag tag-sql">SQL</span></div>
+      <pre><code class="language-sql">-- Profiles: extends Supabase auth.users
+-- Created automatically by a trigger on user signup
+CREATE TABLE profiles (
+  id        uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  email     text,
+  full_name text,
+  role      text NOT NULL DEFAULT 'customer',  -- 'customer' | 'admin'
+  created_at timestamptz DEFAULT now()
+);
+
+-- Products catalog
+CREATE TABLE products (
+  id               uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  name             text NOT NULL,
+  slug             text UNIQUE NOT NULL,    -- URL-friendly identifier
+  price            integer NOT NULL,        -- CENTS (e.g. 1799 = $17.99)
+  compare_at_price integer,                 -- original price for "sale" display
+  stock            integer DEFAULT 0,
+  images           text[],                  -- array of image paths
+  category         text,
+  is_active        boolean DEFAULT true,
+  created_at       timestamptz DEFAULT now()
+);
+
+-- Orders
+CREATE TABLE orders (
+  id               uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  stripe_session_id text UNIQUE,           -- for idempotency in webhook
+  user_id          uuid REFERENCES profiles(id),  -- nullable (guest checkout)
+  email            text NOT NULL,
+  status           text DEFAULT 'pending', -- pending|paid|shipped|delivered|cancelled
+  shipping_address jsonb,                  -- JSONB: flexible, no schema migration needed
+  subtotal         integer,                -- cents
+  shipping         integer,                -- cents
+  total            integer,                -- cents
+  created_at       timestamptz DEFAULT now()
+);
+
+-- Order line items (snapshot of price at time of purchase)
+CREATE TABLE order_items (
+  id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  order_id   uuid REFERENCES orders(id) ON DELETE CASCADE,
+  product_id uuid REFERENCES products(id),
+  quantity   integer NOT NULL,
+  unit_price integer NOT NULL,   -- price at time of purchase (immutable snapshot)
+  created_at timestamptz DEFAULT now()
+);
+
+-- Trigger: auto-create profile row when user signs up
+CREATE OR REPLACE FUNCTION handle_new_user() RETURNS trigger AS $$
+BEGIN
+  INSERT INTO profiles(id, email, full_name)
+  VALUES (
+    new.id,
+    new.email,
+    new.raw_user_meta_data->>'full_name'  -- from signUp options.data
+  );
+  RETURN new;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION handle_new_user();</code></pre>
+    </div>
+
+    <h2>Entity Relationship</h2>
+    <div class="arch-box"><span class="hi">auth.users</span> (Supabase managed)
+    │  id (uuid PK)
+    │  email
+    │  encrypted_password
+    └─► <span class="green">profiles</span>
+           │  id (FK → auth.users)
+           │  full_name
+           │  role: 'customer' | '<span class="yellow">admin</span>'
+           └─► <span class="cyan">orders</span>
+                  │  id
+                  │  stripe_session_id (UNIQUE — idempotency)
+                  │  user_id (FK, nullable for guests)
+                  │  status: pending → paid → shipped → delivered
+                  │  shipping_address (JSONB)
+                  │  subtotal / shipping / total (all cents)
+                  └─► <span class="red">order_items</span>
+                         │  order_id (FK)
+                         │  product_id (FK → products)
+                         │  quantity
+                         └─ unit_price  ← SNAPSHOT (not live product price)
+
+<span class="green">products</span>
+    id (uuid)
+    slug (UNIQUE)
+    price / compare_at_price (cents)
+    images (text[])
+    category
+    is_active</div>
+
+    <div class="callout callout-info">
+      <strong>💡 unit_price is a snapshot</strong>
+      <code>order_items.unit_price</code> stores the price at the time of purchase. If the product price is later changed, historical orders remain accurate. This is standard e-commerce data modeling.
+    </div>
+  </section>
+
+  <!-- ══════════════ RLS ══════════════ -->
+  <section id="rls" class="doc-section">
+    <div class="section-eyebrow">Backend &amp; Data</div>
+    <h1>Row Level Security (RLS)</h1>
+    <p>Supabase's RLS is database-level authorization. Even if an attacker bypasses the Angular app and calls the Supabase API directly, they cannot access other users' data.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">supabase/migrations — RLS policies</span><span class="code-tag tag-sql">SQL</span></div>
+      <pre><code class="language-sql">-- Enable RLS on sensitive tables
+ALTER TABLE orders     ENABLE ROW LEVEL SECURITY;
+ALTER TABLE order_items ENABLE ROW LEVEL SECURITY;
+ALTER TABLE profiles   ENABLE ROW LEVEL SECURITY;
+
+-- PROFILES: users can only read/update their own profile
+CREATE POLICY "Users can view own profile" ON profiles
+  FOR SELECT USING (auth.uid() = id);
+
+CREATE POLICY "Users can update own profile" ON profiles
+  FOR UPDATE USING (auth.uid() = id);
+
+-- ORDERS: users can only see orders linked to their email
+CREATE POLICY "Users can view own orders" ON orders
+  FOR SELECT USING (auth.uid() IN (
+    SELECT id FROM profiles WHERE email = orders.email
+  ));
+
+-- PRODUCTS: anyone can read active products (public catalog)
+CREATE POLICY "Anyone can view active products" ON products
+  FOR SELECT USING (is_active = true);
+
+-- PRODUCTS: only admins can write
+CREATE POLICY "Admins can manage products" ON products
+  FOR ALL USING (
+    auth.uid() IN (SELECT id FROM profiles WHERE role = 'admin')
+  );
+
+-- NOTE: Netlify functions use SUPABASE_SERVICE_ROLE_KEY
+-- which bypasses ALL RLS policies (necessary for webhook to write orders)</code></pre>
+    </div>
+
+    <h2>anon vs service_role Key</h2>
+    <table>
+      <thead><tr><th>Key</th><th>Used By</th><th>Respects RLS?</th><th>Location</th></tr></thead>
+      <tbody>
+        <tr><td><code>SUPABASE_ANON_KEY</code></td><td>Angular frontend (<code>SupabaseService</code>)</td><td>✅ Yes — full RLS enforcement</td><td>Frontend environment / public</td></tr>
+        <tr><td><code>SUPABASE_SERVICE_ROLE_KEY</code></td><td>Netlify functions (webhook, checkout)</td><td>❌ No — bypasses all RLS</td><td>Server-only, never in browser</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ══════════════ SECURITY PATTERNS ══════════════ -->
+  <section id="security" class="doc-section">
+    <div class="section-eyebrow">Patterns &amp; Concepts</div>
+    <h1>Security Patterns</h1>
+    <p>This app demonstrates several OWASP-aligned security practices.</p>
+
+    <table>
+      <thead><tr><th>OWASP Risk</th><th>Mitigation in This App</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>A01 — Broken Access Control</strong></td>
+          <td>RLS on Supabase tables; route guards in Angular; admin routes require role check at both UI and DB level</td>
+        </tr>
+        <tr>
+          <td><strong>A02 — Cryptographic Failures</strong></td>
+          <td>Stripe handles all card data (PCI DSS compliant); Supabase handles password hashing (bcrypt); TLS enforced by Netlify CDN</td>
+        </tr>
+        <tr>
+          <td><strong>A04 — Insecure Design</strong></td>
+          <td>Server-side price validation — client-submitted prices are ignored; prices come from DB/trusted list server-side</td>
+        </tr>
+        <tr>
+          <td><strong>A07 — Auth Failures</strong></td>
+          <td>Supabase JWT tokens; webhook signature verification; functional guards protect frontend routes</td>
+        </tr>
+        <tr>
+          <td><strong>A08 — Software Integrity</strong></td>
+          <td>Stripe webhook signature verification prevents fake events; idempotency prevents duplicate orders</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Never-Trust-The-Client Pattern</h2>
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">why server-side validation is essential</span><span class="code-tag tag-ts">TS</span></div>
+      <pre><code class="language-typescript">// ❌ INSECURE: using price from client request
+const lineItems = items.map(item => ({
+  price_data: {
+    unit_amount: item.product.price, // attacker could send price: 1
+  }
+}));
+
+// ✅ SECURE: always use server-authoritative price
+const serverPrice = validated[item.product.id].price; // from DB or TRUSTED_PRODUCTS
+const lineItems = items.map(item => ({
+  price_data: {
+    unit_amount: serverPrice, // cannot be manipulated by client
+  }
+}));</code></pre>
+    </div>
+  </section>
+
+  <!-- ══════════════ STATE MANAGEMENT ══════════════ -->
+  <section id="state-management" class="doc-section">
+    <div class="section-eyebrow">Patterns &amp; Concepts</div>
+    <h1>State Management Architecture</h1>
+    <p>This app uses Angular's built-in Signals for all state — no NgRx, no Zustand, no Redux. State is categorized by scope.</p>
+
+    <table>
+      <thead><tr><th>State</th><th>Location</th><th>Mechanism</th><th>Persistence</th></tr></thead>
+      <tbody>
+        <tr><td>Current user / session</td><td><code>AuthService</code></td><td><code>signal&lt;User&gt;</code></td><td>Supabase JWT (cookie/localStorage)</td></tr>
+        <tr><td>User profile / role</td><td><code>AuthService</code></td><td><code>signal&lt;Profile&gt;</code></td><td>Supabase DB (fetched on login)</td></tr>
+        <tr><td>Shopping cart</td><td><code>CartService</code></td><td><code>signal&lt;CartItem[]&gt;</code> + <code>effect()</code></td><td>localStorage</td></tr>
+        <tr><td>Products list</td><td>Page components</td><td>Local variable (async/await)</td><td>None (refetched on navigate)</td></tr>
+        <tr><td>Order history</td><td>Page components</td><td>Local variable (async/await)</td><td>Supabase DB</td></tr>
+        <tr><td>UI state (menus, modals)</td><td>Individual components</td><td><code>signal&lt;boolean&gt;</code></td><td>None (in-memory only)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout-success">
+      <strong>✅ Why no NgRx?</strong>
+      NgRx (Redux pattern) adds significant boilerplate (actions, reducers, effects, selectors). For an app this size with signals available, the signal-based service approach gives reactive state without the ceremony. If the app grew to need complex cross-service state coordination or time-travel debugging, NgRx would be reconsidered.
+    </div>
+  </section>
+
+  <!-- ══════════════ UTILITY PATTERNS ══════════════ -->
+  <section id="utility-patterns" class="doc-section">
+    <div class="section-eyebrow">Patterns &amp; Concepts</div>
+    <h1>Utility Patterns</h1>
+
+    <h2>cn() — Safe Class Composition</h2>
+    <p>Combines <code>clsx</code> (conditional classes) and <code>tailwind-merge</code> (deduplicates conflicting Tailwind classes) into one utility.</p>
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">src/app/utils/cn.ts</span><span class="code-tag tag-ts">TS</span></div>
+      <pre><code class="language-typescript">import { clsx, type ClassValue } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+
+export function cn(...inputs: ClassValue[]): string {
+  return twMerge(clsx(inputs));
+}
+
+// Usage examples:
+cn('px-4 py-2', isActive && 'bg-purple-600', 'text-white')
+// → 'px-4 py-2 bg-purple-600 text-white'  (when isActive is true)
+
+// Without tailwind-merge, this would break:
+cn('px-4', isLarge ? 'px-8' : '')
+// twMerge ensures only px-8 wins (not 'px-4 px-8' which is ambiguous)
+// → 'px-8'</code></pre>
+    </div>
+
+    <h2>TypeScript Interfaces</h2>
+    <div class="code-block">
+      <div class="code-header"><span class="code-filename">src/app/types/index.ts (key types)</span><span class="code-tag tag-ts">TS</span></div>
+      <pre><code class="language-typescript">export type ProductCategory =
+  | 'lavender' | 'rose' | 'millennium'
+  | 'diffuser' | 'fragrance-oil' | 'essential-oil'
+  | 'candle' | 'ladies-bag' | 'perfume'
+
+export type OrderStatus = 'pending' | 'paid' | 'shipped' | 'delivered' | 'cancelled'
+export type UserRole = 'customer' | 'admin'
+
+export interface Product {
+  id: string
+  name: string
+  slug: string                        // URL-safe identifier
+  price: number                       // always in CENTS
+  compare_at_price: number | null     // for "was $X" display
+  images: string[]                    // array — first image is the hero
+  category: ProductCategory
+  is_active: boolean
+}
+
+export interface CartItem {
+  product: Product
+  quantity: number
+}
+
+export interface Order {
+  id: string
+  stripe_session_id: string
+  status: OrderStatus
+  shipping_address: ShippingAddress   // hydrated from JSONB
+  subtotal: number                    // cents
+  total: number                       // cents
+  order_items?: OrderItem[]           // populated via join
+  created_at: string
+}</code></pre>
+    </div>
+  </section>
+
+  <!-- ══════════════ INTERVIEW Q&A ══════════════ -->
+  <section id="interview-qa" class="doc-section">
+    <div class="section-eyebrow">Patterns &amp; Concepts</div>
+    <h1>Interview Q&amp;A Cheat Sheet</h1>
+
+    <h2>Angular Questions</h2>
+
+    <h3>Q: What is the difference between a standalone component and one declared in NgModule?</h3>
+    <p><strong>A:</strong> A standalone component (<code>standalone: true</code>) declares its own imports in the <code>@Component</code> decorator instead of relying on a shared NgModule. This makes dependencies explicit, enables better tree-shaking, eliminates NgModule boilerplate, and allows components to be lazy-loaded directly via <code>loadComponent()</code>. Every component in this app is standalone.</p>
+
+    <h3>Q: What are Angular Signals and how are they different from RxJS?</h3>
+    <p><strong>A:</strong> Signals are synchronous reactive primitives — <code>signal()</code> creates a writable value, <code>computed()</code> creates derived values, and <code>effect()</code> handles side effects. Unlike RxJS Observables, signals are always synchronous, don't require subscriptions/unsubscriptions, and integrate natively with Angular's change detection. They're best for <em>local synchronous state</em>. RxJS is still superior for async streams, HTTP, or complex event pipelines. In this app, <code>CartService</code> uses signals for cart state and <code>effect()</code> to auto-persist to localStorage.</p>
+
+    <h3>Q: How does lazy loading work with standalone components?</h3>
+    <p><strong>A:</strong> Each route uses <code>loadComponent: () => import('./path').then(m => m.ComponentClass)</code>. The dynamic <code>import()</code> creates a separate webpack chunk. The browser only downloads that chunk when the route is first activated. Guards run before the chunk is even fetched — if they fail, the JS is never downloaded.</p>
+
+    <h3>Q: What is inject() and when do you use it?</h3>
+    <p><strong>A:</strong> <code>inject()</code> is a function that retrieves a dependency from Angular's DI container. It must be called in an injection context (field initializers, constructor, or <code>runInInjectionContext()</code>). It replaces constructor parameter injection and is cleaner in standalone components. Functional guards use <code>inject()</code> since they're not classes.</p>
+
+    <h3>Q: What is the difference between pure and impure pipes?</h3>
+    <p><strong>A:</strong> A <strong>pure pipe</strong> (default) is memoized — Angular only re-runs <code>transform()</code> when the input reference changes. An <strong>impure pipe</strong> (<code>pure: false</code>) re-runs on every change detection cycle regardless of input, which is expensive. <code>FormatPricePipe</code> in this app is pure — it transforms cents to a formatted currency string and only recalculates when the price value changes.</p>
+
+    <h3>Q: Explain the route guard setup in this app.</h3>
+    <p><strong>A:</strong> The app uses two functional guards. <code>authGuard</code> checks <code>AuthService.user()</code> signal — if null, returns <code>router.createUrlTree(['/login'])</code>. <code>adminGuard</code> checks <code>auth.isAdmin()</code> which reads <code>profile().role === 'admin'</code>. Admin routes use <code>canActivate: [authGuard, adminGuard]</code> — all guards must return true (AND logic). If <code>authGuard</code> fails, the router short-circuits and <code>adminGuard</code> never runs.</p>
+
+    <h3>Q: How does change detection work with Signals vs Zone.js?</h3>
+    <p><strong>A:</strong> Classic Angular uses Zone.js to monkey-patch async APIs and trigger change detection after any async operation. With Signals, Angular knows exactly which component depends on which signal — when a signal changes, only those components re-render (fine-grained reactivity). This app still uses Zone.js (<code>provideZoneChangeDetection({ eventCoalescing: true })</code>) but the signals work alongside it. The future is <code>zoneless</code> Angular where Zone.js is removed entirely.</p>
+
+    <h3>Q: What is an InjectionToken and when do you use it instead of a class service?</h3>
+    <p><strong>A:</strong> <code>InjectionToken</code> is used when the value you want to provide is not a class — e.g. a config object, a string, a number, or a factory function. It's strongly typed via the generic <code>InjectionToken&lt;T&gt;</code> and avoids name collision since it's an object reference, not a string. In this app, <code>APP_CONFIG</code> holds shipping thresholds and currency — injected in checkout to replace magic numbers, and easily overridden in tests with a mock value.</p>
+
+    <h3>Q: What is a custom directive and what are @HostListener / @Output used for inside one?</h3>
+    <p><strong>A:</strong> A directive adds behaviour to a DOM element without a template. <code>@HostListener('document:click', ['$event.target'])</code> listens to every click on the document — the host element is identified via <code>ElementRef.nativeElement</code>. If the click lands outside (<code>!el.nativeElement.contains(target)</code>), <code>@Output() clickedOutside</code> emits. The parent binds it with <code>(clickedOutside)="mobileOpen.set(false)"</code>. Angular automatically removes the listener on directive destroy — no manual cleanup.</p>
+
+    <h3>Q: When should you use @defer vs lazy-loaded routes?</h3>
+    <p><strong>A:</strong> Lazy routes are route-level — the entire page component chunk is deferred until navigation. <code>@defer</code> is template-level — parts of a single page can be deferred independently. Use <code>@defer (on viewport)</code> for below-fold sections (testimonials, newsletter) that may never be reached. Use <code>@defer (on interaction)</code> for modals or dialogs. Critical above-fold content stays in the main bundle. Both together give maximum bundle splitting.</p>
+
+    <h3>Q: Explain the RxJS operators used in the navbar search pipeline.</h3>
+    <p><strong>A:</strong> A <code>Subject&lt;string&gt;</code> receives raw keystrokes via <code>.next(value)</code>. <code>debounceTime(300)</code> waits 300ms after the last keystroke — prevents a network call per keypress. <code>distinctUntilChanged()</code> drops the emission if the value hasn't changed. <code>switchMap</code> cancels the previous inner Observable when a new query arrives — critical for search to prevent stale results racing. <code>from(promise)</code> converts the product fetch Promise into an Observable. The <code>async</code> pipe in the template subscribes and auto-unsubscribes.</p>
+
+    <h3>Q: What is the difference between switchMap, mergeMap, and exhaustMap?</h3>
+    <p><strong>A:</strong> <strong>switchMap</strong> cancels the previous inner Observable when a new outer value arrives — use for search (always want the latest). <strong>mergeMap</strong> runs all inner Observables concurrently, no cancellation — use for parallel independent requests. <strong>exhaustMap</strong> ignores new outer values while the current inner Observable is still active — perfect for form submit (prevents double-submit).</p>
+
+    <h3>Q: What is an HTTP Interceptor and how does it work?</h3>
+    <p><strong>A:</strong> An interceptor is middleware in Angular's HttpClient pipeline. Every HTTP request/response passes through registered interceptors in order. The functional form (<code>HttpInterceptorFn</code>) is a function <code>(req, next) => Observable&lt;HttpEvent&gt;</code>. <code>req</code> is immutable — you must call <code>req.clone({...})</code> to modify it. The <code>authInterceptor</code> here reads the Supabase session token, clones the request with an <code>Authorization: Bearer</code> header, then passes it to <code>next(authReq)</code>. Registered via <code>provideHttpClient(withInterceptors([...]))</code>.</p>
+
+    <h3>Q: What is a cross-field validator vs a control-level validator?</h3>
+    <p><strong>A:</strong> A control-level validator (<code>Validators.required</code>, <code>Validators.minLength</code>) applies to a single <code>FormControl</code> and only sees that control's value. A cross-field validator is applied to the <code>FormGroup</code> (second arg of <code>fb.group()</code>) and receives the whole group — enabling comparison between controls. Errors from group-level validators live on <code>form.errors</code>, not on <code>form.get('field').errors</code>. The <code>passwordMatchValidator</code> compares <code>password</code> vs <code>confirm_password</code> and returns <code>{ passwordMismatch: true }</code> if they differ.</p>
+
+    <h2>Architecture Questions</h2>
+
+    <h3>Q: Why are prices in cents (integers) instead of decimals?</h3>
+    <p><strong>A:</strong> Floating-point arithmetic is imprecise — <code>0.1 + 0.2 !== 0.3</code> in JavaScript. Storing money as integers (cents) avoids rounding errors. All arithmetic is done on integers, and only formatting (display) converts to decimal. Stripe also uses cents natively.</p>
+
+    <h3>Q: Why use Netlify Functions instead of a dedicated backend?</h3>
+    <p><strong>A:</strong> The app has minimal backend requirements — just two critical operations (create Stripe session, receive Stripe webhook). Serverless functions eliminate server maintenance, scale to zero cost when idle, and are co-located with the frontend in the same repo and deployment pipeline. A dedicated Node/Express backend would be over-engineering for this use case.</p>
+
+    <h3>Q: How does the app prevent a user from manipulating prices at checkout?</h3>
+    <p><strong>A:</strong> The Angular checkout page sends cart items to the serverless function, but the function <em>ignores the client-submitted price</em>. It fetches prices from Supabase (or the <code>TRUSTED_PRODUCTS</code> server-side map) and creates the Stripe session with those authoritative prices. Even if a user edits the network request in devtools to change <code>price: 1</code>, the actual charge will be <code>1799</code> (the real price).</p>
+
+    <h3>Q: What is Row Level Security and why is it important?</h3>
+    <p><strong>A:</strong> RLS is a PostgreSQL feature that filters rows based on the current database user's identity. In Supabase, it uses the JWT token to identify the user. With RLS enabled on <code>orders</code>, a user can only SELECT rows where <code>email = their email</code> — even if they call the Supabase API directly. This is database-level authorization, not just application-level. Without RLS, a user could query all orders by changing the request.</p>
+
+    <h3>Q: What is idempotency and why does the webhook implement it?</h3>
+    <p><strong>A:</strong> Idempotency means an operation produces the same result no matter how many times it's called. Stripe may send a webhook event more than once (network retries, failures). Without idempotency, the same payment could create multiple orders. The webhook checks if <code>orders.stripe_session_id</code> already exists — if so, it skips insertion and returns 200 (confirming receipt to Stripe).</p>
+  </section>
+
+</main>
+
+<!-- ═══════════════════ BACK TO TOP ═══════════════════ -->
+<button id="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">↑</button>
+
+<script>
+  // ── HIGHLIGHT.JS ──────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+    hljs.highlightAll();
+  });
+
+  // ── BACK TO TOP ───────────────────────────────────────────────
+  const btn = document.getElementById('back-to-top');
+  window.addEventListener('scroll', () => {
+    btn.classList.toggle('visible', window.scrollY > 400);
+  });
+
+  // ── ACTIVE NAV LINK ───────────────────────────────────────────
+  const sections = document.querySelectorAll('.doc-section');
+  const navLinks = document.querySelectorAll('.nav-link');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        navLinks.forEach(link => {
+          link.classList.toggle('active', link.getAttribute('href') === '#' + id);
+        });
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+
+  // ── SEARCH ────────────────────────────────────────────────────
+  const searchBox = document.getElementById('search-box');
+  let originalContent = new Map();
+
+  searchBox.addEventListener('input', () => {
+    const query = searchBox.value.trim().toLowerCase();
+
+    // Clear previous highlights
+    document.querySelectorAll('mark').forEach(m => {
+      const parent = m.parentNode;
+      parent.replaceChild(document.createTextNode(m.textContent), m);
+      parent.normalize();
+    });
+
+    if (!query) {
+      // Show all sections
+      sections.forEach(s => s.classList.remove('hidden'));
+      navLinks.forEach(l => l.classList.remove('hidden'));
+      return;
+    }
+
+    sections.forEach(section => {
+      const text = section.textContent.toLowerCase();
+      const visible = text.includes(query);
+      section.classList.toggle('hidden', !visible);
+
+      // Update nav
+      const id = section.id;
+      const link = document.querySelector(`.nav-link[href="#${id}"]`);
+      if (link) link.classList.toggle('hidden', !visible);
+    });
+  });
+</script>
+</body>
+</html>

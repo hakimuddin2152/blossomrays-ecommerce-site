@@ -28,38 +28,38 @@ import type { Product } from '../../types';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterLink, CommonModule, FormatPricePipe],
   template: `
-    <div class="group card rounded-lg overflow-hidden hover:shadow-soft-lg transition-all duration-300">
+    <div class="group card overflow-hidden hover:shadow-soft-lg hover:-translate-y-0.5 transition-all duration-300">
       <!-- Image -->
-      <a [routerLink]="['/products', product.slug]" class="block aspect-[4/3] overflow-hidden bg-cream">
+      <a [routerLink]="['/products', product.slug]" class="block aspect-[4/3] overflow-hidden bg-cream-light">
         <img
           [src]="product.images[0] || '/images/lavender/1.jpg'"
           [alt]="product.name"
-          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          class="w-full h-full object-cover group-hover:scale-103 transition-transform duration-700"
           loading="lazy"
         />
       </a>
 
       <!-- Info -->
-      <div class="p-4 flex flex-col gap-1.5">
-        <p class="font-body text-[10px] font-semibold tracking-widest uppercase text-gold">{{ product.category }}</p>
+      <div class="p-5 flex flex-col gap-1.5">
+        <p class="font-body text-[10px] font-semibold tracking-[0.22em] uppercase text-gold">{{ product.category }}</p>
         <a [routerLink]="['/products', product.slug]">
-          <h3 class="font-display text-base font-semibold text-plum leading-snug group-hover:text-gold transition-colors">
+          <h3 class="font-display text-[1.05rem] font-semibold text-plum leading-snug group-hover:text-gold transition-colors duration-200">
             {{ product.name }}
           </h3>
         </a>
         <p *ngIf="product.tagline" class="font-body text-[11px] text-muted leading-relaxed">{{ product.tagline }}</p>
 
-        <!-- Price row — uses FormatPricePipe instead of a function call -->
-        <div class="flex items-center gap-2 mt-1">
+        <!-- Price row -->
+        <div class="flex items-baseline gap-2 mt-1">
           <span class="font-body text-sm font-semibold text-plum">{{ product.price | formatPrice }}</span>
-          <span *ngIf="product.compare_at_price" class="font-body text-xs text-muted line-through">
+          <span *ngIf="product.compare_at_price" class="font-body text-xs text-stone line-through">
             {{ product.compare_at_price | formatPrice }}
           </span>
           <span
             *ngIf="product.compare_at_price"
-            class="ml-auto text-[10px] font-body font-semibold tracking-wide text-rose-dark"
+            class="ml-auto text-[10px] font-body font-semibold tracking-wide text-gold"
           >
-            Save {{ discount() }}%
+            −{{ discount() }}%
           </span>
         </div>
 
@@ -67,7 +67,7 @@ import type { Product } from '../../types';
         <button
           (click)="addToCart()"
           [disabled]="product.stock === 0"
-          class="btn-primary w-full mt-2 py-2.5 text-[10px]"
+          class="btn-primary w-full mt-3 py-2.5 text-[10px]"
         >
           {{ product.stock === 0 ? 'Out of Stock' : 'Add to Cart' }}
         </button>

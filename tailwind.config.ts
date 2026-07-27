@@ -7,12 +7,13 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Stelina palette
+        // Base palette
         cream: {
-          DEFAULT: '#FAFAF8',  // warm off-white body
-          dark: '#E8E5E0',     // neutral borders/dividers
-          light: '#F5F3F0',    // section bg, product image bg
+          DEFAULT: '#FAFAF8',  // warm off-white body bg
+          dark: '#E2DDD6',     // warm separator / border
+          light: '#F4F0EA',    // section bg, product image bg
         },
+        // Product accent colors (used inline per-product, not as global classes)
         lavender: {
           light: '#ECEDF7',
           DEFAULT: '#8B89C8',
@@ -23,18 +24,20 @@ const config: Config = {
           DEFAULT: '#C87868',
           dark: '#9A4E40',
         },
-        // Rich ink black — headings, CTAs, footer, dark panels
-        plum: '#111111',
-        // Warm honey gold — CTA buttons, eyebrows, prices, accents
-        gold: '#C49A6C',
-        // Neutral mid-gray — body text, secondary info
-        muted: '#777777',
-        // Sage green — kept for trust marks
         sage: {
           light: '#D8E9D2',
           DEFAULT: '#6B8F61',
           dark: '#3F6038',
         },
+        // Core brand tokens
+        // Warm ink — headings, icons, dark panels, footer
+        plum: '#1C1C1A',
+        // Champagne gold — the ONLY UI accent: CTAs, prices, badges, eyebrows
+        gold: '#C49A6C',
+        // Warm mid-gray — body copy, secondary labels
+        muted: '#7A7570',
+        // Subtle warm stone — dividers, card borders, input strokes
+        stone: '#C8C3BA',
       },
       fontFamily: {
         display: ['Cormorant Garamond', 'Georgia', 'serif'],
