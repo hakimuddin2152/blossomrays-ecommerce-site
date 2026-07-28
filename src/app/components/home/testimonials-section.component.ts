@@ -58,7 +58,7 @@ const testimonials = [
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div
             *ngFor="let t of testimonials"
-            class="bg-white border border-cream-dark p-8 space-y-5 hover:shadow-soft transition-shadow duration-300"
+            class="bg-white border border-cream-dark p-5 sm:p-8 space-y-5 hover:shadow-soft transition-shadow duration-300"
           >
             <!-- Stars -->
             <div class="flex gap-1">

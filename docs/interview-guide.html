@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BlossomRays — Angular Interview Guide</title>
+<style>
+  /* ── Reset & Base ─────────────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --plum:   #5b2d6e;
+    --gold:   #c49a3c;
+    --cream:  #faf7f2;
+    --muted:  #8a7a8a;
+    --dark:   #1a1a2e;
+    --green:  #2d7a4f;
+    --red:    #b83232;
+    --blue:   #1a5fa8;
+    --orange: #c45c1a;
+    --card:   #ffffff;
+    --border: #e8e0f0;
+    --code-bg:#f0ebf7;
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--cream);
+    color: var(--dark);
+    line-height: 1.7;
+    font-size: 15px;
+  }
+
+  /* ── Layout ───────────────────────────────────────────────────────── */
+  .page { max-width: 960px; margin: 0 auto; padding: 40px 24px 80px; }
+
+  /* ── Header ───────────────────────────────────────────────────────── */
+  .hero {
+    background: linear-gradient(135deg, var(--plum) 0%, #8b3fa8 100%);
+    color: white; border-radius: 16px; padding: 48px 40px;
+    margin-bottom: 40px; position: relative; overflow: hidden;
+  }
+  .hero::after {
+    content: '🌸'; position: absolute; right: 40px; top: 50%;
+    transform: translateY(-50%); font-size: 80px; opacity: 0.2;
+  }
+  .hero h1 { font-size: 2rem; font-weight: 700; margin-bottom: 8px; }
+  .hero p  { opacity: 0.85; font-size: 1rem; max-width: 560px; }
+  .badge {
+    display: inline-block; background: var(--gold); color: white;
+    font-size: 11px; font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase; padding: 4px 12px; border-radius: 20px;
+    margin-bottom: 16px;
+  }
+
+  /* ── TOC ──────────────────────────────────────────────────────────── */
+  .toc {
+    background: white; border: 1px solid var(--border); border-radius: 12px;
+    padding: 24px 28px; margin-bottom: 40px;
+  }
+  .toc h3 { font-size: 0.75rem; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 14px; }
+  .toc ol { padding-left: 20px; }
+  .toc li { margin: 6px 0; }
+  .toc a  { color: var(--plum); text-decoration: none; font-weight: 500; }
+  .toc a:hover { text-decoration: underline; }
+
+  /* ── Sections ─────────────────────────────────────────────────────── */
+  .section { margin-bottom: 56px; }
+  .section-title {
+    font-size: 1.5rem; font-weight: 700; color: var(--plum);
+    border-bottom: 3px solid var(--gold); padding-bottom: 8px;
+    margin-bottom: 24px; display: flex; align-items: center; gap: 10px;
+  }
+  .section-title .num {
+    background: var(--plum); color: white; border-radius: 50%;
+    width: 32px; height: 32px; display: flex; align-items: center;
+    justify-content: center; font-size: 14px; flex-shrink: 0;
+  }
+  h3.sub { font-size: 1.05rem; font-weight: 700; color: var(--dark);
+    margin: 24px 0 10px; }
+
+  /* ── Cards ────────────────────────────────────────────────────────── */
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px 24px; margin-bottom: 16px;
+  }
+  .card-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media(max-width:640px){ .card-row { grid-template-columns: 1fr; } }
+
+  /* ── Code ─────────────────────────────────────────────────────────── */
+  pre {
+    background: #1e1e2e; color: #cdd6f4; border-radius: 10px;
+    padding: 18px 20px; overflow-x: auto; font-size: 13px;
+    line-height: 1.6; margin: 12px 0;
+  }
+  code { font-family: 'Cascadia Code', 'Fira Code', monospace; }
+  .inline-code {
+    background: var(--code-bg); color: var(--plum); padding: 1px 7px;
+    border-radius: 5px; font-family: monospace; font-size: 13px;
+  }
+  /* syntax highlight colours */
+  .kw  { color: #cba6f7; }  /* keyword */
+  .fn  { color: #89b4fa; }  /* function/decorator */
+  .st  { color: #a6e3a1; }  /* string */
+  .cm  { color: #6c7086; font-style: italic; }  /* comment */
+  .nm  { color: #fab387; }  /* name / type */
+  .op  { color: #89dceb; }  /* operator */
+
+  /* ── Diagram boxes ────────────────────────────────────────────────── */
+  .diagram {
+    background: white; border: 2px solid var(--border); border-radius: 12px;
+    padding: 28px; margin: 16px 0; overflow-x: auto;
+  }
+  .diagram svg { display: block; max-width: 100%; height: auto; }
+
+  /* ── Callouts ─────────────────────────────────────────────────────── */
+  .note {
+    border-left: 4px solid var(--blue); background: #eef4ff;
+    padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 14px 0;
+    font-size: 14px;
+  }
+  .tip {
+    border-left: 4px solid var(--green); background: #eefaf3;
+    padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 14px 0;
+    font-size: 14px;
+  }
+  .warn {
+    border-left: 4px solid var(--gold); background: #fef9ec;
+    padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 14px 0;
+    font-size: 14px;
+  }
+
+  /* ── Q&A ──────────────────────────────────────────────────────────── */
+  .qa { margin-bottom: 20px; }
+  .question {
+    background: var(--plum); color: white; padding: 14px 20px;
+    border-radius: 10px 10px 0 0; font-weight: 600; font-size: 14px;
+    display: flex; gap: 10px; align-items: flex-start;
+  }
+  .question .q-tag {
+    background: var(--gold); color: white; border-radius: 4px;
+    padding: 1px 8px; font-size: 12px; font-weight: 700; flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .answer {
+    background: white; border: 1px solid var(--border); border-top: none;
+    padding: 16px 20px; border-radius: 0 0 10px 10px; font-size: 14px;
+    line-height: 1.7;
+  }
+  .answer strong { color: var(--plum); }
+
+  /* ── Concept pills ────────────────────────────────────────────────── */
+  .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+  .pill {
+    border-radius: 20px; padding: 4px 14px; font-size: 12px;
+    font-weight: 600; border: 2px solid;
+  }
+  .pill-plum  { background:#f3eaf7; color:var(--plum);  border-color:var(--plum);  }
+  .pill-green { background:#eefaf3; color:var(--green); border-color:var(--green); }
+  .pill-gold  { background:#fef9ec; color:var(--gold);  border-color:var(--gold);  }
+  .pill-blue  { background:#eef4ff; color:var(--blue);  border-color:var(--blue);  }
+  .pill-red   { background:#fceaea; color:var(--red);   border-color:var(--red);   }
+
+  /* ── Flow steps ───────────────────────────────────────────────────── */
+  .flow { display: flex; flex-direction: column; gap: 0; }
+  .flow-step {
+    display: flex; gap: 16px; align-items: flex-start; position: relative;
+  }
+  .flow-step:not(:last-child)::after {
+    content: ''; position: absolute; left: 19px; top: 40px;
+    width: 2px; height: calc(100% + 0px); background: var(--border);
+  }
+  .flow-dot {
+    width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 14px; color: white; position: relative; z-index: 1;
+  }
+  .flow-body { padding-bottom: 24px; flex: 1; }
+  .flow-body strong { display: block; font-size: 14px; margin-bottom: 4px; }
+  .flow-body p { font-size: 13px; color: #555; }
+
+  /* ── Comparison table ─────────────────────────────────────────────── */
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13px; }
+  th { background: var(--plum); color: white; padding: 10px 14px; text-align: left; font-weight: 600; }
+  td { padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tr:nth-child(even) td { background: #faf7ff; }
+
+  /* ── Sticky nav ───────────────────────────────────────────────────── */
+  .sticky-nav {
+    position: sticky; top: 0; background: rgba(250,247,242,0.95);
+    backdrop-filter: blur(6px); border-bottom: 1px solid var(--border);
+    padding: 10px 0; z-index: 100; margin: 0 -24px; padding: 10px 24px;
+  }
+  .sticky-nav-inner { max-width: 960px; margin: 0 auto;
+    display: flex; gap: 6px; flex-wrap: wrap; }
+  .snav-link {
+    font-size: 12px; font-weight: 600; color: var(--plum);
+    text-decoration: none; padding: 4px 10px; border-radius: 20px;
+    border: 1px solid var(--border); background: white;
+    white-space: nowrap;
+  }
+  .snav-link:hover { background: var(--plum); color: white; }
+
+  /* ── Cheatsheet ───────────────────────────────────────────────────── */
+  .cheatsheet {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 12px; margin: 12px 0;
+  }
+  @media(max-width:600px){ .cheatsheet { grid-template-columns: 1fr; } }
+  .cs-item {
+    background: white; border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .cs-item .cs-term {
+    font-weight: 700; color: var(--plum); font-family: monospace;
+    font-size: 14px; margin-bottom: 4px;
+  }
+  .cs-item .cs-def { font-size: 13px; color: #444; }
+</style>
+</head>
+<body>
+
+<div class="sticky-nav">
+  <div class="sticky-nav-inner">
+    <a class="snav-link" href="#what-is-this">What Is This?</a>
+    <a class="snav-link" href="#how-angular-works">How Angular Works</a>
+    <a class="snav-link" href="#app-structure">App Structure</a>
+    <a class="snav-link" href="#key-concepts">Key Concepts</a>
+    <a class="snav-link" href="#data-flow">Data Flow</a>
+    <a class="snav-link" href="#auth-flow">Auth Flow</a>
+    <a class="snav-link" href="#payment-flow">Payment Flow</a>
+    <a class="snav-link" href="#interview-qa">Interview Q&amp;A</a>
+    <a class="snav-link" href="#cheatsheet">Cheatsheet</a>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="badge">Interview Prep 2026</div>
+    <h1>BlossomRays — Angular Deep Dive</h1>
+    <p>A beginner-friendly visual walkthrough of how the entire app works. Read top to bottom before your interview. No prior Angular knowledge assumed.</p>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <h3>Contents</h3>
+    <ol>
+      <li><a href="#what-is-this">What Is This App?</a></li>
+      <li><a href="#how-angular-works">How Angular Works (from zero)</a></li>
+      <li><a href="#app-structure">BlossomRays App Structure Diagram</a></li>
+      <li><a href="#key-concepts">10 Key Angular Concepts Used</a></li>
+      <li><a href="#data-flow">How Data Flows Through The App</a></li>
+      <li><a href="#auth-flow">Authentication Flow</a></li>
+      <li><a href="#payment-flow">Checkout &amp; Payment Flow</a></li>
+      <li><a href="#interview-qa">Interview Questions &amp; Plain-English Answers</a></li>
+      <li><a href="#cheatsheet">One-Page Cheatsheet</a></li>
+    </ol>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- SECTION 1 — WHAT IS THIS APP                           -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <div class="section" id="what-is-this">
+    <div class="section-title"><span class="num">1</span> What Is This App?</div>
+
+    <p>BlossomRays is an <strong>online fragrance &amp; lifestyle shop</strong>. Customers browse products, add them to a cart, check out via Stripe, and receive an order confirmation. There is also an admin panel for managing orders and products.</p>
+
+    <div class="diagram">
+      <svg viewBox="0 0 820 320" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, sans-serif" font-size="13">
+
+        <!-- Browser box -->
+        <rect x="20" y="30" width="200" height="260" rx="12" fill="#f3eaf7" stroke="#5b2d6e" stroke-width="2"/>
+        <text x="120" y="58" text-anchor="middle" fill="#5b2d6e" font-weight="700" font-size="14">🌐 Browser</text>
+        <text x="120" y="78" text-anchor="middle" fill="#5b2d6e" font-size="11">(Customer's Device)</text>
+        <rect x="40" y="92" width="160" height="34" rx="6" fill="#5b2d6e"/>
+        <text x="120" y="114" text-anchor="middle" fill="white" font-weight="600">Angular 22 App</text>
+        <rect x="40" y="136" width="160" height="28" rx="6" fill="#e8e0f0"/>
+        <text x="120" y="155" text-anchor="middle" fill="#333">UI Components</text>
+        <rect x="40" y="174" width="160" height="28" rx="6" fill="#e8e0f0"/>
+        <text x="120" y="193" text-anchor="middle" fill="#333">Routing (Pages)</text>
+        <rect x="40" y="212" width="160" height="28" rx="6" fill="#e8e0f0"/>
+        <text x="120" y="231" text-anchor="middle" fill="#333">Signals (State)</text>
+        <rect x="40" y="250" width="160" height="28" rx="6" fill="#e8e0f0"/>
+        <text x="120" y="269" text-anchor="middle" fill="#333">Tailwind CSS</text>
+
+        <!-- Arrow: browser → Netlify -->
+        <line x1="220" y1="160" x2="290" y2="160" stroke="#c49a3c" stroke-width="2" marker-end="url(#arr)"/>
+        <text x="255" y="148" text-anchor="middle" fill="#c49a3c" font-size="11">HTTP</text>
+
+        <!-- Netlify box -->
+        <rect x="290" y="60" width="180" height="200" rx="12" fill="#eef9ef" stroke="#2d7a4f" stroke-width="2"/>
+        <text x="380" y="88" text-anchor="middle" fill="#2d7a4f" font-weight="700" font-size="14">⚡ Netlify</text>
+        <text x="380" y="106" text-anchor="middle" fill="#2d7a4f" font-size="11">(Serverless Host)</text>
+        <rect x="308" y="120" width="144" height="30" rx="6" fill="#2d7a4f"/>
+        <text x="380" y="140" text-anchor="middle" fill="white" font-weight="600">Static Angular Files</text>
+        <rect x="308" y="160" width="144" height="28" rx="6" fill="#c9ecd4"/>
+        <text x="380" y="179" text-anchor="middle" fill="#1a5a35">stripe-checkout.ts</text>
+        <rect x="308" y="196" width="144" height="28" rx="6" fill="#c9ecd4"/>
+        <text x="380" y="215" text-anchor="middle" fill="#1a5a35">stripe-webhook.ts</text>
+        <rect x="308" y="232" width="144" height="28" rx="6" fill="#c9ecd4"/>
+        <text x="380" y="251" text-anchor="middle" fill="#1a5a35">orders.ts</text>
+
+        <!-- Arrow: Netlify → Supabase -->
+        <line x1="470" y1="130" x2="540" y2="130" stroke="#1a5fa8" stroke-width="2" marker-end="url(#arr2)"/>
+        <text x="505" y="120" text-anchor="middle" fill="#1a5fa8" font-size="11">SQL</text>
+
+        <!-- Arrow: Netlify → Stripe -->
+        <line x1="470" y1="200" x2="540" y2="240" stroke="#c45c1a" stroke-width="2" marker-end="url(#arr3)"/>
+        <text x="505" y="220" text-anchor="middle" fill="#c45c1a" font-size="11">API</text>
+
+        <!-- Supabase -->
+        <rect x="540" y="60" width="170" height="120" rx="12" fill="#eef4ff" stroke="#1a5fa8" stroke-width="2"/>
+        <text x="625" y="88" text-anchor="middle" fill="#1a5fa8" font-weight="700" font-size="14">🗄️ Supabase</text>
+        <rect x="558" y="100" width="134" height="28" rx="6" fill="#1a5fa8"/>
+        <text x="625" y="119" text-anchor="middle" fill="white" font-weight="600">PostgreSQL DB</text>
+        <rect x="558" y="136" width="134" height="28" rx="6" fill="#d0dfff"/>
+        <text x="625" y="155" text-anchor="middle" fill="#1a5fa8">Auth + Sessions</text>
+
+        <!-- Stripe -->
+        <rect x="540" y="210" width="170" height="80" rx="12" fill="#fff0e8" stroke="#c45c1a" stroke-width="2"/>
+        <text x="625" y="238" text-anchor="middle" fill="#c45c1a" font-weight="700" font-size="14">💳 Stripe</text>
+        <rect x="558" y="250" width="134" height="28" rx="6" fill="#c45c1a"/>
+        <text x="625" y="269" text-anchor="middle" fill="white" font-weight="600">Payments</text>
+
+        <!-- Arrow defs -->
+        <defs>
+          <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#c49a3c"/>
+          </marker>
+          <marker id="arr2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#1a5fa8"/>
+          </marker>
+          <marker id="arr3" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#c45c1a"/>
+          </marker>
+        </defs>
+      </svg>
+    </div>
+
+    <div class="card-row">
+      <div class="card">
+        <strong>Tech Stack</strong>
+        <div class="pill-row" style="margin-top:10px">
+          <span class="pill pill-plum">Angular 22</span>
+          <span class="pill pill-gold">TypeScript</span>
+          <span class="pill pill-green">Supabase</span>
+          <span class="pill pill-blue">Tailwind CSS</span>
+          <span class="pill pill-red">Stripe</span>
+          <span class="pill pill-gold">Netlify</span>
+        </div>
+      </div>
+      <div class="card">
+        <strong>Pages in the App</strong>
+        <ul style="margin-top:10px; font-size:13px; padding-left:18px; line-height:2">
+          <li>Home, Products, Product Detail</li>
+          <li>Cart, Checkout, Order Confirmation</li>
+          <li>Login, Register, Account</li>
+          <li>Admin Dashboard, Admin Orders, Admin Products</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- SECTION 2 — HOW ANGULAR WORKS                          -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <div class="section" id="how-angular-works">
+    <div class="section-title"><span class="num">2</span> How Angular Works — From Zero</div>
+
+    <p>Think of a web page as a tree of LEGO bricks. Each brick is a <strong>Component</strong>. Angular is the system that builds, connects, and updates those bricks when data changes.</p>
+
+    <h3 class="sub">2.1 — The Three Big Ideas</h3>
+
+    <div class="card-row">
+      <div class="card">
+        <div style="font-size:28px; margin-bottom:8px">🧱</div>
+        <strong>Components</strong>
+        <p style="font-size:13px; margin-top:6px; color:#555">A component = a piece of the screen. It has HTML (template), logic (TypeScript class), and styling. Examples: NavbarComponent, ProductCardComponent, CartDrawerComponent.</p>
+      </div>
+      <div class="card">
+        <div style="font-size:28px; margin-bottom:8px">💉</div>
+        <strong>Services &amp; Dependency Injection</strong>
+        <p style="font-size:13px; margin-top:6px; color:#555">Services hold shared logic (e.g. fetch products, manage cart). Dependency Injection (DI) is Angular's way of handing a service to any component that needs it — you don't create them manually.</p>
+      </div>
+    </div>
+    <div class="card-row">
+      <div class="card">
+        <div style="font-size:28px; margin-bottom:8px">🔀</div>
+        <strong>Router</strong>
+        <p style="font-size:13px; margin-top:6px; color:#555">The Router maps a URL path to a component. When you navigate to <code class="inline-code">/products</code>, Angular loads <code class="inline-code">ProductsComponent</code> into the page without a full page reload.</p>
+      </div>
+      <div class="card">
+        <div style="font-size:28px; margin-bottom:8px">⚡</div>
+        <strong>Signals (Reactive State)</strong>
+        <p style="font-size:13px; margin-top:6px; color:#555">A signal is a variable that Angular watches. When the signal changes, Angular automatically updates the parts of the screen that use it — no manual DOM manipulation needed.</p>
+      </div>
+    </div>
+
+    <h3 class="sub">2.2 — What Happens When You Open The App</h3>
+    <div class="flow" style="margin-top:16px">
+      <div class="flow-step">
+        <div class="flow-dot" style="background:#5b2d6e">1</div>
+        <div class="flow-body">
+          <strong>Browser loads index.html + main.js bundle</strong>
+          <p>Netlify serves the compiled Angular files. The browser downloads them.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-dot" style="background:#8b3fa8">2</div>
+        <div class="flow-body">
+          <strong>Angular bootstraps the app</strong>
+          <p><code class="inline-code">main.ts</code> calls <code class="inline-code">bootstrapApplication(AppComponent, appConfig)</code>. Angular starts up with the config you defined.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-dot" style="background:#c49a3c">3</div>
+        <div class="flow-body">
+          <strong>AppComponent renders the shell</strong>
+          <p>It shows the AnnouncementBar, Navbar, a <code class="inline-code">&lt;router-outlet&gt;</code> placeholder, and Footer.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-dot" style="background:#2d7a4f">4</div>
+        <div class="flow-body">
+          <strong>Router matches the URL and loads the right page</strong>
+          <p>If the URL is <code class="inline-code">/products</code>, Angular downloads the <code class="inline-code">ProductsComponent</code> bundle and renders it inside the <code class="inline-code">&lt;router-outlet&gt;</code>.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-dot" style="background:#1a5fa8">5</div>
+        <div class="flow-body">
+          <strong>Services fetch data, Signals update the UI</strong>
+          <p><code class="inline-code">ProductService</code> queries Supabase. When data arrives it sets a signal. The template automatically re-renders with the new products list.</p>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="sub">2.3 — A Component Explained Line by Line</h3>
+    <pre><code><span class="cm">// This is a TypeScript file. The @ symbol means "decorator" — metadata Angular reads.</span>
+
+<span class="fn">@Component</span>({
+  selector: <span class="st">'app-product-card'</span>,  <span class="cm">// the HTML tag: &lt;app-product-card&gt;</span>
+  standalone: <span class="kw">true</span>,              <span class="cm">// no NgModule needed — modern Angular</span>
+  imports: [RouterLink, CommonModule], <span class="cm">// other components/directives this one uses</span>
+  template: `                        <span class="cm">// the HTML for this component</span>
+    &lt;div&gt;
+      &lt;h2&gt;{{ product.name }}&lt;/h2&gt;  <span class="cm">// {{ }} = display a value</span>
+      &lt;p [style.color]="'red'"&gt;    <span class="cm">// [ ] = bind a property</span>
+      &lt;button (click)="addToCart()"&gt; <span class="cm">// ( ) = listen to an event</span>
+    &lt;/div&gt;
+  `
+})
+<span class="kw">export class</span> <span class="nm">ProductCardComponent</span> {
+  <span class="fn">@Input</span>() product!: <span class="nm">Product</span>;    <span class="cm">// data passed IN from parent component</span>
+  <span class="fn">@Output</span>() cartAdded = <span class="kw">new</span> <span class="nm">EventEmitter</span>&lt;<span class="nm">Product</span>&gt;(); <span class="cm">// event sent OUT to parent</span>
+
+  <span class="kw">private readonly</span> cart = <span class="fn">inject</span>(<span class="nm">CartService</span>); <span class="cm">// ask Angular for CartService</span>
+
+  addToCart() {
+    <span class="kw">this</span>.cart.addItem(<span class="kw">this</span>.product);
+    <span class="kw">this</span>.cartAdded.<span class="fn">emit</span>(<span class="kw">this</span>.product); <span class="cm">// tell the parent it happened</span>
+  }
+}</code></pre>
+    <div class="note">💡 <strong>Key insight:</strong> Every component is just a TypeScript class with an <code class="inline-code">@Component</code> decorator that adds the HTML template. That's it.</div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- SECTION 3 — APP STRUCTURE                              -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <div class="section" id="app-structure">
+    <div class="section-title"><span class="num">3</span> BlossomRays App Structure</div>
+
+    <h3 class="sub">3.1 — Folder Map</h3>
+    <div class="diagram">
+      <svg viewBox="0 0 780 420" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, sans-serif" font-size="12">
+
+        <!-- src/app -->
+        <rect x="10" y="10" width="760" height="400" rx="12" fill="#faf7ff" stroke="#5b2d6e" stroke-width="1.5"/>
+        <text x="30" y="34" fill="#5b2d6e" font-weight="700" font-size="14">📁 src/app/</text>
+
+        <!-- components col -->
+        <rect x="30" y="50" width="160" height="320" rx="8" fill="white" stroke="#e8e0f0" stroke-width="1"/>
+        <text x="110" y="70" text-anchor="middle" fill="#8b3fa8" font-weight="700">components/</text>
+        <text x="50" y="90"  fill="#555">layout/</text>
+        <text x="66" y="108" fill="#888">navbar</text>
+        <text x="66" y="124" fill="#888">footer</text>
+        <text x="66" y="140" fill="#888">announcement-bar</text>
+        <text x="50" y="162" fill="#555">home/</text>
+        <text x="66" y="180" fill="#888">hero-section</text>
+        <text x="66" y="196" fill="#888">testimonials</text>
+        <text x="66" y="212" fill="#888">scent-highlights</text>
+        <text x="50" y="234" fill="#555">products/</text>
+        <text x="66" y="252" fill="#888">product-card</text>
+        <text x="50" y="274" fill="#555">cart/</text>
+        <text x="66" y="292" fill="#888">cart-drawer</text>
+        <text x="50" y="314" fill="#555">shared/</text>
+        <text x="66" y="332" fill="#888">page-header</text>
+
+        <!-- pages col -->
+        <rect x="206" y="50" width="160" height="320" rx="8" fill="white" stroke="#e8e0f0" stroke-width="1"/>
+        <text x="286" y="70" text-anchor="middle" fill="#1a5fa8" font-weight="700">pages/</text>
+        <text x="226" y="92"  fill="#888">home/</text>
+        <text x="226" y="110" fill="#888">products/</text>
+        <text x="226" y="128" fill="#888">product-detail/</text>
+        <text x="226" y="146" fill="#888">cart/</text>
+        <text x="226" y="164" fill="#888">checkout/</text>
+        <text x="226" y="182" fill="#888">order-confirmation/</text>
+        <text x="226" y="200" fill="#888">login/</text>
+        <text x="226" y="218" fill="#888">register/</text>
+        <text x="226" y="236" fill="#888">account/</text>
+        <text x="226" y="254" fill="#888">account-orders/</text>
+        <text x="226" y="272" fill="#888">account-order-detail/</text>
+        <text x="226" y="290" fill="#888">admin/</text>
+        <text x="226" y="308" fill="#888">admin-orders/</text>
+        <text x="226" y="326" fill="#888">admin-products/</text>
+        <text x="226" y="344" fill="#888">not-found/</text>
+
+        <!-- services col -->
+        <rect x="382" y="50" width="140" height="200" rx="8" fill="white" stroke="#e8e0f0" stroke-width="1"/>
+        <text x="452" y="70" text-anchor="middle" fill="#2d7a4f" font-weight="700">services/</text>
+        <text x="400" y="92"  fill="#888">auth.service</text>
+        <text x="400" y="110" fill="#888">cart.service</text>
+        <text x="400" y="128" fill="#888">order.service</text>
+        <text x="400" y="146" fill="#888">product.service</text>
+        <text x="400" y="164" fill="#888">supabase.service</text>
+
+        <!-- guards/interceptors col -->
+        <rect x="382" y="262" width="140" height="108" rx="8" fill="white" stroke="#e8e0f0" stroke-width="1"/>
+        <text x="452" y="282" text-anchor="middle" fill="#c45c1a" font-weight="700">guards/</text>
+        <text x="400" y="302" fill="#888">auth.guard</text>
+        <text x="400" y="320" fill="#888">admin.guard</text>
+        <text x="400" y="342" fill="#888">auth.interceptor</text>
+
+        <!-- config col -->
+        <rect x="538" y="50" width="200" height="200" rx="8" fill="white" stroke="#e8e0f0" stroke-width="1"/>
+        <text x="638" y="70" text-anchor="middle" fill="#b83232" font-weight="700">config &amp; types</text>
+        <text x="556" y="92"  fill="#888">app.config.ts</text>
+        <text x="556" y="110" fill="#888">app.routes.ts</text>
+        <text x="556" y="128" fill="#888">app.component.ts</text>
+        <text x="556" y="150" fill="#555">directives/</text>
+        <text x="572" y="168" fill="#888">click-outside</text>
+        <text x="556" y="190" fill="#555">pipes/</text>
+        <text x="572" y="208" fill="#888">format-price</text>
+
+        <!-- tokens -->
+        <rect x="538" y="262" width="200" height="108" rx="8" fill="white" stroke="#e8e0f0" stroke-width="1"/>
+        <text x="638" y="282" text-anchor="middle" fill="#5b2d6e" font-weight="700">tokens &amp; types</text>
+        <text x="556" y="302" fill="#888">app-config.token.ts</text>
+        <text x="556" y="320" fill="#888">types/index.ts</text>
+        <text x="556" y="338" fill="#888">utils/cn.ts</text>
+        <text x="556" y="356" fill="#888">environments/</text>
+      </svg>
+    </div>
+
+    <div class="tip">📌 <strong>Think of it this way:</strong> <strong>pages/</strong> = full screens you navigate to. <strong>components/</strong> = reusable building blocks used inside pages. <strong>services/</strong> = shared data/logic. <strong>guards/</strong> = security checkpoints on routes.</div>
+
+    <h3 class="sub">3.2 — Component Tree (What's On Screen At Any Time)</h3>
+    <div class="diagram">
+      <svg viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, sans-serif" font-size="12">
+        <!-- AppComponent -->
+        <rect x="250" y="10" width="200" height="36" rx="8" fill="#5b2d6e"/>
+        <text x="350" y="33" text-anchor="middle" fill="white" font-weight="700">AppComponent (root)</text>
+
+        <!-- Lines down from AppComponent -->
+        <line x1="350" y1="46" x2="350" y2="70" stroke="#ccc" stroke-width="1.5"/>
+        <line x1="100" y1="70" x2="600" y2="70" stroke="#ccc" stroke-width="1.5"/>
+        <line x1="100" y1="70" x2="100" y2="90" stroke="#ccc" stroke-width="1.5"/>
+        <line x1="230" y1="70" x2="230" y2="90" stroke="#ccc" stroke-width="1.5"/>
+        <line x1="350" y1="70" x2="350" y2="90" stroke="#ccc" stroke-width="1.5"/>
+        <line x1="510" y1="70" x2="510" y2="90" stroke="#ccc" stroke-width="1.5"/>
+        <line x1="620" y1="70" x2="620" y2="90" stroke="#ccc" stroke-width="1.5"/>
+
+        <!-- AnnouncementBar -->
+        <rect x="20" y="90" width="160" height="32" rx="6" fill="#e8e0f0" stroke="#5b2d6e" stroke-width="1"/>
+        <text x="100" y="110" text-anchor="middle" fill="#5b2d6e" font-weight="600">AnnouncementBar</text>
+
+        <!-- Navbar -->
+        <rect x="150" y="90" width="160" height="32" rx="6" fill="#e8e0f0" stroke="#5b2d6e" stroke-width="1"/>
+        <text x="230" y="110" text-anchor="middle" fill="#5b2d6e" font-weight="600">Navbar</text>
+
+        <!-- RouterOutlet -->
+        <rect x="265" y="90" width="170" height="32" rx="6" fill="#c49a3c"/>
+        <text x="350" y="110" text-anchor="middle" fill="white" font-weight="700">&lt;router-outlet&gt;</text>
+
+        <!-- Footer -->
+        <rect x="440" y="90" width="140" height="32" rx="6" fill="#e8e0f0" stroke="#5b2d6e" stroke-width="1"/>
+        <text x="510" y="110" text-anchor="middle" fill="#5b2d6e" font-weight="600">Footer</text>
+
+        <!-- CartDrawer -->
+        <rect x="540" y="90" width="150" height="32" rx="6" fill="#e8e0f0" stroke="#5b2d6e" stroke-width="1"/>
+        <text x="615" y="110" text-anchor="middle" fill="#5b2d6e" font-weight="600">CartDrawer</text>
+
+        <!-- Arrow from outlet -->
+        <line x1="350" y1="122" x2="350" y2="150" stroke="#c49a3c" stroke-width="2"/>
+
+        <!-- Active page -->
+        <rect x="220" y="150" width="260" height="36" rx="8" fill="#1a5fa8"/>
+        <text x="350" y="173" text-anchor="middle" fill="white" font-weight="700">Active Page Component</text>
+        <text x="350" y="200" text-anchor="middle" fill="#888" font-size="11">(e.g. ProductsComponent, HomeComponent)</text>
+
+        <!-- Sub-components -->
+        <line x1="350" y1="210" x2="350" y2="230" stroke="#ccc" stroke-width="1.5"/>
+        <line x1="210" y1="230" x2="490" y2="230" stroke="#ccc" stroke-width="1.5"/>
+        <line x1="210" y1="230" x2="210" y2="248" stroke="#ccc" stroke-width="1.5"/>
+        <line x1="350" y1="230" x2="350" y2="248" stroke="#ccc" stroke-width="1.5"/>
+        <line x1="490" y1="230" x2="490" y2="248" stroke="#ccc" stroke-width="1.5"/>
+
+        <rect x="130" y="248" width="160" height="28" rx="6" fill="#eef4ff" stroke="#1a5fa8" stroke-width="1"/>
+        <text x="210" y="266" text-anchor="middle" fill="#1a5fa8">ProductCard × N</text>
+        <rect x="270" y="248" width="160" height="28" rx="6" fill="#eef4ff" stroke="#1a5fa8" stroke-width="1"/>
+        <text x="350" y="266" text-anchor="middle" fill="#1a5fa8">PageHeader</text>
+        <rect x="410" y="248" width="160" height="28" rx="6" fill="#eef4ff" stroke="#1a5fa8" stroke-width="1"/>
+        <text x="490" y="266" text-anchor="middle" fill="#1a5fa8">Other components…</text>
+      </svg>
+    </div>
+    <div class="note">💡 <code class="inline-code">&lt;router-outlet&gt;</code> is a placeholder. Angular swaps the page component inside it every time you navigate — the Navbar and Footer stay put.</div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- SECTION 4 — KEY CONCEPTS                               -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <div class="section" id="key-concepts">
+    <div class="section-title"><span class="num">4</span> 10 Key Angular Concepts Used In This App</div>
+
+    <!-- Concept 1 — Signals -->
+    <h3 class="sub">① Signals — Reactive State</h3>
+    <p>A <strong>signal</strong> is a value that Angular tracks. When the value changes, any part of the screen using it updates automatically. Think of it like a "smart variable".</p>
+    <div class="diagram">
+      <svg viewBox="0 0 680 130" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, sans-serif" font-size="13">
+        <rect x="10" y="30" width="150" height="70" rx="8" fill="#f3eaf7" stroke="#5b2d6e" stroke-width="1.5"/>
+        <text x="85" y="60" text-anchor="middle" fill="#5b2d6e" font-weight="700">signal()</text>
+        <text x="85" y="80" text-anchor="middle" fill="#5b2d6e" font-size="11">items = [...]</text>
+
+        <line x1="160" y1="65" x2="210" y2="65" stroke="#c49a3c" stroke-width="2" marker-end="url(#g1)"/>
+        <text x="185" y="57" text-anchor="middle" fill="#c49a3c" font-size="10">changes</text>
+
+        <rect x="210" y="30" width="150" height="70" rx="8" fill="#eef9ef" stroke="#2d7a4f" stroke-width="1.5"/>
+        <text x="285" y="60" text-anchor="middle" fill="#2d7a4f" font-weight="700">computed()</text>
+        <text x="285" y="80" text-anchor="middle" fill="#2d7a4f" font-size="11">totalItems = 3</text>
+
+        <line x1="360" y1="65" x2="410" y2="65" stroke="#c49a3c" stroke-width="2" marker-end="url(#g1)"/>
+        <text x="385" y="57" text-anchor="middle" fill="#c49a3c" font-size="10">re-runs</text>
+
+        <rect x="410" y="30" width="150" height="70" rx="8" fill="#fff0e8" stroke="#c45c1a" stroke-width="1.5"/>
+        <text x="485" y="60" text-anchor="middle" fill="#c45c1a" font-weight="700">effect()</text>
+        <text x="485" y="80" text-anchor="middle" fill="#c45c1a" font-size="11">save to localStorage</text>
+
+        <line x1="140" y1="75" x2="140" y2="110" stroke="#1a5fa8" stroke-width="2" marker-end="url(#g2)"/>
+        <rect x="50" y="110" width="200" height="24" rx="5" fill="#eef4ff" stroke="#1a5fa8" stroke-width="1"/>
+        <text x="150" y="126" text-anchor="middle" fill="#1a5fa8" font-size="11">Template auto-re-renders 🔄</text>
+
+        <defs>
+          <marker id="g1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#c49a3c"/></marker>
+          <marker id="g2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#1a5fa8"/></marker>
+        </defs>
+      </svg>
+    </div>
+    <pre><code><span class="cm">// In CartService (cart.service.ts)</span>
+<span class="kw">readonly</span> items      = <span class="fn">signal</span>&lt;<span class="nm">CartItem</span>[]&gt;([]);          <span class="cm">// writable state</span>
+<span class="kw">readonly</span> totalItems = <span class="fn">computed</span>(() =&gt; items().<span class="fn">reduce</span>(...)); <span class="cm">// auto-derived</span>
+
+<span class="fn">effect</span>(() =&gt; {                                           <span class="cm">// side-effect</span>
+  localStorage.<span class="fn">setItem</span>(<span class="st">'cart'</span>, <span class="nm">JSON</span>.<span class="fn">stringify</span>(<span class="fn">items</span>()));
+});
+<span class="cm">
+// When items() changes:
+//  1. totalItems() automatically recalculates
+//  2. effect() re-runs and saves to localStorage
+//  3. Any template showing {{ totalItems() }} updates instantly</span></code></pre>
+
+    <!-- Concept 2 — DI -->
+    <h3 class="sub">② Dependency Injection — Getting Services</h3>
+    <p>Instead of writing <code class="inline-code">new CartService()</code>, you tell Angular "I need CartService" and Angular gives you the one shared instance. This is called <strong>Dependency Injection</strong>.</p>
+    <pre><code><span class="cm">// OLD way (not used here) — bad, creates a new instance each time</span>
+<span class="kw">const</span> cart = <span class="kw">new</span> <span class="nm">CartService</span>();
+
+<span class="cm">// MODERN Angular way — inject() inside a class body</span>
+<span class="kw">private readonly</span> cart = <span class="fn">inject</span>(<span class="nm">CartService</span>);
+
+<span class="cm">// Also works in plain functions (guards, interceptors)</span>
+<span class="kw">export const</span> authGuard = () =&gt; {
+  <span class="kw">const</span> auth = <span class="fn">inject</span>(<span class="nm">AuthService</span>); <span class="cm">// Angular hands you the singleton</span>
+  <span class="kw">return</span> auth.<span class="fn">user</span>() ? <span class="kw">true</span> : router.<span class="fn">createUrlTree</span>([<span class="st">'/login'</span>]);
+};</code></pre>
+    <div class="tip">🎯 <strong>Interview line:</strong> "inject() is the modern alternative to constructor injection. It works in any injection context — class fields, constructors, or functional guards and interceptors."</div>
+
+    <!-- Concept 3 — Routing -->
+    <h3 class="sub">③ Lazy-Loaded Routing</h3>
+    <p>Every route in this app is <strong>lazy-loaded</strong> — Angular only downloads the code for a page when the user actually navigates there. This keeps the initial app bundle small and fast.</p>
+    <div class="diagram">
+      <svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, sans-serif" font-size="12">
+        <!-- User -->
+        <circle cx="50" cy="100" r="30" fill="#e8e0f0" stroke="#5b2d6e" stroke-width="1.5"/>
+        <text x="50" y="95" text-anchor="middle" fill="#5b2d6e" font-weight="700" font-size="11">User</text>
+        <text x="50" y="110" text-anchor="middle" fill="#5b2d6e" font-size="10">visits</text>
+        <text x="50" y="123" text-anchor="middle" fill="#5b2d6e" font-size="10">/products</text>
+
+        <line x1="80" y1="100" x2="140" y2="100" stroke="#5b2d6e" stroke-width="1.5" marker-end="url(#a1)"/>
+
+        <!-- Router -->
+        <rect x="140" y="70" width="120" height="60" rx="8" fill="#5b2d6e"/>
+        <text x="200" y="95" text-anchor="middle" fill="white" font-weight="700">Router</text>
+        <text x="200" y="113" text-anchor="middle" fill="white" font-size="11">matches /products</text>
+
+        <line x1="260" y1="100" x2="320" y2="100" stroke="#2d7a4f" stroke-width="1.5" marker-end="url(#a2)"/>
+        <text x="290" y="88" text-anchor="middle" fill="#2d7a4f" font-size="11">download</text>
+        <text x="290" y="100" text-anchor="middle" fill="#2d7a4f" font-size="11">chunk</text>
+
+        <!-- Bundle -->
+        <rect x="320" y="70" width="140" height="60" rx="8" fill="#2d7a4f"/>
+        <text x="390" y="95" text-anchor="middle" fill="white" font-weight="700">products.chunk.js</text>
+        <text x="390" y="113" text-anchor="middle" fill="white" font-size="11">ProductsComponent</text>
+
+        <line x1="460" y1="100" x2="530" y2="100" stroke="#1a5fa8" stroke-width="1.5" marker-end="url(#a3)"/>
+        <text x="495" y="88" text-anchor="middle" fill="#1a5fa8" font-size="11">render into</text>
+        <text x="495" y="100" text-anchor="middle" fill="#1a5fa8" font-size="11">outlet</text>
+
+        <!-- Screen -->
+        <rect x="530" y="60" width="140" height="80" rx="8" fill="#eef4ff" stroke="#1a5fa8" stroke-width="1.5"/>
+        <text x="600" y="95" text-anchor="middle" fill="#1a5fa8" font-weight="700">Screen</text>
+        <text x="600" y="113" text-anchor="middle" fill="#1a5fa8" font-size="11">Products page shows</text>
+
+        <text x="390" y="170" text-anchor="middle" fill="#888" font-size="11">Each page is a separate JS file. Only downloaded when needed.</text>
+
+        <defs>
+          <marker id="a1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#5b2d6e"/></marker>
+          <marker id="a2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#2d7a4f"/></marker>
+          <marker id="a3" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#1a5fa8"/></marker>
+        </defs>
+      </svg>
+    </div>
+    <pre><code><span class="cm">// app.routes.ts — all routes are lazy</span>
+{
+  path: <span class="st">'products'</span>,
+  loadComponent: () =&gt;
+    <span class="fn">import</span>(<span class="st">'./pages/products/products.component'</span>)
+      .<span class="fn">then</span>(m =&gt; m.ProductsComponent),
+      <span class="cm">// ↑ Dynamic import = separate bundle = downloaded only on first visit</span>
+}</code></pre>
+
+    <!-- Concept 4 — Guards -->
+    <h3 class="sub">④ Route Guards — Security Checkpoints</h3>
+    <p>Before Angular loads a protected page, it runs the guard function. If the guard returns <code class="inline-code">true</code>, the page loads. If it returns a <code class="inline-code">UrlTree</code>, the user is redirected instead.</p>
+    <div class="diagram">
+      <svg viewBox="0 0 680 120" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, sans-serif" font-size="12">
+        <text x="50" y="40" text-anchor="middle" fill="#333" font-size="11">Navigate to</text>
+        <text x="50" y="56" text-anchor="middle" fill="#5b2d6e" font-weight="700">/account</text>
+
+        <line x1="90" y1="48" x2="150" y2="48" stroke="#555" stroke-width="1.5" marker-end="url(#gga)"/>
+
+        <rect x="150" y="28" width="100" height="42" rx="6" fill="#c45c1a"/>
+        <text x="200" y="50" text-anchor="middle" fill="white" font-weight="700" font-size="11">authGuard</text>
+        <text x="200" y="64" text-anchor="middle" fill="white" font-size="10">user logged in?</text>
+
+        <line x1="250" y1="40" x2="310" y2="20" stroke="#2d7a4f" stroke-width="1.5" marker-end="url(#ggb)"/>
+        <text x="285" y="22" fill="#2d7a4f" font-size="11">YES → true</text>
+
+        <line x1="250" y1="58" x2="310" y2="78" stroke="#b83232" stroke-width="1.5" marker-end="url(#ggc)"/>
+        <text x="268" y="80" fill="#b83232" font-size="11">NO → UrlTree</text>
+
+        <rect x="310" y="8" width="120" height="30" rx="6" fill="#2d7a4f"/>
+        <text x="370" y="28" text-anchor="middle" fill="white" font-weight="700" font-size="11">Load /account ✓</text>
+
+        <rect x="310" y="65" width="140" height="30" rx="6" fill="#b83232"/>
+        <text x="380" y="85" text-anchor="middle" fill="white" font-weight="700" font-size="11">Redirect to /login</text>
+
+        <text x="470" y="28" fill="#555" font-size="11">Admin routes also</text>
+        <text x="470" y="44" fill="#555" font-size="11">run adminGuard</text>
+        <text x="470" y="60" fill="#555" font-size="11">which checks</text>
+        <text x="470" y="76" fill="#555" font-size="11">profile.role === 'admin'</text>
+
+        <defs>
+          <marker id="gga" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#555"/></marker>
+          <marker id="ggb" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#2d7a4f"/></marker>
+          <marker id="ggc" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#b83232"/></marker>
+        </defs>
+      </svg>
+    </div>
+
+    <!-- Concept 5 — HTTP Interceptor -->
+    <h3 class="sub">⑤ HTTP Interceptor — Middleware for Every Request</h3>
+    <p>Every time the Angular app calls the Netlify API, the <strong>authInterceptor</strong> runs first. It reads the Supabase JWT and attaches it as an <code class="inline-code">Authorization: Bearer &lt;token&gt;</code> header automatically.</p>
+    <pre><code><span class="cm">// interceptors/auth.interceptor.ts</span>
+<span class="cm">// This runs for EVERY HttpClient request, before it leaves the app.</span>
+<span class="kw">export const</span> authInterceptor: <span class="nm">HttpInterceptorFn</span> = (req, next) =&gt; {
+  <span class="kw">const</span> supabase = <span class="fn">inject</span>(<span class="nm">SupabaseService</span>);
+
+  <span class="kw">return</span> <span class="fn">from</span>(supabase.client.auth.<span class="fn">getSession</span>()).<span class="fn">pipe</span>(
+    <span class="fn">switchMap</span>(({ data }) =&gt; {
+      <span class="kw">const</span> token = data.session?.access_token;
+      <span class="kw">if</span> (!token) <span class="kw">return</span> <span class="fn">next</span>(req); <span class="cm">// no login — pass through unchanged</span>
+
+      <span class="kw">const</span> authReq = req.<span class="fn">clone</span>({   <span class="cm">// ← must clone! HttpRequest is IMMUTABLE</span>
+        setHeaders: { Authorization: <span class="st">`Bearer <span class="op">${</span>token<span class="op">}</span>`</span> }
+      });
+      <span class="kw">return</span> <span class="fn">next</span>(authReq);          <span class="cm">// pass modified clone to next handler</span>
+    })
+  );
+};</code></pre>
+
+    <!-- Concept 6 — Reactive Forms -->
+    <h3 class="sub">⑥ Reactive Forms — With Validators</h3>
+    <p>The checkout and register pages use <strong>Reactive Forms</strong>. The form model is defined in TypeScript, giving you full control to validate, enable/disable fields, and add custom rules.</p>
+    <pre><code><span class="cm">// register.component.ts — custom cross-field validator</span>
+<span class="kw">function</span> <span class="fn">passwordMatchValidator</span>(group: <span class="nm">AbstractControl</span>): <span class="nm">ValidationErrors</span> | <span class="kw">null</span> {
+  <span class="kw">const</span> pw  = group.<span class="fn">get</span>(<span class="st">'password'</span>)?.value;
+  <span class="kw">const</span> cpw = group.<span class="fn">get</span>(<span class="st">'confirm_password'</span>)?.value;
+  <span class="kw">return</span> pw === cpw ? <span class="kw">null</span> : { passwordMismatch: <span class="kw">true</span> };
+  <span class="cm">// null = valid | object = error</span>
+}
+
+<span class="cm">// In the component:</span>
+form = fb.<span class="fn">group</span>({
+  full_name: [<span class="st">''</span>, <span class="nm">Validators</span>.required],
+  email:     [<span class="st">''</span>, [<span class="nm">Validators</span>.required, <span class="nm">Validators</span>.email]],
+  password:  [<span class="st">''</span>, <span class="nm">Validators</span>.<span class="fn">minLength</span>(8)],
+  confirm_password: [<span class="st">''</span>],
+}, { validators: passwordMatchValidator });</code></pre>
+
+    <!-- Concept 7 — DestroyRef -->
+    <h3 class="sub">⑦ DestroyRef + takeUntilDestroyed — No Memory Leaks</h3>
+    <p>When a component is destroyed (user navigates away), any running subscriptions must be cleaned up. <code class="inline-code">takeUntilDestroyed</code> does this automatically.</p>
+    <pre><code><span class="cm">// products.component.ts</span>
+<span class="kw">private readonly</span> destroyRef = <span class="fn">inject</span>(<span class="nm">DestroyRef</span>);
+
+ngOnInit() {
+  this.route.queryParams
+    .<span class="fn">pipe</span>(<span class="fn">takeUntilDestroyed</span>(this.destroyRef)) <span class="cm">// ← unsubscribes when component destroys</span>
+    .<span class="fn">subscribe</span>(params =&gt; {
+      this.selectedCategory.<span class="fn">set</span>(params[<span class="st">'category'</span>] ?? <span class="st">''</span>);
+    });
+}</code></pre>
+
+    <!-- Concept 8 — Lifecycle Hooks -->
+    <h3 class="sub">⑧ Lifecycle Hooks — Component Lifetime Events</h3>
+    <div class="diagram">
+      <svg viewBox="0 0 680 80" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, sans-serif" font-size="12">
+        <rect x="20"  y="20" width="100" height="40" rx="6" fill="#5b2d6e"/>
+        <text x="70"  y="45" text-anchor="middle" fill="white" font-weight="600">constructor</text>
+        <line x1="120" y1="40" x2="145" y2="40" stroke="#ccc" stroke-width="1.5" marker-end="url(#lc)"/>
+        <rect x="145" y="20" width="90"  height="40" rx="6" fill="#8b3fa8"/>
+        <text x="190" y="45" text-anchor="middle" fill="white" font-weight="600">ngOnInit</text>
+        <text x="190" y="68" text-anchor="middle" fill="#888" font-size="10">fetch data</text>
+        <line x1="235" y1="40" x2="260" y2="40" stroke="#ccc" stroke-width="1.5" marker-end="url(#lc)"/>
+        <rect x="260" y="20" width="120" height="40" rx="6" fill="#c49a3c"/>
+        <text x="320" y="45" text-anchor="middle" fill="white" font-weight="600">AfterViewInit</text>
+        <text x="320" y="68" text-anchor="middle" fill="#888" font-size="10">DOM is ready</text>
+        <line x1="380" y1="40" x2="405" y2="40" stroke="#ccc" stroke-width="1.5" marker-end="url(#lc)"/>
+        <rect x="405" y="20" width="140" height="40" rx="6" fill="#2d7a4f"/>
+        <text x="475" y="37" text-anchor="middle" fill="white" font-weight="600">User interacts</text>
+        <text x="475" y="53" text-anchor="middle" fill="white" font-size="11">signals update UI</text>
+        <line x1="545" y1="40" x2="570" y2="40" stroke="#ccc" stroke-width="1.5" marker-end="url(#lc)"/>
+        <rect x="570" y="20" width="100" height="40" rx="6" fill="#b83232"/>
+        <text x="620" y="45" text-anchor="middle" fill="white" font-weight="600">ngOnDestroy</text>
+        <defs><marker id="lc" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#ccc"/></marker></defs>
+      </svg>
+    </div>
+
+    <!-- Concept 9 — Angular Animations -->
+    <h3 class="sub">⑨ Angular Animations — Stagger Effect on Products</h3>
+    <p>On the Products page, when the product list loads, each card animates in with a 40ms delay between each one (stagger). This uses <code class="inline-code">@angular/animations</code>.</p>
+    <pre><code><span class="cm">// products.component.ts — declared in @Component metadata</span>
+animations: [
+  <span class="fn">trigger</span>(<span class="st">'listAnimation'</span>, [
+    <span class="fn">transition</span>(<span class="st">'* =&gt; *'</span>, [          <span class="cm">// any value change fires this</span>
+      <span class="fn">query</span>(<span class="st">':enter'</span>, [            <span class="cm">// select elements being added</span>
+        <span class="fn">style</span>({ opacity: 0, transform: <span class="st">'translateY(16px)'</span> }),
+        <span class="fn">stagger</span>(40, [             <span class="cm">// 40ms gap between each card</span>
+          <span class="fn">animate</span>(<span class="st">'300ms ease-out'</span>, <span class="fn">style</span>({ opacity: 1, transform: <span class="st">'translateY(0)'</span> }))
+        ])
+      ], { optional: <span class="kw">true</span> })
+    ])
+  ])
+]
+<span class="cm">// In template: &lt;div [@listAnimation]="products().length"&gt;</span></code></pre>
+
+    <!-- Concept 10 — Standalone + InjectionToken -->
+    <h3 class="sub">⑩ Standalone Architecture + InjectionToken</h3>
+    <p><strong>Standalone</strong> means no NgModule — every component declares its own imports. <strong>InjectionToken</strong> is used to inject non-class values (like config objects) into the DI system.</p>
+    <pre><code><span class="cm">// tokens/app-config.token.ts</span>
+<span class="kw">export const</span> <span class="nm">APP_CONFIG</span> = <span class="kw">new</span> <span class="nm">InjectionToken</span>&lt;<span class="nm">AppConfig</span>&gt;(<span class="st">'app.config'</span>, {
+  factory: () =&gt; ({ apiUrl: <span class="st">'/api'</span>, maxCartItems: 99 })
+  <span class="cm">// ↑ default value — no need to register in app.config.ts</span>
+});
+
+<span class="cm">// Usage anywhere:</span>
+<span class="kw">const</span> config = <span class="fn">inject</span>(<span class="nm">APP_CONFIG</span>);</code></pre>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- SECTION 5 — DATA FLOW                                  -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <div class="section" id="data-flow">
+    <div class="section-title"><span class="num">5</span> How Data Flows Through The App</div>
+    <p>This shows what happens from the moment a user visits <strong>/products</strong> to seeing the product list on screen.</p>
+
+    <div class="flow">
+      <div class="flow-step">
+        <div class="flow-dot" style="background:#5b2d6e">1</div>
+        <div class="flow-body">
+          <strong>User visits /products</strong>
+          <p>Router matches the path, downloads the products bundle, creates <code class="inline-code">ProductsComponent</code>.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-dot" style="background:#8b3fa8">2</div>
+        <div class="flow-body">
+          <strong>ngOnInit() runs</strong>
+          <p>Component lifecycle starts. <code class="inline-code">loadProducts()</code> is called. A <code class="inline-code">loading</code> signal is set to <code class="inline-code">true</code> — spinner appears.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-dot" style="background:#c49a3c">3</div>
+        <div class="flow-body">
+          <strong>ProductService.getProducts() calls Supabase</strong>
+          <p>The service sends a SQL query via the Supabase JS SDK. This is a direct browser→Supabase call (no Netlify function needed for reads).</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-dot" style="background:#2d7a4f">4</div>
+        <div class="flow-body">
+          <strong>Supabase returns JSON data</strong>
+          <p>The list of products arrives as a JavaScript array.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-dot" style="background:#1a5fa8">5</div>
+        <div class="flow-body">
+          <strong>Signals update</strong>
+          <p><code class="inline-code">products.set(data)</code> and <code class="inline-code">loading.set(false)</code>. Angular detects the signal changes.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-dot" style="background:#b83232">6</div>
+        <div class="flow-body">
+          <strong>Template re-renders automatically</strong>
+          <p>Spinner hides. Product cards appear with the stagger animation. Each <code class="inline-code">ProductCardComponent</code> receives its product via <code class="inline-code">@Input()</code>.</p>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="sub">How @Input and @Output Connect Components</h3>
+    <div class="diagram">
+      <svg viewBox="0 0 680 160" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, sans-serif" font-size="12">
+        <!-- ProductsComponent (parent) -->
+        <rect x="10" y="20" width="220" height="120" rx="10" fill="#f3eaf7" stroke="#5b2d6e" stroke-width="1.5"/>
+        <text x="120" y="42" text-anchor="middle" fill="#5b2d6e" font-weight="700">ProductsComponent</text>
+        <text x="120" y="60" text-anchor="middle" fill="#555" font-size="11">(parent)</text>
+        <text x="120" y="82" text-anchor="middle" fill="#888" font-size="11">products() = [product1,...]</text>
+        <text x="120" y="100" text-anchor="middle" fill="#888" font-size="11">template: *ngFor product</text>
+        <text x="120" y="118" text-anchor="middle" fill="#888" font-size="11">of products()</text>
+
+        <!-- @Input arrow -->
+        <line x1="230" y1="70" x2="320" y2="70" stroke="#2d7a4f" stroke-width="2" marker-end="url(#io1)"/>
+        <text x="275" y="60" text-anchor="middle" fill="#2d7a4f" font-size="11">@Input()</text>
+        <text x="275" y="74" text-anchor="middle" fill="#2d7a4f" font-size="11">[product]="p"</text>
+
+        <!-- @Output arrow -->
+        <line x1="320" y1="100" x2="230" y2="100" stroke="#b83232" stroke-width="2" marker-end="url(#io2)"/>
+        <text x="275" y="94" text-anchor="middle" fill="#b83232" font-size="11">@Output()</text>
+        <text x="275" y="108" text-anchor="middle" fill="#b83232" font-size="11">(cartAdded)</text>
+
+        <!-- ProductCardComponent (child) -->
+        <rect x="320" y="20" width="220" height="120" rx="10" fill="#eef9ef" stroke="#2d7a4f" stroke-width="1.5"/>
+        <text x="430" y="42" text-anchor="middle" fill="#2d7a4f" font-weight="700">ProductCardComponent</text>
+        <text x="430" y="60" text-anchor="middle" fill="#555" font-size="11">(child)</text>
+        <text x="430" y="82" text-anchor="middle" fill="#888" font-size="11">@Input() product</text>
+        <text x="430" y="100" text-anchor="middle" fill="#888" font-size="11">@Output() cartAdded</text>
+        <text x="430" y="118" text-anchor="middle" fill="#888" font-size="11">= new EventEmitter()</text>
+
+        <text x="580" y="60" fill="#555" font-size="11">Data flows DOWN</text>
+        <text x="580" y="75" fill="#2d7a4f" font-size="11">via @Input()</text>
+        <text x="580" y="100" fill="#555" font-size="11">Events flow UP</text>
+        <text x="580" y="115" fill="#b83232" font-size="11">via @Output()</text>
+
+        <defs>
+          <marker id="io1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#2d7a4f"/></marker>
+          <marker id="io2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#b83232"/></marker>
+        </defs>
+      </svg>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- SECTION 6 — AUTH FLOW                                  -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <div class="section" id="auth-flow">
+    <div class="section-title"><span class="num">6</span> Authentication Flow</div>
+    <p>Authentication is handled by <strong>Supabase Auth</strong>. The Angular app never stores passwords — Supabase handles that. Here's the full login journey:</p>
+
+    <div class="flow">
+      <div class="flow-step">
+        <div class="flow-dot" style="background:#5b2d6e">1</div>
+        <div class="flow-body">
+          <strong>User fills in email + password on /login</strong>
+          <p>Reactive Form with <code class="inline-code">FormBuilder</code>, <code class="inline-code">Validators.email</code>, and <code class="inline-code">Validators.required</code>.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-dot" style="background:#8b3fa8">2</div>
+        <div class="flow-body">
+          <strong>AuthService.signIn() calls Supabase</strong>
+          <p><code class="inline-code">supabase.auth.signInWithPassword({ email, password })</code>. Supabase verifies credentials and returns a JWT session.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-dot" style="background:#c49a3c">3</div>
+        <div class="flow-body">
+          <strong>onAuthStateChange fires</strong>
+          <p>Supabase fires this event in <code class="inline-code">AuthService</code> constructor. <code class="inline-code">user.set(session.user)</code> updates the signal. Any component reading <code class="inline-code">auth.user()</code> re-renders instantly.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-dot" style="background:#2d7a4f">4</div>
+        <div class="flow-body">
+          <strong>Profile is loaded from Supabase DB</strong>
+          <p><code class="inline-code">_loadProfile(userId)</code> queries the <code class="inline-code">profiles</code> table. The role field (<code class="inline-code">'user'</code> or <code class="inline-code">'admin'</code>) is stored in <code class="inline-code">profile</code> signal.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-dot" style="background:#1a5fa8">5</div>
+        <div class="flow-body">
+          <strong>authGuard now lets the user through</strong>
+          <p>Because <code class="inline-code">auth.user()</code> is now truthy, the guard returns <code class="inline-code">true</code> for <code class="inline-code">/account</code>. The <code class="inline-code">adminGuard</code> additionally checks <code class="inline-code">profile().role === 'admin'</code>.</p>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-dot" style="background:#b83232">6</div>
+        <div class="flow-body">
+          <strong>JWT attaches to all API calls automatically</strong>
+          <p>The <code class="inline-code">authInterceptor</code> reads the Supabase session and appends <code class="inline-code">Authorization: Bearer &lt;token&gt;</code> to every <code class="inline-code">HttpClient</code> request. Netlify functions verify this token.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- SECTION 7 — PAYMENT FLOW                               -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <div class="section" id="payment-flow">
+    <div class="section-title"><span class="num">7</span> Checkout &amp; Payment Flow</div>
+
+    <div class="diagram">
+      <svg viewBox="0 0 760 320" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, sans-serif" font-size="12">
+
+        <!-- Angular App -->
+        <rect x="10" y="10" width="160" height="300" rx="10" fill="#f3eaf7" stroke="#5b2d6e" stroke-width="1.5"/>
+        <text x="90" y="34" text-anchor="middle" fill="#5b2d6e" font-weight="700">Angular App</text>
+
+        <rect x="25" y="50" width="130" height="34" rx="6" fill="#5b2d6e"/>
+        <text x="90" y="71" text-anchor="middle" fill="white" font-size="11" font-weight="600">CheckoutComponent</text>
+
+        <text x="90" y="110" text-anchor="middle" fill="#888" font-size="11">User fills shipping</text>
+        <text x="90" y="125" text-anchor="middle" fill="#888" font-size="11">form, clicks Pay</text>
+
+        <text x="90" y="155" text-anchor="middle" fill="#888" font-size="11">HttpClient POST</text>
+        <text x="90" y="170" text-anchor="middle" fill="#888" font-size="11">→ /api/stripe/checkout</text>
+
+        <text x="90" y="220" text-anchor="middle" fill="#888" font-size="11">Gets back</text>
+        <text x="90" y="235" text-anchor="middle" fill="#888" font-size="11">{ url: '...' }</text>
+
+        <text x="90" y="280" text-anchor="middle" fill="#888" font-size="11">window.location.href = url</text>
+        <text x="90" y="295" text-anchor="middle" fill="#888" font-size="11">(leaves Angular app)</text>
+
+        <!-- Arrow 1: App → Netlify -->
+        <line x1="170" y1="130" x2="230" y2="130" stroke="#2d7a4f" stroke-width="2" marker-end="url(#p1)"/>
+
+        <!-- Netlify Function -->
+        <rect x="230" y="10" width="170" height="300" rx="10" fill="#eef9ef" stroke="#2d7a4f" stroke-width="1.5"/>
+        <text x="315" y="34" text-anchor="middle" fill="#2d7a4f" font-weight="700">Netlify Function</text>
+        <text x="315" y="52" text-anchor="middle" fill="#2d7a4f" font-size="11">stripe-checkout.ts</text>
+
+        <text x="315" y="90" text-anchor="middle" fill="#888" font-size="11">Verify JWT</text>
+        <text x="315" y="108" text-anchor="middle" fill="#888" font-size="11">(req headers)</text>
+        <text x="315" y="130" text-anchor="middle" fill="#888" font-size="11">Build line_items</text>
+        <text x="315" y="148" text-anchor="middle" fill="#888" font-size="11">from cart data</text>
+
+        <text x="315" y="185" text-anchor="middle" fill="#888" font-size="11">Call Stripe API</text>
+        <text x="315" y="203" text-anchor="middle" fill="#888" font-size="11">(secret key never</text>
+        <text x="315" y="221" text-anchor="middle" fill="#888" font-size="11">leaves server)</text>
+
+        <text x="315" y="260" text-anchor="middle" fill="#888" font-size="11">Return { url }</text>
+        <text x="315" y="278" text-anchor="middle" fill="#888" font-size="11">back to Angular</text>
+
+        <!-- Arrow 2: Netlify → Stripe -->
+        <line x1="400" y1="200" x2="460" y2="200" stroke="#c45c1a" stroke-width="2" marker-end="url(#p2)"/>
+
+        <!-- Stripe -->
+        <rect x="460" y="160" width="140" height="80" rx="10" fill="#fff0e8" stroke="#c45c1a" stroke-width="1.5"/>
+        <text x="530" y="190" text-anchor="middle" fill="#c45c1a" font-weight="700">Stripe</text>
+        <text x="530" y="210" text-anchor="middle" fill="#888" font-size="11">Hosted Checkout Page</text>
+        <text x="530" y="225" text-anchor="middle" fill="#888" font-size="11">User pays here</text>
+
+        <!-- Arrow 3: Stripe webhook → Netlify -->
+        <line x1="530" y1="240" x2="530" y2="270" stroke="#c45c1a" stroke-width="2"/>
+        <line x1="530" y1="270" x2="400" y2="270" stroke="#c45c1a" stroke-width="2" marker-end="url(#p3)"/>
+        <text x="460" y="264" text-anchor="middle" fill="#c45c1a" font-size="11">webhook event</text>
+
+        <!-- Netlify Webhook -->
+        <rect x="230" y="320" width="170" height="0" rx="0"/>
+        <!-- stripe-webhook function label -->
+        <text x="315" y="300" text-anchor="middle" fill="#2d7a4f" font-size="11" font-weight="600">stripe-webhook.ts</text>
+
+        <!-- Arrow 4: webhook fn → Supabase -->
+        <line x1="400" y1="290" x2="620" y2="120" stroke="#1a5fa8" stroke-width="2" marker-end="url(#p4)"/>
+        <text x="530" y="260" text-anchor="middle" fill="#1a5fa8" font-size="11">write order</text>
+        <text x="530" y="274" text-anchor="middle" fill="#1a5fa8" font-size="11">to DB</text>
+
+        <!-- Supabase -->
+        <rect x="610" y="60" width="140" height="100" rx="10" fill="#eef4ff" stroke="#1a5fa8" stroke-width="1.5"/>
+        <text x="680" y="88" text-anchor="middle" fill="#1a5fa8" font-weight="700">Supabase</text>
+        <text x="680" y="108" text-anchor="middle" fill="#888" font-size="11">orders table</text>
+        <text x="680" y="126" text-anchor="middle" fill="#888" font-size="11">Order saved ✓</text>
+        <text x="680" y="144" text-anchor="middle" fill="#888" font-size="11">status: paid</text>
+
+        <text x="680" y="200" text-anchor="middle" fill="#555" font-size="11">User is redirected</text>
+        <text x="680" y="216" text-anchor="middle" fill="#555" font-size="11">back to Angular</text>
+        <text x="680" y="232" text-anchor="middle" fill="#555" font-size="11">/order-confirmation</text>
+        <text x="680" y="248" text-anchor="middle" fill="#555" font-size="11">Angular polls order</text>
+        <text x="680" y="264" text-anchor="middle" fill="#555" font-size="11">until status = paid</text>
+
+        <defs>
+          <marker id="p1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#2d7a4f"/></marker>
+          <marker id="p2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#c45c1a"/></marker>
+          <marker id="p3" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#c45c1a"/></marker>
+          <marker id="p4" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#1a5fa8"/></marker>
+        </defs>
+      </svg>
+    </div>
+
+    <div class="warn">⚠️ <strong>Why does the Stripe secret key stay on the server?</strong> If the secret key was in the Angular app, anyone could open DevTools, steal it, and charge arbitrary amounts to any card. The Netlify function keeps the secret on the server-side — the browser only ever receives a checkout URL.</div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- SECTION 8 — INTERVIEW Q&A                              -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <div class="section" id="interview-qa">
+    <div class="section-title"><span class="num">8</span> Interview Questions &amp; Plain-English Answers</div>
+    <p style="margin-bottom:20px; color:#555">These are questions a Senior Angular architect would be expected to answer. The answers are written simply so you can understand them and then say them in your own words.</p>
+
+    <div class="qa">
+      <div class="question"><span class="q-tag">Q1</span> What is Angular and how is it different from plain JavaScript?</div>
+      <div class="answer">
+        <p>Angular is a <strong>framework</strong> — it gives you a structured way to build complex web apps. Plain JavaScript is just a language; you'd have to build everything yourself (routing, state management, form validation).</p>
+        <p style="margin-top:8px">Angular gives you: a component system (building blocks), a router (page navigation), a DI system (sharing services), a forms library, an HTTP client, and change detection (auto-update the screen when data changes).</p>
+      </div>
+    </div>
+
+    <div class="qa">
+      <div class="question"><span class="q-tag">Q2</span> What is a Component and what are its key parts?</div>
+      <div class="answer">
+        <p>A component is a <strong>reusable piece of UI</strong>. It has three parts:</p>
+        <ul style="margin-top:8px; padding-left:20px; line-height:2">
+          <li><strong>Template</strong> — the HTML, with Angular binding syntax (<code class="inline-code">{{ }}</code>, <code class="inline-code">[ ]</code>, <code class="inline-code">( )</code>)</li>
+          <li><strong>Class</strong> — the TypeScript logic (properties, methods, lifecycle hooks)</li>
+          <li><strong>Metadata</strong> — the <code class="inline-code">@Component</code> decorator that links the two and defines the selector</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="qa">
+      <div class="question"><span class="q-tag">Q3</span> What are Signals? Why did you use them instead of RxJS/NgRx?</div>
+      <div class="answer">
+        <p>Signals are Angular's built-in reactive state system. A <strong>signal</strong> is a value that Angular watches. When you call <code class="inline-code">.set()</code> or <code class="inline-code">.update()</code> on it, anything in the template that reads it automatically re-renders.</p>
+        <p style="margin-top:8px">I used signals because this app's state is <strong>local and simple</strong> — cart items, loading flags, form state. NgRx is for large-scale apps with complex shared state between many parts. RxJS is powerful for streams of events over time. Signals are the right tool when you just need "a variable that updates the screen".</p>
+        <p style="margin-top:8px"><code class="inline-code">signal()</code> = writable. <code class="inline-code">computed()</code> = read-only derived. <code class="inline-code">effect()</code> = side-effect that auto-runs when signals change.</p>
+      </div>
+    </div>
+
+    <div class="qa">
+      <div class="question"><span class="q-tag">Q4</span> What is Dependency Injection? Why is it useful?</div>
+      <div class="answer">
+        <p>DI is Angular's way of <strong>sharing instances</strong> of services across the app. Instead of every component creating its own <code class="inline-code">new CartService()</code>, Angular creates one instance and hands it to everyone who asks for it via <code class="inline-code">inject(CartService)</code>.</p>
+        <p style="margin-top:8px">Benefits: (1) shared state — all components see the same cart. (2) Testability — you can swap a real service for a fake one in tests. (3) Separation of concerns — components don't need to know how to create their dependencies.</p>
+      </div>
+    </div>
+
+    <div class="qa">
+      <div class="question"><span class="q-tag">Q5</span> What is the difference between Template-Driven and Reactive Forms?</div>
+      <div class="answer">
+        <table>
+          <tr><th></th><th>Template-Driven</th><th>Reactive</th></tr>
+          <tr><td>Form model lives in</td><td>HTML template</td><td>TypeScript class</td></tr>
+          <tr><td>Good for</td><td>Simple forms (search, newsletter)</td><td>Complex forms with validation</td></tr>
+          <tr><td>Angular module</td><td>FormsModule / ngModel</td><td>ReactiveFormsModule / FormBuilder</td></tr>
+          <tr><td>Used in this app</td><td>Navbar search, newsletter</td><td>Login, Register, Checkout</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="qa">
+      <div class="question"><span class="q-tag">Q6</span> What is an HTTP Interceptor and what does it do in this app?</div>
+      <div class="answer">
+        <p>An interceptor is <strong>middleware for HTTP calls</strong>. Every time the app makes an API request via <code class="inline-code">HttpClient</code>, the interceptor runs first.</p>
+        <p style="margin-top:8px">In this app, the <code class="inline-code">authInterceptor</code> reads the Supabase JWT from the session and appends <code class="inline-code">Authorization: Bearer &lt;token&gt;</code> to every request. The Netlify functions then verify that token to authenticate the user — without every API call having to manually attach the header.</p>
+        <p style="margin-top:8px">Key rule: <code class="inline-code">HttpRequest</code> is <strong>immutable</strong>. You must call <code class="inline-code">req.clone()</code> to modify it.</p>
+      </div>
+    </div>
+
+    <div class="qa">
+      <div class="question"><span class="q-tag">Q7</span> What is Lazy Loading and why did you use it?</div>
+      <div class="answer">
+        <p>Lazy loading means <strong>not downloading a page's code until the user navigates there</strong>. Using <code class="inline-code">loadComponent: () =&gt; import('...')</code> in the route config tells Angular to create a separate JS bundle for each page.</p>
+        <p style="margin-top:8px">Without lazy loading, the browser would download the admin dashboard code even for users who never visit it. With lazy loading, the initial bundle is small (fast first load), and code is downloaded on-demand.</p>
+      </div>
+    </div>
+
+    <div class="qa">
+      <div class="question"><span class="q-tag">Q8</span> What is a Route Guard? How did you implement admin protection?</div>
+      <div class="answer">
+        <p>A guard is a function that runs before a route loads. It returns <code class="inline-code">true</code> (allow), <code class="inline-code">false</code> (block), or a <code class="inline-code">UrlTree</code> (redirect).</p>
+        <p style="margin-top:8px">Admin routes use two guards stacked: <code class="inline-code">canActivate: [authGuard, adminGuard]</code>. <code class="inline-code">authGuard</code> checks the user is logged in. <code class="inline-code">adminGuard</code> checks the user's role in the <code class="inline-code">profiles</code> table is <code class="inline-code">'admin'</code>. If either fails, the user is redirected to login or home.</p>
+      </div>
+    </div>
+
+    <div class="qa">
+      <div class="question"><span class="q-tag">Q9</span> Why use <code>DestroyRef</code> and <code>takeUntilDestroyed</code>?</div>
+      <div class="answer">
+        <p>When a component subscribes to an Observable (like route params), that subscription stays active even after the user navigates away — <strong>a memory leak</strong>. Over time, hundreds of lingering subscriptions degrade performance.</p>
+        <p style="margin-top:8px"><code class="inline-code">takeUntilDestroyed(destroyRef)</code> automatically cancels the subscription when the component is destroyed. <code class="inline-code">DestroyRef</code> is Angular's way of exposing the "component being destroyed" event as an injectable object, so you can use it inside services or functions too.</p>
+      </div>
+    </div>
+
+    <div class="qa">
+      <div class="question"><span class="q-tag">Q10</span> Why is the Stripe secret key on the server, not in Angular?</div>
+      <div class="answer">
+        <p>The Angular app runs <strong>inside the user's browser</strong>. Anything in the browser can be read by the user (or a malicious script). If the Stripe secret key was in the Angular code, anyone could open DevTools → Sources, find the key, and use it to charge arbitrary credit cards.</p>
+        <p style="margin-top:8px">The Netlify function runs server-side — users never see its source code. The Angular app sends the cart contents to the function, which uses the secret key to create a Stripe Checkout session and returns only a safe, time-limited payment URL to the browser.</p>
+      </div>
+    </div>
+
+    <div class="qa">
+      <div class="question"><span class="q-tag">Q11</span> What is Standalone architecture? What problem does it solve?</div>
+      <div class="answer">
+        <p>Before Angular 15, every component had to belong to an <strong>NgModule</strong> — a separate file declaring what the component can use. This created indirection: you'd have to look at the module file to understand a component's dependencies.</p>
+        <p style="margin-top:8px">Standalone components declare their own <code class="inline-code">imports: [...]</code> array directly. Benefits: (1) easier to understand — one file = one component = all its dependencies visible. (2) More portable. (3) Better tree-shaking (unused code gets stripped). This is now the recommended approach in Angular 17+.</p>
+      </div>
+    </div>
+
+    <div class="qa">
+      <div class="question"><span class="q-tag">Q12</span> Walk me through the checkout flow from the user's perspective vs what happens in code.</span></div>
+      <div class="answer">
+        <p><strong>User sees:</strong> Fills in name + email → clicks "Pay with Stripe" → is taken to Stripe's hosted payment page → enters card → redirected back to /order-confirmation.</p>
+        <p style="margin-top:8px"><strong>In code:</strong> CheckoutComponent validates the reactive form → calls <code class="inline-code">HttpClient.post('/api/stripe/checkout', cartItems)</code> → authInterceptor attaches JWT → Netlify function verifies token, calls Stripe API with secret key, returns <code class="inline-code">{ url }</code> → Angular sets <code class="inline-code">window.location.href = url</code> → user pays on Stripe → Stripe calls the webhook function → webhook writes the order to Supabase → Angular polls <code class="inline-code">/api/orders/:id</code> until status = 'paid'.</p>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- SECTION 9 — CHEATSHEET                                 -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <div class="section" id="cheatsheet">
+    <div class="section-title"><span class="num">9</span> Quick Reference Cheatsheet</div>
+    <div class="cheatsheet">
+      <div class="cs-item">
+        <div class="cs-term">signal(value)</div>
+        <div class="cs-def">Create reactive state. Read: <code class="inline-code">items()</code>. Write: <code class="inline-code">items.set([])</code>, <code class="inline-code">items.update(v =&gt; [...])</code></div>
+      </div>
+      <div class="cs-item">
+        <div class="cs-term">computed(() =&gt; ...)</div>
+        <div class="cs-def">Auto-derived signal. Re-runs only when its signal dependencies change. Read-only.</div>
+      </div>
+      <div class="cs-item">
+        <div class="cs-term">effect(() =&gt; ...)</div>
+        <div class="cs-def">Side-effect that re-runs when its signals change. Used to sync to localStorage here.</div>
+      </div>
+      <div class="cs-item">
+        <div class="cs-term">inject(Service)</div>
+        <div class="cs-def">Get a service from Angular's DI. Works in class bodies, constructors, guards, interceptors.</div>
+      </div>
+      <div class="cs-item">
+        <div class="cs-term">@Input()</div>
+        <div class="cs-def">Receive data from a parent component via property binding: <code class="inline-code">[product]="p"</code></div>
+      </div>
+      <div class="cs-item">
+        <div class="cs-term">@Output()</div>
+        <div class="cs-def">Emit events to a parent component: <code class="inline-code">cartAdded.emit(product)</code> → <code class="inline-code">(cartAdded)="fn($event)"</code></div>
+      </div>
+      <div class="cs-item">
+        <div class="cs-term">loadComponent: () =&gt; import(...)</div>
+        <div class="cs-def">Lazy load a route component — creates a separate JS bundle, downloaded on first visit.</div>
+      </div>
+      <div class="cs-item">
+        <div class="cs-term">canActivate: [guard]</div>
+        <div class="cs-def">Run a guard before loading a route. Return true/false/UrlTree (redirect).</div>
+      </div>
+      <div class="cs-item">
+        <div class="cs-term">HttpInterceptorFn</div>
+        <div class="cs-def">Middleware for every HttpClient request. Clone request to modify it. Must return Observable.</div>
+      </div>
+      <div class="cs-item">
+        <div class="cs-term">FormBuilder.group()</div>
+        <div class="cs-def">Build a reactive form with controls and validators. Access: <code class="inline-code">form.get('email')</code>.</div>
+      </div>
+      <div class="cs-item">
+        <div class="cs-term">takeUntilDestroyed(destroyRef)</div>
+        <div class="cs-def">Auto-cancel Observable subscription when component destroys. Prevents memory leaks.</div>
+      </div>
+      <div class="cs-item">
+        <div class="cs-term">standalone: true</div>
+        <div class="cs-def">Component manages its own imports array. No NgModule wrapper needed.</div>
+      </div>
+      <div class="cs-item">
+        <div class="cs-term">ngOnInit()</div>
+        <div class="cs-def">Lifecycle hook. Runs after Angular sets @Input values. Use for data fetching.</div>
+      </div>
+      <div class="cs-item">
+        <div class="cs-term">ngOnDestroy()</div>
+        <div class="cs-def">Lifecycle hook. Runs when component is removed. Use for cleanup (or use DestroyRef instead).</div>
+      </div>
+      <div class="cs-item">
+        <div class="cs-term">router-outlet</div>
+        <div class="cs-def">Placeholder in the template where the active route's component renders.</div>
+      </div>
+      <div class="cs-item">
+        <div class="cs-term">InjectionToken</div>
+        <div class="cs-def">Typed DI token for non-class values (config objects, strings). Avoids name collisions.</div>
+      </div>
+    </div>
+
+    <h3 class="sub" style="margin-top:28px">Template Syntax At A Glance</h3>
+    <pre><code><span class="cm">// Interpolation — display a value</span>
+&lt;h1&gt;{{ product.name }}&lt;/h1&gt;
+
+<span class="cm">// Property binding — set an element property</span>
+&lt;img [src]="product.imageUrl" /&gt;
+
+<span class="cm">// Event binding — listen for DOM event</span>
+&lt;button (click)="addToCart()"&gt;Add&lt;/button&gt;
+
+<span class="cm">// Two-way binding (template-driven forms)</span>
+&lt;input [(ngModel)]="searchQuery" /&gt;
+
+<span class="cm">// Structural directives — add/remove DOM elements</span>
+&lt;div *ngIf="loading()"&gt;Loading...&lt;/div&gt;
+&lt;app-product-card *ngFor="let p of products()" [product]="p" /&gt;
+
+<span class="cm">// Reactive form binding</span>
+&lt;form [formGroup]="form" (ngSubmit)="onSubmit()"&gt;
+  &lt;input formControlName="email" /&gt;
+&lt;/form&gt;
+
+<span class="cm">// Animation trigger</span>
+&lt;div [@listAnimation]="products().length"&gt;</code></pre>
+
+    <h3 class="sub" style="margin-top:28px">Services In This App</h3>
+    <table>
+      <tr><th>Service</th><th>What It Does</th><th>Key Signals/Methods</th></tr>
+      <tr><td><strong>AuthService</strong></td><td>Login, logout, session management</td><td><code class="inline-code">user()</code>, <code class="inline-code">profile()</code>, <code class="inline-code">signIn()</code>, <code class="inline-code">isAdmin()</code></td></tr>
+      <tr><td><strong>CartService</strong></td><td>Add/remove/update cart items, persist to localStorage</td><td><code class="inline-code">items()</code>, <code class="inline-code">totalItems()</code>, <code class="inline-code">subtotal()</code>, <code class="inline-code">addItem()</code></td></tr>
+      <tr><td><strong>ProductService</strong></td><td>Fetch products and individual product from Supabase</td><td><code class="inline-code">getProducts(category?)</code>, <code class="inline-code">getProductBySlug()</code></td></tr>
+      <tr><td><strong>OrderService</strong></td><td>Fetch orders for current user or all (admin)</td><td><code class="inline-code">getMyOrders()</code>, <code class="inline-code">getAllOrders()</code>, <code class="inline-code">updateStatus()</code></td></tr>
+      <tr><td><strong>SupabaseService</strong></td><td>Singleton wrapper around the Supabase client</td><td><code class="inline-code">client</code> (the Supabase JS instance)</td></tr>
+    </table>
+  </div>
+
+  <div style="text-align:center; padding: 40px 0; color: var(--muted); font-size:13px; border-top: 1px solid var(--border)">
+    BlossomRays Interview Guide — Angular 22 · Supabase · Stripe · Netlify
+    <br/>Good luck with your interview 🌸
+  </div>
+
+</div>
+</body>
+</html>

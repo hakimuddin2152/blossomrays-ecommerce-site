@@ -44,7 +44,7 @@ const stats = [
     <section>
       <!-- Carousel banner -->
       <div
-        class="relative min-h-[82vh] overflow-hidden"
+        class="relative min-h-[60vh] sm:min-h-[82vh] overflow-hidden"
         (mouseenter)="paused = true"
         (mouseleave)="paused = false"
       >
@@ -62,9 +62,9 @@ const stats = [
         <div class="absolute inset-0 bg-gradient-to-t from-[#0a0a09]/50 via-transparent to-transparent"></div>
 
         <!-- Content -->
-        <div class="relative z-10 h-full min-h-[82vh] flex items-center">
-          <div class="w-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-14">
-            <div class="max-w-2xl space-y-6">
+        <div class="relative z-10 h-full min-h-[60vh] sm:min-h-[82vh] flex items-center">
+          <div class="w-full max-w-7xl mx-auto px-5 sm:px-10 lg:px-14">
+            <div class="max-w-2xl space-y-5 sm:space-y-6">
               <!-- Badge — clean text eyebrow, no border box -->
               <p class="font-body text-[10px] font-semibold tracking-[0.30em] uppercase text-gold/80">
                 {{ current().badge }}
@@ -138,8 +138,8 @@ const stats = [
 
       <!-- Stats bar — clean, editorial -->
       <div class="bg-white border-b border-cream-dark">
-        <div class="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 divide-x divide-cream-dark">
-          <div *ngFor="let stat of stats" class="flex flex-col items-center py-5 gap-0.5">
+        <div class="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-px bg-cream-dark">
+          <div *ngFor="let stat of stats" class="flex flex-col items-center py-5 gap-0.5 bg-white">
             <span class="font-display text-xl font-semibold text-plum">{{ stat.value }}</span>
             <span class="font-body text-[10px] tracking-[0.16em] uppercase text-muted">{{ stat.label }}</span>
           </div>

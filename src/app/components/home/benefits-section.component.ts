@@ -31,7 +31,7 @@ const benefits = [
       <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-cream-dark">
         <div
           *ngFor="let b of benefits"
-          class="flex items-center gap-5 px-8 lg:px-12 py-8 group cursor-default"
+          class="flex items-center gap-4 sm:gap-5 px-4 sm:px-8 lg:px-12 py-6 sm:py-8 group cursor-default"
         >
           <div
             class="flex-shrink-0 w-12 h-12 flex items-center justify-center transition-all duration-300 group-hover:scale-110"

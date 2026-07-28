@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import type { User, Session } from '@supabase/supabase-js';
+import type { User, Session, Provider } from '@supabase/supabase-js';
 import type { Profile } from '../types';
 import { SupabaseService } from './supabase.service';
 
@@ -49,6 +49,32 @@ export class AuthService {
     });
     if (error) return error.message;
     return null;
+  }
+
+  /**
+   * INTERVIEW: OAuth 2.0 Authorization Code + PKCE Flow
+   *
+   * signInWithOAuth redirects the browser to the OAuth provider (Google/GitHub).
+   * The provider authenticates the user, then redirects back to redirectTo with
+   * an auth code. Supabase exchanges that code for a JWT session automatically
+   * (PKCE is handled by the Supabase JS SDK — it stores the code_verifier in
+   * sessionStorage before the redirect).
+   *
+   * The onAuthStateChange listener in the constructor picks up the new session
+   * when the user returns, updating this.user and this.profile signals.
+   */
+  async signInWithOAuth(provider: Provider): Promise<string | null> {
+    const { error } = await this.supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: `${window.location.origin}/account`,
+        queryParams: {
+          access_type: 'offline', // request refresh token
+          prompt: 'consent',      // always show consent screen (Google)
+        },
+      },
+    });
+    return error ? error.message : null;
   }
 
   async signOut(): Promise<void> {

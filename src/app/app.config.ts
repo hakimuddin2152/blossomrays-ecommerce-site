@@ -1,9 +1,13 @@
-import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
+import { ApplicationConfig, isDevMode, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter, withRouterConfig } from '@angular/router';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { provideStore } from '@ngrx/store';
+import { provideEffects } from '@ngrx/effects';
+import { provideStoreDevtools } from '@ngrx/store-devtools';
 import { routes } from './app.routes';
 import { authInterceptor } from './interceptors/auth.interceptor';
+import { cartReducer } from './store/cart';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -27,5 +31,26 @@ export const appConfig: ApplicationConfig = {
      * automatically — no manual header management per-call.
      */
     provideHttpClient(withInterceptors([authInterceptor])),
+
+    /**
+     * INTERVIEW: NgRx Store
+     *
+     * provideStore({ cart: cartReducer }) registers the global Redux store.
+     * The key 'cart' maps to state.cart — accessed via createFeatureSelector.
+     *
+     * provideEffects() wires NgRx Effects (async side-effect handlers).
+     * No effects are needed for cart (sync/localStorage), but the provider
+     * must be present so effect classes can be registered later.
+     *
+     * provideStoreDevtools() enables Redux DevTools browser extension —
+     * time-travel debugging, action log, state diff. logOnly in production.
+     */
+    provideStore({ cart: cartReducer }),
+    provideEffects(),
+    provideStoreDevtools({
+      maxAge: 25,
+      logOnly: !isDevMode(),
+      autoPause: true,
+    }),
   ],
 };

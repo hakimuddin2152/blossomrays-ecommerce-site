@@ -24,7 +24,7 @@ const steps = [
   standalone: true,
   imports: [CommonModule],
   template: `
-    <section class="py-24 bg-cream-light">
+    <section class="py-16 sm:py-24 bg-cream-light">
       <div class="max-w-7xl mx-auto px-4 sm:px-6">
         <div class="text-center max-w-xl mx-auto mb-16 space-y-3">
           <p class="section-eyebrow">Simple as 1-2-3</p>

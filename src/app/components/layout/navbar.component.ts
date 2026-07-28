@@ -72,7 +72,7 @@ const allCategories = [
 
       <!-- Top bar: Logo + Search + Icons -->
       <div class="border-b border-cream-dark">
-        <div class="max-w-7xl mx-auto px-5 sm:px-6 flex items-center gap-5 h-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-5 lg:px-6 flex items-center gap-3 sm:gap-5 h-16 sm:h-20">
 
           <!-- Logo -->
           <a routerLink="/" class="flex-shrink-0">
@@ -81,7 +81,7 @@ const allCategories = [
               alt="BlossomRays"
               width="180"
               height="148"
-              class="h-20 w-auto object-contain"
+              class="h-14 sm:h-20 w-auto max-w-[100px] sm:max-w-none object-contain"
             />
           </a>
 

@@ -40,10 +40,10 @@ const scents = [
   standalone: true,
   imports: [RouterLink, CommonModule],
   template: `
-    <section class="py-24 px-4 sm:px-6 bg-white">
+    <section class="py-16 sm:py-24 px-4 sm:px-6 bg-cream-light">
       <div class="max-w-7xl mx-auto">
         <!-- Header -->
-        <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-12">
+        <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-10 sm:mb-12">
           <div class="space-y-2">
             <p class="section-eyebrow">Signature Collection</p>
             <h2 class="section-title">Three Distinct Scents</h2>
@@ -53,41 +53,39 @@ const scents = [
           </a>
         </div>
 
-        <!-- Cards — equal columns, editorial portrait -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
-          <div
+        <!-- Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
+          <a
             *ngFor="let scent of scents"
-            class="group relative overflow-hidden cursor-pointer"
+            [routerLink]="scent.href"
+            class="group block bg-white border border-cream-dark hover:border-gold/30 hover:shadow-soft-lg transition-all duration-300 overflow-hidden"
           >
-            <a [routerLink]="scent.href" class="block">
-              <!-- Image -->
-              <div class="aspect-[3/4] overflow-hidden" [style.background]="scent.bg">
-                <img
-                  [src]="scent.image"
-                  [alt]="scent.name"
-                  class="w-full h-full object-cover group-hover:scale-103 transition-transform duration-700"
-                />
-              </div>
+            <!-- Image -->
+            <div class="aspect-[3/4] overflow-hidden" [style.background]="scent.bg">
+              <img
+                [src]="scent.image"
+                [alt]="scent.name"
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+              />
+            </div>
 
-              <!-- Overlay info -->
-              <div class="absolute inset-0 bg-gradient-to-t from-[#1C1C1A]/80 via-[#1C1C1A]/15 to-transparent flex flex-col justify-end p-6">
-                <p class="font-body text-[10px] font-semibold tracking-[0.24em] uppercase mb-1.5"
-                   [style.color]="scent.color">{{ scent.tagline }}</p>
-                <h3 class="font-display text-2xl font-semibold text-white mb-3">{{ scent.name }}</h3>
-                <div class="flex gap-1.5 flex-wrap mb-4">
-                  <span
-                    *ngFor="let note of scent.notes"
-                    class="font-body text-[10px] text-white/60 border border-white/20 px-2 py-0.5"
-                  >{{ note }}</span>
-                </div>
-                <!-- CTA line -->
-                <span class="inline-flex items-center gap-2 font-body text-[10px] font-semibold tracking-[0.18em] uppercase text-white/80 group-hover:text-white transition-colors duration-200">
-                  Shop {{ scent.name }}
-                  <span class="w-6 h-px bg-current transition-all duration-300 group-hover:w-8"></span>
-                </span>
+            <!-- Content — clean card below image -->
+            <div class="p-5 sm:p-6 space-y-3" [style.borderTop]="'2px solid ' + scent.color">
+              <p class="font-body text-[10px] font-semibold tracking-[0.28em] uppercase"
+                 [style.color]="scent.color">{{ scent.tagline }}</p>
+              <h3 class="font-display text-xl sm:text-2xl font-semibold text-plum">{{ scent.name }}</h3>
+              <div class="flex flex-wrap gap-1.5">
+                <span
+                  *ngFor="let note of scent.notes"
+                  class="font-body text-[10px] text-muted border border-cream-dark px-2.5 py-1"
+                >{{ note }}</span>
               </div>
-            </a>
-          </div>
+              <div class="flex items-center gap-2 pt-1 font-body text-[10px] font-semibold tracking-[0.18em] uppercase text-muted group-hover:text-plum transition-colors duration-300">
+                Shop {{ scent.name }}
+                <span class="block h-px w-5 bg-current transition-all duration-300 group-hover:w-9"></span>
+              </div>
+            </div>
+          </a>
         </div>
       </div>
     </section>

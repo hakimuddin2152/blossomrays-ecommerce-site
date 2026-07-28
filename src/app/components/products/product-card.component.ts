@@ -40,10 +40,10 @@ import type { Product } from '../../types';
       </a>
 
       <!-- Info -->
-      <div class="p-5 flex flex-col gap-1.5">
+      <div class="p-3 sm:p-5 flex flex-col gap-1.5">
         <p class="font-body text-[10px] font-semibold tracking-[0.22em] uppercase text-gold">{{ product.category }}</p>
         <a [routerLink]="['/products', product.slug]">
-          <h3 class="font-display text-[1.05rem] font-semibold text-plum leading-snug group-hover:text-gold transition-colors duration-200">
+          <h3 class="font-display text-[0.95rem] sm:text-[1.05rem] font-semibold text-plum leading-snug group-hover:text-gold transition-colors duration-200">
             {{ product.name }}
           </h3>
         </a>
