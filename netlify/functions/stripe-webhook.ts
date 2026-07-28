@@ -2,7 +2,7 @@ import type { Handler, HandlerEvent } from '@netlify/functions';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2024-11-20.acacia' });
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2025-02-24.acacia' });
 
 export const handler: Handler = async (event: HandlerEvent) => {
   if (event.httpMethod !== 'POST') {
@@ -58,23 +58,34 @@ export const handler: Handler = async (event: HandlerEvent) => {
     shippingAddress = JSON.parse(session.metadata?.shipping_address ?? '{}');
   } catch { /* ignore */ }
 
-  const lineItems = await stripe.checkout.sessions.listLineItems(session.id, {
-    expand: ['data.price.product'],
-  });
+  // Primary: parse items from metadata (set by stripe-checkout function)
+  let orderItems: Array<{ product_id: string; quantity: number; unit_price: number }> = [];
+  try {
+    const parsed = JSON.parse(session.metadata?.items ?? '[]');
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      orderItems = parsed;
+    }
+  } catch { /* ignore */ }
 
-  const orderItems = lineItems.data
-    .filter((item) => {
-      const product = item.price?.product as Stripe.Product | undefined;
-      return product?.metadata?.product_id;
-    })
-    .map((item) => {
-      const product = item.price?.product as Stripe.Product;
-      return {
-        product_id: product.metadata.product_id,
-        quantity: item.quantity ?? 1,
-        unit_price: item.price?.unit_amount ?? 0,
-      };
+  // Fallback: expand line items from Stripe API (in case metadata was not set)
+  if (orderItems.length === 0) {
+    const lineItems = await stripe.checkout.sessions.listLineItems(session.id, {
+      expand: ['data.price.product'],
     });
+    orderItems = lineItems.data
+      .filter((item) => {
+        const product = item.price?.product as Stripe.Product | undefined;
+        return product?.metadata?.product_id;
+      })
+      .map((item) => {
+        const product = item.price?.product as Stripe.Product;
+        return {
+          product_id: product.metadata.product_id,
+          quantity: item.quantity ?? 1,
+          unit_price: item.price?.unit_amount ?? 0,
+        };
+      });
+  }
 
   const email = session.customer_email ?? session.metadata?.email ?? '';
   const subtotal = orderItems.reduce((s, i) => s + i.unit_price * i.quantity, 0);

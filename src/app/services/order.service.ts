@@ -15,11 +15,20 @@ export class OrderService {
     return (data ?? []) as Order[];
   }
 
-  async getOrderById(orderId: string): Promise<Order | null> {
+  async getOrderById(idOrSessionId: string): Promise<Order | null> {
+    // Stripe success_url passes the checkout session ID (cs_xxx); resolve it to the DB record
+    if (idOrSessionId.startsWith('cs_')) {
+      const { data } = await this.supabase
+        .from('orders')
+        .select('*, order_items(*, product:products(name, images, category))')
+        .eq('stripe_session_id', idOrSessionId)
+        .single();
+      return (data as Order) ?? null;
+    }
     const { data } = await this.supabase
       .from('orders')
       .select('*, order_items(*, product:products(name, images, category))')
-      .eq('id', orderId)
+      .eq('id', idOrSessionId)
       .single();
     return (data as Order) ?? null;
   }

@@ -2,7 +2,7 @@ import type { Handler, HandlerEvent } from '@netlify/functions';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2024-11-20.acacia' });
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2025-02-24.acacia' });
 
 const TRUSTED_PRODUCTS: Record<string, { name: string; price: number; stock: number; is_active: boolean }> = {
   'b1f1a000-0000-4000-a000-000000000001': { name: 'Rose Car Air Freshener',      price: 1799, stock: 100, is_active: true },
@@ -88,7 +88,8 @@ export const handler: Handler = async (event: HandlerEvent) => {
     quantity: item.quantity,
   }));
 
-  const siteUrl = process.env.SITE_URL ?? 'http://localhost:3000';
+  // Resolution order: SITE_URL (manual) → URL (Netlify built-in) → NEXT_PUBLIC_SITE_URL (local .env.local)
+  const siteUrl = process.env.SITE_URL ?? process.env.URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:4200';
 
   try {
     const session = await stripe.checkout.sessions.create({
@@ -102,6 +103,14 @@ export const handler: Handler = async (event: HandlerEvent) => {
       metadata: {
         email,
         shipping_address: JSON.stringify(shipping),
+        // Stored so the webhook can reliably rebuild order_items without relying on Stripe's expand
+        items: JSON.stringify(
+          items.map((i) => ({
+            product_id: i.product.id,
+            quantity: i.quantity,
+            unit_price: validated[i.product.id].price,
+          })),
+        ),
       },
       success_url: `${siteUrl}/order-confirmation/{CHECKOUT_SESSION_ID}`,
       cancel_url: `${siteUrl}/checkout`,

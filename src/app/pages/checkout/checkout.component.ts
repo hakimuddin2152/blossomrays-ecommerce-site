@@ -82,8 +82,23 @@ import { APP_CONFIG } from '../../tokens/app-config.token';
 
                     <div>
                       <label class="block font-body text-[11px] uppercase tracking-widest text-muted mb-1.5">Country *</label>
-                      <input formControlName="country" type="text" placeholder="CA" class="input-field"
-                        [class.border-red-400]="fieldInvalid('country')" />
+                      <select formControlName="country" class="input-field"
+                        [class.border-red-400]="fieldInvalid('country')">
+                        <option value="">Select country…</option>
+                        <option value="CA">Canada</option>
+                        <option value="US">United States</option>
+                        <option value="GB">United Kingdom</option>
+                        <option value="AU">Australia</option>
+                        <option value="FR">France</option>
+                        <option value="DE">Germany</option>
+                        <option value="JP">Japan</option>
+                        <option value="MX">Mexico</option>
+                        <option value="NL">Netherlands</option>
+                        <option value="NZ">New Zealand</option>
+                        <option value="SG">Singapore</option>
+                        <option value="AE">United Arab Emirates</option>
+                      </select>
+                      <p *ngIf="fieldInvalid('country')" class="font-body text-xs text-red-500 mt-1">Please select a country</p>
                     </div>
                   </div>
                 </div>
@@ -175,7 +190,7 @@ export class CheckoutComponent {
     city: ['', [Validators.required, Validators.minLength(2)]],
     state: ['', [Validators.required, Validators.minLength(2)]],
     zip: ['', [Validators.required, Validators.minLength(4)]],
-    country: ['CA', [Validators.required, Validators.minLength(2), Validators.maxLength(2)]],
+    country: ['CA', [Validators.required]],
   });
 
   fieldInvalid(field: string): boolean {
