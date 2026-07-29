@@ -1,10 +1,12 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { CartService } from '../../services/cart.service';
+import { AuthService } from '../../services/auth.service';
+import { OrderService } from '../../services/order.service';
 import { formatPrice } from '../../utils/format-price';
 import { APP_CONFIG } from '../../tokens/app-config.token';
 
@@ -156,8 +158,10 @@ import { APP_CONFIG } from '../../tokens/app-config.token';
     </div>
   `,
 })
-export class CheckoutComponent {
+export class CheckoutComponent implements OnInit {
   private readonly cartService = inject(CartService);
+  private readonly authService = inject(AuthService);
+  private readonly orderService = inject(OrderService);
   private readonly fb = inject(FormBuilder);
 
   /**
@@ -192,6 +196,34 @@ export class CheckoutComponent {
     zip: ['', [Validators.required, Validators.minLength(4)]],
     country: ['CA', [Validators.required]],
   });
+
+  async ngOnInit(): Promise<void> {
+    const user = this.authService.user();
+    const profile = this.authService.profile();
+    if (user) {
+      this.form.patchValue({
+        email: user.email ?? '',
+        full_name: profile?.full_name ?? '',
+      });
+      // Pre-fill shipping from the most recent order
+      try {
+        const orders = await this.orderService.getMyOrders();
+        const last = orders.find((o) => o.shipping_address?.street_line_1);
+        if (last?.shipping_address) {
+          const a = last.shipping_address;
+          this.form.patchValue({
+            full_name: a.full_name || profile?.full_name || '',
+            street_line_1: a.street_line_1,
+            street_line_2: a.street_line_2 ?? '',
+            city: a.city,
+            state: a.state,
+            zip: a.zip,
+            country: a.country || 'CA',
+          });
+        }
+      } catch { /* ignore — pre-fill is best-effort */ }
+    }
+  }
 
   fieldInvalid(field: string): boolean {
     const ctrl = this.form.get(field);

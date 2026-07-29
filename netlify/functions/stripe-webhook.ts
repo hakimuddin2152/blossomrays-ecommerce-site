@@ -121,7 +121,14 @@ export const handler: Handler = async (event: HandlerEvent) => {
 
   if (orderItems.length > 0) {
     const itemRows = orderItems.map((i) => ({ ...i, order_id: order.id }));
-    await supabase.from('order_items').insert(itemRows);
+    const { error: itemsError } = await supabase.from('order_items').insert(itemRows);
+    if (itemsError) {
+      console.error('[webhook] Failed to insert order_items:', itemsError.message, itemsError.details, 'rows:', JSON.stringify(itemRows));
+    } else {
+      console.log('[webhook] Inserted', itemRows.length, 'order_items for order', order.id);
+    }
+  } else {
+    console.warn('[webhook] No orderItems found in metadata or line items for session', session.id);
   }
 
   console.log('[webhook] Order created:', order.id);
