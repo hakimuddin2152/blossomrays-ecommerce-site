@@ -3,5 +3,5 @@ export const environment = {
   production: true,
   supabaseUrl: 'https://ujppjsblwfmwlmucxmet.supabase.co',
   supabaseAnonKey: 'sb_publishable_v4TQ0TtQxLxAgDMZekK_iQ_vVqEbINb',
-  gaMeasurementId: '',
+  gaMeasurementId: 'G-7S7MR1JGNT',
 };
