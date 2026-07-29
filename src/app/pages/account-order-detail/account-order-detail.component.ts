@@ -3,6 +3,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { OrderService } from '../../services/order.service';
 import { formatPrice } from '../../utils/format-price';
+import { TranslationService } from '../../services/translation.service';
 import type { Order } from '../../types';
 
 @Component({
@@ -19,7 +20,7 @@ import type { Order } from '../../types';
             </svg>
           </a>
           <h1 class="font-display text-3xl font-semibold text-plum">
-            Order #{{ order()?.id?.slice(0, 8)?.toUpperCase() }}
+            {{ t('accountOrders.order') }} #{{ order()?.id?.slice(0, 8)?.toUpperCase() }}
           </h1>
         </div>
 
@@ -34,7 +35,7 @@ import type { Order } from '../../types';
             <!-- Status + date -->
             <div class="bg-white border border-cream-dark p-5 flex justify-between items-center">
               <div>
-                <p class="font-body text-xs text-muted">Placed</p>
+                <p class="font-body text-xs text-muted">{{ t('accountOrderDetail.placed') }}</p>
                 <p class="font-body text-sm text-plum font-medium">{{ o.created_at | date:'longDate' }}</p>
               </div>
               <span class="badge bg-cream border-cream-dark text-muted">{{ o.status }}</span>
@@ -42,11 +43,11 @@ import type { Order } from '../../types';
 
             <!-- Items -->
             <div class="bg-white border border-cream-dark p-5 space-y-4">
-              <h2 class="font-display text-lg font-semibold text-plum">Items</h2>
+              <h2 class="font-display text-lg font-semibold text-plum">{{ t('accountOrderDetail.items') }}</h2>
               <div *ngFor="let item of o.order_items" class="flex gap-4 py-3 border-b border-cream-dark last:border-0">
                 <div class="flex-1">
-                  <p class="font-body text-sm font-medium text-plum">{{ item.product?.name ?? 'Product' }}</p>
-                  <p class="font-body text-xs text-muted">Qty: {{ item.quantity }}</p>
+                  <p class="font-body text-sm font-medium text-plum">{{ item.product?.name ?? t('accountOrderDetail.product') }}</p>
+                  <p class="font-body text-xs text-muted">{{ t('checkout.qty') }}: {{ item.quantity }}</p>
                 </div>
                 <span class="font-body text-sm text-plum">{{ formatPrice(item.unit_price * item.quantity) }}</span>
               </div>
@@ -54,17 +55,17 @@ import type { Order } from '../../types';
 
             <!-- Totals -->
             <div class="bg-white border border-cream-dark p-5 space-y-3 font-body text-sm">
-              <div class="flex justify-between"><span class="text-muted">Subtotal</span><span>{{ formatPrice(o.subtotal) }}</span></div>
-              <div class="flex justify-between"><span class="text-muted">Shipping</span><span>{{ formatPrice(o.shipping_cost) }}</span></div>
+              <div class="flex justify-between"><span class="text-muted">{{ t('checkout.subtotal') }}</span><span>{{ formatPrice(o.subtotal) }}</span></div>
+              <div class="flex justify-between"><span class="text-muted">{{ t('checkout.shipping') }}</span><span>{{ formatPrice(o.shipping_cost) }}</span></div>
               <hr class="border-cream-dark" />
               <div class="flex justify-between font-semibold text-plum text-base">
-                <span>Total</span><span>{{ formatPrice(o.total) }}</span>
+                <span>{{ t('checkout.total') }}</span><span>{{ formatPrice(o.total) }}</span>
               </div>
             </div>
 
             <!-- Shipping address -->
             <div class="bg-white border border-cream-dark p-5 space-y-2">
-              <h2 class="font-display text-lg font-semibold text-plum">Shipping Address</h2>
+              <h2 class="font-display text-lg font-semibold text-plum">{{ t('accountOrderDetail.shippingAddress') }}</h2>
               <div class="font-body text-sm text-muted leading-relaxed">
                 <p>{{ o.shipping_address?.full_name }}</p>
                 <p>{{ o.shipping_address?.street_line_1 }}</p>
@@ -82,11 +83,16 @@ import type { Order } from '../../types';
 export class AccountOrderDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly orderService = inject(OrderService);
+  private readonly i18n = inject(TranslationService);
 
   readonly order = signal<Order | null>(null);
   readonly loading = signal(true);
   readonly formatPrice = formatPrice;
   readonly skeletons = Array(3);
+
+  t(key: string): string {
+    return this.i18n.t(key);
+  }
 
   async ngOnInit(): Promise<void> {
     const orderId = this.route.snapshot.paramMap.get('orderId') ?? '';

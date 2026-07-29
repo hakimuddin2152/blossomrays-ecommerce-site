@@ -1,31 +1,32 @@
-import { Component, signal, OnInit, OnDestroy } from '@angular/core';
+import { Component, signal, OnInit, OnDestroy, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { TranslationService } from '../../services/translation.service';
 
 const slides = [
   {
     image: '/images/banner_image.png',
-    badge: 'Handcrafted in Canada · Alcohol-Free',
-    headline: ['Elevate', 'Every Drive'],
+    badgeKey: 'home.hero.slide1.badge',
+    headlineKeys: ['home.hero.slide1.line1', 'home.hero.slide1.line2'],
     accentLine: 1,
-    sub: 'Hang it, forget it. A single drop-free bottle fills your car with a calming, long-lasting fragrance that turns your daily commute into a little escape — lasting 120+ days.',
-    cta: { label: 'Shop Collection', href: '/products' },
+    subKey: 'home.hero.slide1.sub',
+    ctaHref: '/products',
   },
   {
     image: '/images/banner_image_2.png',
-    badge: 'Clip It. Drive Happy.',
-    headline: ['Fresh Air', 'On Demand'],
+    badgeKey: 'home.hero.slide2.badge',
+    headlineKeys: ['home.hero.slide2.line1', 'home.hero.slide2.line2'],
     accentLine: 0,
-    sub: 'Clips right onto your vent for an instant mood boost — steady, even fragrance flow whenever the air is on, so every ride feels a little brighter.',
-    cta: { label: 'Shop Collection', href: '/products' },
+    subKey: 'home.hero.slide2.sub',
+    ctaHref: '/products',
   },
 ];
 
 const stats = [
-  { value: '120+', label: 'Days Lasting' },
-  { value: '3', label: 'Signature Scents' },
-  { value: '100%', label: 'Alcohol-Free' },
-  { value: '🍁', label: 'Made in Canada' },
+  { value: '120+', labelKey: 'home.stats.daysLasting' },
+  { value: '3', labelKey: 'home.stats.signatureScents' },
+  { value: '100%', labelKey: 'home.stats.alcoholFree' },
+  { value: '🍁', labelKey: 'home.stats.madeInCanada' },
 ];
 
 @Component({
@@ -44,7 +45,7 @@ const stats = [
         <div class="absolute inset-0 transition-opacity duration-700">
           <img
             [src]="current().image"
-            [alt]="current().badge"
+            [alt]="t(current().badgeKey)"
             class="w-full h-full object-cover object-center"
           />
         </div>
@@ -61,36 +62,36 @@ const stats = [
             <div class="max-w-2xl space-y-5 sm:space-y-6">
               <!-- Badge — clean text eyebrow, no border box -->
               <p class="font-body text-[10px] font-semibold tracking-[0.30em] uppercase text-gold/80">
-                {{ current().badge }}
+                {{ t(current().badgeKey) }}
               </p>
 
               <!-- Headline — editorial, large -->
               <h1 class="font-display font-semibold text-white leading-none">
                 <span
-                  *ngFor="let line of current().headline; let i = index"
+                  *ngFor="let lineKey of current().headlineKeys; let i = index"
                   class="block text-[2rem] sm:text-[2.8rem] md:text-[4rem] lg:text-[5rem]"
                   [class.text-gold]="i === current().accentLine"
-                >{{ line }}</span>
+                >{{ t(lineKey) }}</span>
               </h1>
 
               <!-- Sub -->
               <p class="font-body text-[15px] text-white/90 leading-relaxed max-w-md">
-                {{ current().sub }}
+                {{ t(current().subKey) }}
               </p>
 
               <!-- CTAs -->
               <div class="flex flex-wrap items-center gap-4 pt-2">
                 <a
-                  [routerLink]="current().cta.href"
+                  [routerLink]="current().ctaHref"
                   class="btn-primary"
                 >
-                  {{ current().cta.label }}
+                  {{ t('home.hero.cta') }}
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
                   </svg>
                 </a>
                 <a routerLink="/products" class="font-body text-[11px] font-medium tracking-[0.14em] uppercase text-white/50 hover:text-white transition-colors">
-                  View all →
+                  {{ t('home.hero.viewAll') }} →
                 </a>
               </div>
             </div>
@@ -104,7 +105,7 @@ const stats = [
             (click)="setCurrent(i)"
             [class]="i === currentIndex() ? 'w-8 h-0.5 bg-gold' : 'w-2 h-0.5 bg-white/30 hover:bg-white/60'"
             class="transition-all duration-300"
-            [attr.aria-label]="'Slide ' + (i + 1)"
+            [attr.aria-label]="t('home.hero.slide') + ' ' + (i + 1)"
           ></button>
         </div>
 
@@ -112,7 +113,7 @@ const stats = [
         <button
           (click)="prev()"
           class="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-9 h-9 flex items-center justify-center border border-white/20 text-white/60 hover:border-white/50 hover:text-white transition-all"
-          aria-label="Previous slide"
+          [attr.aria-label]="t('home.hero.prevSlide')"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/>
@@ -121,7 +122,7 @@ const stats = [
         <button
           (click)="next()"
           class="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-9 h-9 flex items-center justify-center border border-white/20 text-white/60 hover:border-white/50 hover:text-white transition-all"
-          aria-label="Next slide"
+          [attr.aria-label]="t('home.hero.nextSlide')"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/>
@@ -134,7 +135,7 @@ const stats = [
         <div class="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-px bg-cream-dark">
           <div *ngFor="let stat of stats" class="flex flex-col items-center py-5 gap-0.5 bg-white">
             <span class="font-display text-xl font-semibold text-plum">{{ stat.value }}</span>
-            <span class="font-body text-[10px] tracking-[0.16em] uppercase text-muted">{{ stat.label }}</span>
+            <span class="font-body text-[10px] tracking-[0.16em] uppercase text-muted">{{ t(stat.labelKey) }}</span>
           </div>
         </div>
       </div>
@@ -142,12 +143,17 @@ const stats = [
   `,
 })
 export class HeroSectionComponent implements OnInit, OnDestroy {
+  private readonly i18n = inject(TranslationService);
   readonly slides = slides;
   readonly stats = stats;
   readonly currentIndex = signal(0);
   readonly current = signal(slides[0]);
   paused = false;
   private intervalId?: ReturnType<typeof setInterval>;
+
+  t(key: string): string {
+    return this.i18n.t(key);
+  }
 
   ngOnInit(): void {
     this.intervalId = setInterval(() => {

@@ -3,6 +3,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { OrderService } from '../../services/order.service';
 import { formatPrice } from '../../utils/format-price';
+import { TranslationService } from '../../services/translation.service';
 import type { Order } from '../../types';
 
 @Component({
@@ -20,8 +21,8 @@ import type { Order } from '../../types';
         </div>
 
         <div class="space-y-2">
-          <h1 class="font-display text-3xl sm:text-4xl font-semibold text-plum">Order Confirmed!</h1>
-          <p class="font-body text-muted">Thank you for your purchase. We'll send you a shipping confirmation soon.</p>
+          <h1 class="font-display text-3xl sm:text-4xl font-semibold text-plum">{{ t('orderConfirmation.title') }}</h1>
+          <p class="font-body text-muted">{{ t('orderConfirmation.thanks') }}</p>
         </div>
 
         <!-- Loading state while polling for the order -->
@@ -34,28 +35,28 @@ import type { Order } from '../../types';
         <!-- Order details (shown once the webhook creates the order) -->
         <div *ngIf="!loading() && order() as o" class="bg-white border border-cream-dark p-6 text-left space-y-4">
           <div class="flex justify-between font-body text-sm">
-            <span class="text-muted">Order ID</span>
+            <span class="text-muted">{{ t('orderConfirmation.orderId') }}</span>
             <span class="text-plum font-mono text-xs">{{ o.id.slice(0, 8).toUpperCase() }}</span>
           </div>
           <div class="flex justify-between font-body text-sm">
-            <span class="text-muted">Total</span>
+            <span class="text-muted">{{ t('orderConfirmation.total') }}</span>
             <span class="text-plum font-semibold">{{ formatPrice(o.total) }}</span>
           </div>
           <div class="flex justify-between font-body text-sm">
-            <span class="text-muted">Status</span>
+            <span class="text-muted">{{ t('orderConfirmation.status') }}</span>
             <span class="badge bg-sage-light border-sage/20 text-sage-dark">{{ o.status }}</span>
           </div>
         </div>
 
         <!-- If polling finished and order still not found -->
         <p *ngIf="!loading() && !order()" class="font-body text-sm text-muted">
-          Your order is being processed — check your email for confirmation or visit
-          <a routerLink="/account/orders" class="text-plum hover:text-gold">your orders</a>.
+          {{ t('orderConfirmation.pendingText') }}
+          <a routerLink="/account/orders" class="text-plum hover:text-gold">{{ t('orderConfirmation.yourOrders') }}</a>.
         </p>
 
         <div class="flex flex-col sm:flex-row gap-3 justify-center">
-          <a routerLink="/account/orders" class="btn-primary">View Orders</a>
-          <a routerLink="/products" class="btn-outline">Continue Shopping</a>
+          <a routerLink="/account/orders" class="btn-primary">{{ t('orderConfirmation.viewOrders') }}</a>
+          <a routerLink="/products" class="btn-outline">{{ t('common.continueShopping') }}</a>
         </div>
       </div>
     </div>
@@ -64,10 +65,15 @@ import type { Order } from '../../types';
 export class OrderConfirmationComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly orderService = inject(OrderService);
+  private readonly i18n = inject(TranslationService);
 
   readonly order = signal<Order | null>(null);
   readonly loading = signal(true);
   readonly formatPrice = formatPrice;
+
+  t(key: string): string {
+    return this.i18n.t(key);
+  }
 
   async ngOnInit(): Promise<void> {
     const orderId = this.route.snapshot.paramMap.get('orderId');

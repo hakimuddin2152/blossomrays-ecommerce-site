@@ -3,6 +3,8 @@ import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { CartService } from '../../services/cart.service';
 import { formatPrice } from '../../utils/format-price';
+import { TranslationService } from '../../services/translation.service';
+import { LocaleService } from '../../services/locale.service';
 import type { CartItem } from '../../types';
 
 @Component({
@@ -12,14 +14,14 @@ import type { CartItem } from '../../types';
   template: `
     <div class="bg-cream min-h-screen">
       <div class="max-w-5xl mx-auto px-4 sm:px-6 py-14">
-        <h1 class="font-display text-3xl sm:text-4xl font-semibold text-plum mb-10">Your Cart</h1>
+        <h1 class="font-display text-3xl sm:text-4xl font-semibold text-plum mb-10">{{ t('cart.title') }}</h1>
 
         <!-- Empty state -->
         <ng-container *ngIf="items().length === 0">
           <div class="text-center py-20 space-y-4">
             <span class="text-7xl block">🛒</span>
-            <p class="font-body text-muted text-lg">Your cart is empty.</p>
-            <a routerLink="/products" class="btn-primary inline-flex mt-4">Browse Products</a>
+            <p class="font-body text-muted text-lg">{{ t('cart.empty') }}</p>
+            <a routerLink="/products" class="btn-primary inline-flex mt-4">{{ t('common.browseProducts') }}</a>
           </div>
         </ng-container>
 
@@ -46,7 +48,7 @@ import type { CartItem } from '../../types';
                     <button
                       (click)="remove(item.product.id)"
                       class="text-muted hover:text-red-500 transition-colors"
-                      aria-label="Remove"
+                      [attr.aria-label]="t('common.remove')"
                     >
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12"/>
@@ -60,7 +62,7 @@ import type { CartItem } from '../../types';
                       <button (click)="increment(item)" class="w-8 h-8 flex items-center justify-center hover:bg-cream transition-colors">+</button>
                     </div>
                     <span class="font-body text-sm font-semibold text-plum">
-                      {{ formatPrice(item.product.price * item.quantity) }}
+                      {{ formatPrice(item.product.price * item.quantity, locale.currency()) }}
                     </span>
                   </div>
                 </div>
@@ -70,33 +72,33 @@ import type { CartItem } from '../../types';
             <!-- Summary -->
             <div class="lg:col-span-1">
               <div class="bg-white border border-cream-dark p-6 space-y-5 sticky top-28">
-                <h2 class="font-display text-xl font-semibold text-plum">Order Summary</h2>
+                <h2 class="font-display text-xl font-semibold text-plum">{{ t('checkout.orderSummary') }}</h2>
 
                 <div class="space-y-3 font-body text-sm">
                   <div class="flex justify-between">
-                    <span class="text-muted">Subtotal ({{ cart.totalItems() }} items)</span>
-                    <span class="text-plum font-medium">{{ formatPrice(subtotal()) }}</span>
+                    <span class="text-muted">{{ t('cart.subtotalItems') }} ({{ cart.totalItems() }} {{ t('cart.items') }})</span>
+                    <span class="text-plum font-medium">{{ formatPrice(subtotal(), locale.currency()) }}</span>
                   </div>
                   <div class="flex justify-between">
-                    <span class="text-muted">Shipping</span>
-                    <span class="text-plum font-medium">{{ subtotal() >= 3000 ? 'Free' : formatPrice(999) }}</span>
+                    <span class="text-muted">{{ t('checkout.shipping') }}</span>
+                    <span class="text-plum font-medium">{{ subtotal() >= 3000 ? t('checkout.free') : formatPrice(999, locale.currency()) }}</span>
                   </div>
                 </div>
 
                 <hr class="border-cream-dark" />
 
                 <div class="flex justify-between font-body text-base font-semibold text-plum">
-                  <span>Total</span>
-                  <span>{{ formatPrice(subtotal() >= 3000 ? subtotal() : subtotal() + 999) }}</span>
+                  <span>{{ t('checkout.total') }}</span>
+                  <span>{{ formatPrice(subtotal() >= 3000 ? subtotal() : subtotal() + 999, locale.currency()) }}</span>
                 </div>
 
                 <a routerLink="/checkout" class="btn-primary w-full flex items-center justify-center gap-2">
-                  Proceed to Checkout
+                  {{ t('cart.proceedToCheckout') }}
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
                   </svg>
                 </a>
-                <a routerLink="/products" class="btn-ghost w-full justify-center">Continue Shopping</a>
+                <a routerLink="/products" class="btn-ghost w-full justify-center">{{ t('common.continueShopping') }}</a>
               </div>
             </div>
           </div>
@@ -106,10 +108,16 @@ import type { CartItem } from '../../types';
   `,
 })
 export class CartComponent {
+  private readonly i18n = inject(TranslationService);
   readonly cart = inject(CartService);
+  readonly locale = inject(LocaleService);
   readonly items = this.cart.items;
   readonly subtotal = this.cart.subtotal;
   readonly formatPrice = formatPrice;
+
+  t(key: string): string {
+    return this.i18n.t(key);
+  }
 
   increment(item: CartItem): void {
     this.cart.updateQuantity(item.product.id, item.quantity + 1);

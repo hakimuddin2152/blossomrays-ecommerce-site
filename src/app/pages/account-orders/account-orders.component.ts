@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { OrderService } from '../../services/order.service';
 import { formatPrice } from '../../utils/format-price';
+import { TranslationService } from '../../services/translation.service';
 import type { Order } from '../../types';
 
 @Component({
@@ -18,7 +19,7 @@ import type { Order } from '../../types';
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.75 19.5L8.25 12l7.5-7.5"/>
             </svg>
           </a>
-          <h1 class="font-display text-3xl sm:text-4xl font-semibold text-plum">Order History</h1>
+          <h1 class="font-display text-3xl sm:text-4xl font-semibold text-plum">{{ t('accountOrders.title') }}</h1>
         </div>
 
         <ng-container *ngIf="loading()">
@@ -27,24 +28,24 @@ import type { Order } from '../../types';
 
         <ng-container *ngIf="!loading()">
           <p *ngIf="orders().length === 0" class="font-body text-muted text-center py-16">
-            No orders yet. <a routerLink="/products" class="text-plum hover:text-gold">Start shopping →</a>
+            {{ t('accountOrders.empty') }} <a routerLink="/products" class="text-plum hover:text-gold">{{ t('accountOrders.startShopping') }} →</a>
           </p>
 
           <div class="space-y-4">
             <div *ngFor="let o of orders()" class="bg-white border border-cream-dark p-5 hover:shadow-soft transition-shadow">
               <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div class="space-y-1">
-                  <p class="font-body text-[11px] uppercase tracking-widest text-muted">Order</p>
+                  <p class="font-body text-[11px] uppercase tracking-widest text-muted">{{ t('accountOrders.order') }}</p>
                   <p class="font-display text-lg font-semibold text-plum">#{{ o.id.slice(0, 8).toUpperCase() }}</p>
                   <p class="font-body text-sm text-muted">{{ o.created_at | date:'longDate' }}</p>
                 </div>
                 <div class="flex items-center gap-6">
                   <div class="text-right">
-                    <p class="font-body text-xs text-muted">Total</p>
+                    <p class="font-body text-xs text-muted">{{ t('accountOrders.total') }}</p>
                     <p class="font-body text-base font-semibold text-plum">{{ formatPrice(o.total) }}</p>
                   </div>
                   <span class="badge bg-cream border-cream-dark text-muted">{{ o.status }}</span>
-                  <a [routerLink]="['/account/orders', o.id]" class="btn-ghost py-2 px-4 text-[10px]">Details</a>
+                  <a [routerLink]="['/account/orders', o.id]" class="btn-ghost py-2 px-4 text-[10px]">{{ t('accountOrders.details') }}</a>
                 </div>
               </div>
             </div>
@@ -56,11 +57,16 @@ import type { Order } from '../../types';
 })
 export class AccountOrdersComponent implements OnInit {
   private readonly orderService = inject(OrderService);
+  private readonly i18n = inject(TranslationService);
 
   readonly orders = signal<Order[]>([]);
   readonly loading = signal(true);
   readonly formatPrice = formatPrice;
   readonly skeletons = Array(4);
+
+  t(key: string): string {
+    return this.i18n.t(key);
+  }
 
   async ngOnInit(): Promise<void> {
     try {

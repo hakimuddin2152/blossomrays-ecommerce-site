@@ -1,12 +1,14 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { TranslationService } from '../../services/translation.service';
+import { TermsModalComponent } from '../shared/terms-modal.component';
 
 @Component({
   selector: 'app-footer',
   standalone: true,
-  imports: [RouterLink, CommonModule, FormsModule],
+  imports: [RouterLink, CommonModule, FormsModule, TermsModalComponent],
   template: `
     <footer class="bg-[#1A1A1A] text-white/60">
 
@@ -18,32 +20,32 @@ import { FormsModule } from '@angular/forms';
           <img src="/images/logo.png" alt="BlossomRays" width="110" height="90"
             class="h-20 w-auto object-contain brightness-0 invert opacity-80" />
           <p class="font-body text-sm text-white/40 leading-relaxed max-w-xs">
-            Premium botanical fragrances, diffusers, candles, and accessories. Handcrafted in Canada.
+            {{ t('footer.tagline') }}
           </p>
           <form class="flex border border-white/20 max-w-xs" (submit)="$event.preventDefault()">
             <input
               type="email"
               [(ngModel)]="newsletterEmail"
               name="email"
-              placeholder="Your email"
+              [placeholder]="t('footer.emailPlaceholder')"
               class="flex-1 bg-transparent px-3 py-2.5 text-[12px] text-white/70 placeholder:text-white/35 outline-none"
             />
             <button
               type="submit"
               class="px-4 text-[10px] font-semibold tracking-[0.14em] uppercase text-white/80 hover:text-gold transition-colors"
             >
-              Join
+              {{ t('footer.join') }}
             </button>
           </form>
         </div>
 
         <!-- Shop links -->
         <div class="space-y-5">
-          <h3 class="font-body text-[10px] font-semibold uppercase tracking-[0.22em] text-white/80">Shop</h3>
+          <h3 class="font-body text-[10px] font-semibold uppercase tracking-[0.22em] text-white/80">{{ t('footer.shop') }}</h3>
           <ul class="space-y-3">
             <li *ngFor="let link of shopLinks">
               <a [routerLink]="link.href" class="font-body text-sm text-white/40 hover:text-gold transition-colors duration-150">
-                {{ link.label }}
+                {{ t(link.labelKey) }}
               </a>
             </li>
           </ul>
@@ -51,11 +53,11 @@ import { FormsModule } from '@angular/forms';
 
         <!-- Information -->
         <div class="space-y-5">
-          <h3 class="font-body text-[10px] font-semibold uppercase tracking-[0.22em] text-white/80">Information</h3>
+          <h3 class="font-body text-[10px] font-semibold uppercase tracking-[0.22em] text-white/80">{{ t('footer.information') }}</h3>
           <ul class="space-y-3">
             <li *ngFor="let link of infoLinks">
               <a [routerLink]="link.href" class="font-body text-sm text-white/40 hover:text-gold transition-colors duration-150">
-                {{ link.label }}
+                {{ t(link.labelKey) }}
               </a>
             </li>
           </ul>
@@ -63,10 +65,10 @@ import { FormsModule } from '@angular/forms';
 
         <!-- Contact -->
         <div class="space-y-5">
-          <h3 class="font-body text-[10px] font-semibold uppercase tracking-[0.22em] text-white/80">Contact</h3>
+          <h3 class="font-body text-[10px] font-semibold uppercase tracking-[0.22em] text-white/80">{{ t('footer.contact') }}</h3>
           <div class="space-y-3 font-body text-sm text-white/40">
-            <p>Made in Canada 🍁</p>
-            <a href="mailto:hello@blossomrays.ca" class="block hover:text-gold transition-colors">hello&#64;blossomrays.ca</a>
+            <p>{{ t('footer.madeInCanada') }}</p>
+            <a href="mailto:support@blossomrays.com" class="block hover:text-gold transition-colors">support&#64;blossomrays.com</a>
           </div>
           <!-- Social icons placeholder -->
           <div class="flex gap-3 pt-1">
@@ -82,36 +84,44 @@ import { FormsModule } from '@angular/forms';
       <!-- Bottom bar -->
       <div class="max-w-7xl mx-auto px-5 sm:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-3">
         <p class="font-body text-[11px] text-white/30">
-          &copy; {{ year }} BlossomRays. All rights reserved.
+          &copy; {{ year }} BlossomRays. {{ t('footer.rights') }}
         </p>
         <div class="flex items-center gap-5 font-body text-[11px] text-white/30">
-          <a href="#" class="hover:text-white/60 transition-colors">Privacy Policy</a>
-          <a href="#" class="hover:text-white/60 transition-colors">Terms of Service</a>
-          <a href="#" class="hover:text-white/60 transition-colors">Shipping Policy</a>
+          <a href="#" class="hover:text-white/60 transition-colors">{{ t('footer.privacy') }}</a>
+          <button type="button" (click)="termsOpen.set(true)" class="hover:text-white/60 transition-colors">{{ t('footer.terms') }}</button>
+          <a href="#" class="hover:text-white/60 transition-colors">{{ t('footer.shipping') }}</a>
         </div>
       </div>
     </footer>
+
+    <app-terms-modal [open]="termsOpen()" (closeEvent)="termsOpen.set(false)" />
   `,
 })
 export class FooterComponent {
+  private readonly i18n = inject(TranslationService);
   readonly year = new Date().getFullYear();
+  readonly termsOpen = signal(false);
   newsletterEmail = '';
 
+  t(key: string): string {
+    return this.i18n.t(key);
+  }
+
   readonly shopLinks = [
-    { href: '/products', label: 'All Products' },
-    { href: '/products?category=car-fresheners', label: 'Car Fresheners' },
-    { href: '/products?category=diffuser', label: 'Diffusers' },
-    { href: '/products?category=fragrance-oil', label: 'Fragrance Oil' },
-    { href: '/products?category=essential-oil', label: 'Essential Oil' },
-    { href: '/products?category=candle', label: 'Candles' },
-    { href: '/products?category=perfume', label: 'Perfumes' },
-    { href: '/products?category=ladies-bag', label: 'Ladies Bags' },
+    { href: '/products', labelKey: 'nav.allProducts' },
+    { href: '/products?category=car-fresheners', labelKey: 'products.tab.carFresheners' },
+    { href: '/products?category=diffuser', labelKey: 'products.tab.diffuser' },
+    { href: '/products?category=fragrance-oil', labelKey: 'products.tab.fragranceOil' },
+    { href: '/products?category=essential-oil', labelKey: 'products.tab.essentialOil' },
+    { href: '/products?category=candle', labelKey: 'products.tab.candle' },
+    { href: '/products?category=perfume', labelKey: 'products.tab.perfume' },
+    { href: '/products?category=ladies-bag', labelKey: 'products.tab.ladiesBag' },
   ];
 
   readonly infoLinks = [
-    { href: '/account/orders', label: 'Track Order' },
-    { href: '/account', label: 'My Account' },
-    { href: '/login', label: 'Login' },
-    { href: '/register', label: 'Register' },
+    { href: '/account/orders', labelKey: 'footer.trackOrder' },
+    { href: '/account', labelKey: 'account.eyebrow' },
+    { href: '/login', labelKey: 'footer.login' },
+    { href: '/register', labelKey: 'footer.register' },
   ];
 }

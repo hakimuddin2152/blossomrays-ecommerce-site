@@ -9,6 +9,7 @@ import {
 import { ProductService } from '../../services/product.service';
 import { ProductCardComponent } from '../../components/products/product-card.component';
 import { PageHeaderComponent } from '../../components/shared/page-header.component';
+import { TranslationService } from '../../services/translation.service';
 import type { Product } from '../../types';
 
 /**
@@ -26,14 +27,14 @@ import type { Product } from '../../types';
  */
 
 const CATEGORY_TABS = [
-  { value: '', label: 'All' },
-  { value: 'car-fresheners', label: 'Car Fresheners' },
-  { value: 'diffuser', label: 'Diffusers' },
-  { value: 'fragrance-oil', label: 'Fragrance Oil' },
-  { value: 'essential-oil', label: 'Essential Oil' },
-  { value: 'candle', label: 'Candles' },
-  { value: 'perfume', label: 'Perfumes' },
-  { value: 'ladies-bag', label: 'Ladies Bags' },
+  { value: '', labelKey: 'products.tab.all' },
+  { value: 'car-fresheners', labelKey: 'products.tab.carFresheners' },
+  { value: 'diffuser', labelKey: 'products.tab.diffuser' },
+  { value: 'fragrance-oil', labelKey: 'products.tab.fragranceOil' },
+  { value: 'essential-oil', labelKey: 'products.tab.essentialOil' },
+  { value: 'candle', labelKey: 'products.tab.candle' },
+  { value: 'perfume', labelKey: 'products.tab.perfume' },
+  { value: 'ladies-bag', labelKey: 'products.tab.ladiesBag' },
 ];
 
 @Component({
@@ -76,8 +77,8 @@ const CATEGORY_TABS = [
         text in via named slots (eyebrow / title attributes).
       -->
       <app-page-header>
-        <span eyebrow>Our Collection</span>
-        <span title>Shop All Products</span>
+        <span eyebrow>{{ t('products.eyebrow') }}</span>
+        <span title>{{ t('products.title') }}</span>
       </app-page-header>
 
       <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
@@ -90,7 +91,7 @@ const CATEGORY_TABS = [
               ? 'flex-shrink-0 px-5 py-2 font-body text-[11px] font-semibold tracking-[0.12em] uppercase bg-plum text-white border border-plum'
               : 'flex-shrink-0 px-5 py-2 font-body text-[11px] font-semibold tracking-[0.12em] uppercase border border-cream-dark text-muted hover:border-plum hover:text-plum transition-colors'"
           >
-            {{ tab.label }}
+            {{ t(tab.labelKey) }}
           </button>
         </div>
 
@@ -103,7 +104,7 @@ const CATEGORY_TABS = [
 
         <ng-template #grid>
           <div *ngIf="products().length === 0" class="text-center py-20">
-            <p class="font-body text-muted">No products found in this category.</p>
+            <p class="font-body text-muted">{{ t('products.empty') }}</p>
           </div>
           <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
                [@listAnimation]="products().length">
@@ -119,7 +120,7 @@ const CATEGORY_TABS = [
             *ngIf="toast()"
             class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-plum text-white font-body text-xs px-5 py-3 shadow-lg z-50 pointer-events-none"
           >
-            ✓ {{ toast() }} added to cart
+            ✓ {{ toast() }} {{ t('products.addedToCart') }}
           </div>
         </ng-template>
       </div>
@@ -129,6 +130,7 @@ const CATEGORY_TABS = [
 export class ProductsComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly productService = inject(ProductService);
+  private readonly i18n = inject(TranslationService);
 
   /**
    * INTERVIEW: DestroyRef
@@ -187,5 +189,9 @@ export class ProductsComponent implements OnInit {
     } finally {
       this.loading.set(false);
     }
+  }
+
+  t(key: string): string {
+    return this.i18n.t(key);
   }
 }

@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { TranslationService } from '../../services/translation.service';
 
 @Component({
   selector: 'app-announcement-bar',
@@ -10,17 +11,23 @@ import { RouterLink } from '@angular/router';
       <div class="max-w-7xl mx-auto px-4 sm:px-6 h-9 flex items-center justify-center gap-4">
         <!-- Full text on sm+, shortened on mobile -->
         <p class="hidden sm:block font-body text-[10px] font-medium tracking-[0.20em] uppercase text-center text-white/70">
-          🍁 Free Shipping on Orders $30+ &nbsp;&middot;&nbsp;
+          🍁 {{ t('announcement.freeShippingFull') }} &nbsp;&middot;&nbsp;
           <a routerLink="/products" class="text-gold hover:text-gold/80 transition-colors underline underline-offset-2 hover:no-underline">
-            Shop Now
+            {{ t('announcement.shopNow') }}
           </a>
         </p>
         <p class="sm:hidden font-body text-[10px] font-medium tracking-[0.16em] uppercase text-center text-white/70">
-          🍁 Free Shipping $30+&nbsp;&nbsp;
-          <a routerLink="/products" class="text-gold">Shop →</a>
+          🍁 {{ t('announcement.freeShippingShort') }}&nbsp;&nbsp;
+          <a routerLink="/products" class="text-gold">{{ t('announcement.shop') }} →</a>
         </p>
       </div>
     </div>
   `,
 })
-export class AnnouncementBarComponent {}
+export class AnnouncementBarComponent {
+  private readonly i18n = inject(TranslationService);
+
+  t(key: string): string {
+    return this.i18n.t(key);
+  }
+}

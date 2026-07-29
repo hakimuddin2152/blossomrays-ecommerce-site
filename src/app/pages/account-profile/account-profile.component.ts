@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { OrderService } from '../../services/order.service';
+import { TranslationService } from '../../services/translation.service';
 
 @Component({
   selector: 'app-account-profile',
@@ -19,7 +20,7 @@ import { OrderService } from '../../services/order.service';
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.75 19.5L8.25 12l7.5-7.5"/>
             </svg>
           </a>
-          <h1 class="font-display text-3xl font-semibold text-plum">My Profile</h1>
+          <h1 class="font-display text-3xl font-semibold text-plum">{{ t('accountProfile.title') }}</h1>
         </div>
 
         <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
@@ -30,75 +31,75 @@ import { OrderService } from '../../services/order.service';
               <span class="font-display text-2xl text-cream font-semibold">{{ initials() }}</span>
             </div>
             <div>
-              <p class="font-display text-lg font-semibold text-plum">{{ profile()?.full_name || 'No name set' }}</p>
+              <p class="font-display text-lg font-semibold text-plum">{{ profile()?.full_name || t('accountProfile.noNameSet') }}</p>
               <p class="font-body text-sm text-muted">{{ user()?.email }}</p>
             </div>
           </div>
 
           <!-- Personal details -->
           <div class="bg-white border border-cream-dark p-6 space-y-5">
-            <h2 class="font-display text-lg font-semibold text-plum">Personal Details</h2>
+            <h2 class="font-display text-lg font-semibold text-plum">{{ t('accountProfile.personalDetails') }}</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div class="sm:col-span-2">
-                <label class="block font-body text-[11px] uppercase tracking-widest text-muted mb-1.5">Full Name *</label>
-                <input formControlName="full_name" type="text" placeholder="Jane Smith" class="input-field"
+                <label class="block font-body text-[11px] uppercase tracking-widest text-muted mb-1.5">{{ t('checkout.fullName') }} *</label>
+                <input formControlName="full_name" type="text" [placeholder]="t('checkout.fullNamePlaceholder')" class="input-field"
                   [class.border-red-400]="fieldInvalid('full_name')" />
-                <p *ngIf="fieldInvalid('full_name')" class="font-body text-xs text-red-500 mt-1">Full name is required</p>
+                <p *ngIf="fieldInvalid('full_name')" class="font-body text-xs text-red-500 mt-1">{{ t('checkout.fullNameRequired') }}</p>
               </div>
               <div class="sm:col-span-2">
-                <label class="block font-body text-[11px] uppercase tracking-widest text-muted mb-1.5">Email</label>
+                <label class="block font-body text-[11px] uppercase tracking-widest text-muted mb-1.5">{{ t('checkout.email') }}</label>
                 <input type="email" [value]="user()?.email ?? ''" disabled
                   class="input-field opacity-50 cursor-not-allowed bg-cream" />
-                <p class="font-body text-[11px] text-muted mt-1">Email is managed through your sign-in method</p>
+                <p class="font-body text-[11px] text-muted mt-1">{{ t('accountProfile.emailManaged') }}</p>
               </div>
               <div class="sm:col-span-2">
-                <label class="block font-body text-[11px] uppercase tracking-widest text-muted mb-1.5">Phone</label>
-                <input formControlName="phone" type="tel" placeholder="+1 416 555 0100" class="input-field" />
+                <label class="block font-body text-[11px] uppercase tracking-widest text-muted mb-1.5">{{ t('accountProfile.phone') }}</label>
+                <input formControlName="phone" type="tel" [placeholder]="t('accountProfile.phonePlaceholder')" class="input-field" />
               </div>
             </div>
           </div>
 
           <!-- Default shipping address -->
           <div class="bg-white border border-cream-dark p-6 space-y-5">
-            <h2 class="font-display text-lg font-semibold text-plum">Default Shipping Address</h2>
-            <p class="font-body text-xs text-muted -mt-2">Pre-filled automatically at checkout.</p>
+            <h2 class="font-display text-lg font-semibold text-plum">{{ t('accountProfile.defaultShipping') }}</h2>
+            <p class="font-body text-xs text-muted -mt-2">{{ t('accountProfile.prefilledCheckout') }}</p>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div class="sm:col-span-2">
-                <label class="block font-body text-[11px] uppercase tracking-widest text-muted mb-1.5">Street Address</label>
-                <input formControlName="street_line_1" type="text" placeholder="123 Main St" class="input-field" />
+                <label class="block font-body text-[11px] uppercase tracking-widest text-muted mb-1.5">{{ t('checkout.streetAddress') }}</label>
+                <input formControlName="street_line_1" type="text" [placeholder]="t('checkout.streetPlaceholder')" class="input-field" />
               </div>
               <div class="sm:col-span-2">
-                <label class="block font-body text-[11px] uppercase tracking-widest text-muted mb-1.5">Apt / Unit</label>
-                <input formControlName="street_line_2" type="text" placeholder="Apt 4B" class="input-field" />
+                <label class="block font-body text-[11px] uppercase tracking-widest text-muted mb-1.5">{{ t('checkout.aptUnit') }}</label>
+                <input formControlName="street_line_2" type="text" [placeholder]="t('checkout.aptPlaceholder')" class="input-field" />
               </div>
               <div>
-                <label class="block font-body text-[11px] uppercase tracking-widest text-muted mb-1.5">City</label>
-                <input formControlName="city" type="text" placeholder="Toronto" class="input-field" />
+                <label class="block font-body text-[11px] uppercase tracking-widest text-muted mb-1.5">{{ t('checkout.city') }}</label>
+                <input formControlName="city" type="text" [placeholder]="t('checkout.cityPlaceholder')" class="input-field" />
               </div>
               <div>
-                <label class="block font-body text-[11px] uppercase tracking-widest text-muted mb-1.5">Province / State</label>
-                <input formControlName="state" type="text" placeholder="ON" class="input-field" />
+                <label class="block font-body text-[11px] uppercase tracking-widest text-muted mb-1.5">{{ t('checkout.stateProvince') }}</label>
+                <input formControlName="state" type="text" [placeholder]="t('checkout.statePlaceholder')" class="input-field" />
               </div>
               <div>
-                <label class="block font-body text-[11px] uppercase tracking-widest text-muted mb-1.5">Postal Code</label>
-                <input formControlName="zip" type="text" placeholder="M5V 1J1" class="input-field" />
+                <label class="block font-body text-[11px] uppercase tracking-widest text-muted mb-1.5">{{ t('checkout.postalCode') }}</label>
+                <input formControlName="zip" type="text" [placeholder]="t('checkout.zipPlaceholder')" class="input-field" />
               </div>
               <div>
-                <label class="block font-body text-[11px] uppercase tracking-widest text-muted mb-1.5">Country</label>
+                <label class="block font-body text-[11px] uppercase tracking-widest text-muted mb-1.5">{{ t('checkout.country') }}</label>
                 <select formControlName="country" class="input-field">
-                  <option value="">Select country...</option>
-                  <option value="CA">Canada</option>
-                  <option value="US">United States</option>
-                  <option value="GB">United Kingdom</option>
-                  <option value="AU">Australia</option>
-                  <option value="FR">France</option>
-                  <option value="DE">Germany</option>
-                  <option value="JP">Japan</option>
-                  <option value="MX">Mexico</option>
-                  <option value="NL">Netherlands</option>
-                  <option value="NZ">New Zealand</option>
-                  <option value="SG">Singapore</option>
-                  <option value="AE">United Arab Emirates</option>
+                  <option value="">{{ t('checkout.selectCountry') }}</option>
+                  <option value="CA">{{ t('country.CA') }}</option>
+                  <option value="US">{{ t('country.US') }}</option>
+                  <option value="GB">{{ t('country.GB') }}</option>
+                  <option value="AU">{{ t('country.AU') }}</option>
+                  <option value="FR">{{ t('country.FR') }}</option>
+                  <option value="DE">{{ t('country.DE') }}</option>
+                  <option value="JP">{{ t('country.JP') }}</option>
+                  <option value="MX">{{ t('country.MX') }}</option>
+                  <option value="NL">{{ t('country.NL') }}</option>
+                  <option value="NZ">{{ t('country.NZ') }}</option>
+                  <option value="SG">{{ t('country.SG') }}</option>
+                  <option value="AE">{{ t('country.AE') }}</option>
                 </select>
               </div>
             </div>
@@ -113,7 +114,7 @@ import { OrderService } from '../../services/order.service';
           </p>
 
           <button type="submit" [disabled]="saving()" class="btn-primary w-full sm:w-auto px-10">
-            {{ saving() ? 'Saving...' : 'Save Changes' }}
+            {{ saving() ? t('accountProfile.saving') : t('accountProfile.saveChanges') }}
           </button>
 
         </form>
@@ -125,6 +126,11 @@ export class AccountProfileComponent {
   private readonly auth = inject(AuthService);
   private readonly orderService = inject(OrderService);
   private readonly fb = inject(FormBuilder);
+  private readonly i18n = inject(TranslationService);
+
+  t(key: string): string {
+    return this.i18n.t(key);
+  }
 
   readonly user = this.auth.user;
   readonly profile = this.auth.profile;

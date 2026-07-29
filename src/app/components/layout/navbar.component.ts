@@ -12,11 +12,20 @@ import { ProductService } from '../../services/product.service';
 import { CartDrawerComponent } from '../cart/cart-drawer.component';
 import { ClickOutsideDirective } from '../../directives/click-outside.directive';
 import { APP_CONFIG } from '../../tokens/app-config.token';
+import { TranslationService } from '../../services/translation.service';
+import { RegionSwitcherComponent } from '../shared/region-switcher.component';
+import { CurrencySwitcherComponent } from '../shared/currency-switcher.component';
 import type { Product } from '../../types';
 
-const categoryGroups = [
+interface NavLink {
+  href: string;
+  label?: string;
+  labelKey?: string;
+}
+
+const categoryGroups: { labelKey: string; href: string; items: NavLink[] }[] = [
   {
-    label: 'Car Fresheners',
+    labelKey: 'products.tab.carFresheners',
     href: '/products?category=car-fresheners',
     items: [
       { href: '/products/lavender-car-air-freshener', label: 'Lavender' },
@@ -25,48 +34,48 @@ const categoryGroups = [
     ],
   },
   {
-    label: 'Fragrances',
+    labelKey: 'nav.category.fragrances',
     href: '/products?category=fragrances',
     items: [
-      { href: '/products?category=perfume', label: 'Perfumes' },
-      { href: '/products?category=fragrance-oil', label: 'Fragrance Oil' },
-      { href: '/products?category=essential-oil', label: 'Essential Oil' },
+      { href: '/products?category=perfume', labelKey: 'products.tab.perfume' },
+      { href: '/products?category=fragrance-oil', labelKey: 'products.tab.fragranceOil' },
+      { href: '/products?category=essential-oil', labelKey: 'products.tab.essentialOil' },
     ],
   },
   {
-    label: 'Home & Lifestyle',
+    labelKey: 'nav.category.homeLifestyle',
     href: '/products?category=home',
     items: [
-      { href: '/products?category=diffuser', label: 'Diffusers' },
-      { href: '/products?category=candle', label: 'Candles' },
+      { href: '/products?category=diffuser', labelKey: 'products.tab.diffuser' },
+      { href: '/products?category=candle', labelKey: 'products.tab.candle' },
     ],
   },
   {
-    label: 'Accessories',
+    labelKey: 'nav.category.accessories',
     href: '/products?category=ladies-bag',
     items: [
-      { href: '/products?category=ladies-bag', label: 'Ladies Bags' },
+      { href: '/products?category=ladies-bag', labelKey: 'products.tab.ladiesBag' },
     ],
   },
 ];
 
-const allCategories = [
-  { value: '', label: 'All Categories' },
+const allCategories: { value: string; label?: string; labelKey?: string }[] = [
+  { value: '', labelKey: 'nav.allCategories' },
   { value: 'rose', label: 'Rose' },
   { value: 'lavender', label: 'Lavender' },
   { value: 'millennium', label: 'Millennium' },
-  { value: 'perfume', label: 'Perfumes' },
-  { value: 'fragrance-oil', label: 'Fragrance Oil' },
-  { value: 'essential-oil', label: 'Essential Oil' },
-  { value: 'diffuser', label: 'Diffusers' },
-  { value: 'candle', label: 'Candles' },
-  { value: 'ladies-bag', label: 'Ladies Bags' },
+  { value: 'perfume', labelKey: 'products.tab.perfume' },
+  { value: 'fragrance-oil', labelKey: 'products.tab.fragranceOil' },
+  { value: 'essential-oil', labelKey: 'products.tab.essentialOil' },
+  { value: 'diffuser', labelKey: 'products.tab.diffuser' },
+  { value: 'candle', labelKey: 'products.tab.candle' },
+  { value: 'ladies-bag', labelKey: 'products.tab.ladiesBag' },
 ];
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [RouterLink, CommonModule, FormsModule, CartDrawerComponent, AsyncPipe, ClickOutsideDirective],
+  imports: [RouterLink, CommonModule, FormsModule, CartDrawerComponent, AsyncPipe, ClickOutsideDirective, RegionSwitcherComponent, CurrencySwitcherComponent],
   template: `
     <div class="sticky top-0 z-50 bg-white">
 
@@ -92,9 +101,9 @@ const allCategories = [
                 class="border-r border-cream-dark px-3 text-[10px] tracking-[0.14em] uppercase text-muted bg-cream-light outline-none h-10 cursor-pointer"
                 [(ngModel)]="selectedCategory"
                 (change)="onCategoryChange()"
-                aria-label="Category"
+                [attr.aria-label]="t('nav.categoryAriaLabel')"
               >
-                <option *ngFor="let c of categories" [value]="c.value">{{ c.label }}</option>
+                <option *ngFor="let c of categories" [value]="c.value">{{ c.labelKey ? t(c.labelKey) : (c.label ?? '') }}</option>
               </select>
               <input
                 type="search"
@@ -102,13 +111,13 @@ const allCategories = [
                 (input)="onSearchInput($event)"
                 (focus)="showSuggestions.set(true)"
                 (keydown.enter)="onSearch()"
-                placeholder="Search products..."
+                [placeholder]="t('nav.searchPlaceholder')"
                 class="flex-1 px-4 py-2.5 text-[12px] font-body text-plum placeholder:text-stone bg-white outline-none"
               />
               <button
                 (click)="onSearch()"
                 class="px-4 bg-gold text-white hover:bg-gold/80 transition-colors"
-                aria-label="Search"
+                [attr.aria-label]="t('nav.searchAriaLabel')"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
@@ -145,12 +154,15 @@ const allCategories = [
             }
           </div>
 
-          <!-- Icons: account + cart -->
+          <!-- Icons: region + account + cart -->
           <div class="ml-auto flex items-center gap-1">
+            <app-region-switcher />
+            <app-currency-switcher />
+
             <a
               routerLink="/account"
               class="p-2.5 text-muted hover:text-plum transition-colors"
-              aria-label="Account"
+              [attr.aria-label]="t('nav.account')"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
@@ -160,7 +172,7 @@ const allCategories = [
             <button
               (click)="cartOpen.set(true)"
               class="relative p-2.5 text-muted hover:text-plum transition-colors"
-              aria-label="Cart"
+              [attr.aria-label]="t('nav.cart')"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
@@ -175,7 +187,7 @@ const allCategories = [
             <button
               (click)="mobileOpen.set(!mobileOpen())"
               class="md:hidden p-2.5 text-muted hover:text-plum"
-              aria-label="Menu"
+              [attr.aria-label]="t('nav.menu')"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16"/>
@@ -192,18 +204,17 @@ const allCategories = [
             routerLink="/products"
             class="px-4 h-full flex items-center font-body text-[11px] font-medium tracking-[0.12em] uppercase text-muted hover:text-plum transition-colors"
           >
-            All
+            {{ t('products.tab.all') }}
           </a>
           <div
             *ngFor="let group of categoryGroups"
             class="relative group h-full flex items-center"
           >
             <a
-              [routerLink]="['/products']"
-              [queryParams]="{ category: group.label.toLowerCase().replace(' ', '-') }"
+              [routerLink]="group.href"
               class="px-4 h-full flex items-center font-body text-[11px] font-medium tracking-[0.12em] uppercase text-muted hover:text-plum transition-colors"
             >
-              {{ group.label }}
+              {{ t(group.labelKey) }}
               <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-3 w-3 opacity-40" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
               </svg>
@@ -215,7 +226,7 @@ const allCategories = [
                 [routerLink]="item.href"
                 class="block px-5 py-2.5 font-body text-[12px] text-muted hover:text-plum hover:bg-cream-light transition-colors"
               >
-                {{ item.label }}
+                {{ item.labelKey ? t(item.labelKey) : (item.label ?? '') }}
               </a>
             </div>
           </div>
@@ -224,7 +235,7 @@ const allCategories = [
             routerLink="/admin"
             class="ml-auto px-4 h-full flex items-center font-body text-[11px] font-medium tracking-[0.12em] uppercase text-muted hover:text-plum transition-colors"
           >
-            Admin
+            {{ t('nav.admin') }}
           </a>
         </div>
       </nav>
@@ -241,15 +252,15 @@ const allCategories = [
             type="search"
             [(ngModel)]="searchQuery"
             (keydown.enter)="onSearch(); mobileOpen.set(false)"
-            placeholder="Search..."
+            [placeholder]="t('nav.searchPlaceholderMobile')"
             class="flex-1 px-4 py-2.5 text-[12px] font-body text-plum placeholder:text-stone bg-white outline-none"
           />
         </div>
-        <a routerLink="/products" (click)="mobileOpen.set(false)" class="block font-body text-[11px] uppercase tracking-[0.14em] text-muted hover:text-plum py-1.5">All Products</a>
-        <a *ngFor="let group of categoryGroups" [routerLink]="['/products']" [queryParams]="{ category: group.label.toLowerCase().replace(' ', '-') }" (click)="mobileOpen.set(false)" class="block font-body text-[11px] uppercase tracking-[0.14em] text-muted hover:text-plum py-1.5">{{ group.label }}</a>
+        <a routerLink="/products" (click)="mobileOpen.set(false)" class="block font-body text-[11px] uppercase tracking-[0.14em] text-muted hover:text-plum py-1.5">{{ t('nav.allProducts') }}</a>
+        <a *ngFor="let group of categoryGroups" [routerLink]="group.href" (click)="mobileOpen.set(false)" class="block font-body text-[11px] uppercase tracking-[0.14em] text-muted hover:text-plum py-1.5">{{ t(group.labelKey) }}</a>
         <hr class="border-cream-dark" />
-        <a routerLink="/account" (click)="mobileOpen.set(false)" class="block font-body text-[11px] uppercase tracking-[0.14em] text-muted hover:text-plum py-1.5">Account</a>
-        <a *ngIf="isAdmin()" routerLink="/admin" (click)="mobileOpen.set(false)" class="block font-body text-[11px] uppercase tracking-[0.14em] text-muted hover:text-plum py-1.5">Admin</a>
+        <a routerLink="/account" (click)="mobileOpen.set(false)" class="block font-body text-[11px] uppercase tracking-[0.14em] text-muted hover:text-plum py-1.5">{{ t('nav.account') }}</a>
+        <a *ngIf="isAdmin()" routerLink="/admin" (click)="mobileOpen.set(false)" class="block font-body text-[11px] uppercase tracking-[0.14em] text-muted hover:text-plum py-1.5">{{ t('nav.admin') }}</a>
       </div>
     </div>
 
@@ -262,6 +273,7 @@ export class NavbarComponent {
   protected readonly router = inject(Router);
   private readonly productService = inject(ProductService);
   private readonly config = inject(APP_CONFIG);
+  private readonly i18n = inject(TranslationService);
 
   readonly categoryGroups = categoryGroups;
   readonly categories = allCategories;
@@ -331,6 +343,10 @@ export class NavbarComponent {
       );
     }),
   );
+
+  t(key: string): string {
+    return this.i18n.t(key);
+  }
 
   isAdmin(): boolean {
     return this.auth.isAdmin();

@@ -30,6 +30,22 @@ export interface Product {
   updated_at: string
 }
 
+/** French (or other future language) overrides for a product's display
+ * fields. Any null/blank field falls back to the canonical `Product` value.
+ * See supabase/migrations/011_product_translations.sql. */
+export interface ProductTranslation {
+  id: string
+  product_id: string
+  language: 'fr'
+  name: string | null
+  tagline: string | null
+  description: string | null
+  seo_title: string | null
+  seo_description: string | null
+  created_at: string
+  updated_at: string
+}
+
 export interface ShippingAddress {
   full_name: string
   street_line_1: string

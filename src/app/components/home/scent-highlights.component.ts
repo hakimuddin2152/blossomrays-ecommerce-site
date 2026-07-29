@@ -1,12 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { TranslationService } from '../../services/translation.service';
 
 const scents = [
   {
     id: 'lavender',
     name: 'Lavender',
-    tagline: 'Calm your commute',
+    taglineKey: 'home.scent.lavender.tagline',
     notes: ['French Lavender', 'Bergamot', 'Cedarwood'],
     href: '/products/lavender-car-air-freshener',
     image: '/images/lavender/1.jpg',
@@ -14,7 +15,7 @@ const scents = [
   {
     id: 'rose',
     name: 'Rose',
-    tagline: 'Bloom on the road',
+    taglineKey: 'home.scent.rose.tagline',
     notes: ['Bulgarian Rose', 'Peony', 'Soft Musk'],
     href: '/products/rose-car-air-freshener',
     image: '/images/rose/Main_Image.jpeg',
@@ -22,7 +23,7 @@ const scents = [
   {
     id: 'millennium',
     name: 'Millennium',
-    tagline: 'A scent beyond time',
+    taglineKey: 'home.scent.millennium.tagline',
     notes: ['Amber', 'Sandalwood', 'Warm Vanilla'],
     href: '/products/millennium-car-air-freshener',
     image: '/images/millenium/1.jpg',
@@ -39,11 +40,11 @@ const scents = [
         <!-- Header -->
         <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-10 sm:mb-12">
           <div class="space-y-2">
-            <p class="section-eyebrow">Signature Collection</p>
-            <h2 class="section-title">Three Distinct Scents</h2>
+            <p class="section-eyebrow">{{ t('home.scent.eyebrow') }}</p>
+            <h2 class="section-title">{{ t('home.scent.title') }}</h2>
           </div>
           <a routerLink="/products" class="font-body text-[11px] font-medium tracking-[0.14em] uppercase text-muted hover:text-plum transition-colors self-start sm:self-auto pb-1 border-b border-muted/40 hover:border-plum/40">
-            View All →
+            {{ t('home.scent.viewAll') }} →
           </a>
         </div>
 
@@ -65,7 +66,7 @@ const scents = [
 
             <!-- Content — clean card below image -->
             <div class="p-5 sm:p-6 space-y-3 border-t border-cream-dark">
-              <p class="font-body text-[10px] font-semibold tracking-[0.28em] uppercase text-gold">{{ scent.tagline }}</p>
+              <p class="font-body text-[10px] font-semibold tracking-[0.28em] uppercase text-gold">{{ t(scent.taglineKey) }}</p>
               <h3 class="font-display text-xl sm:text-2xl font-semibold text-plum">{{ scent.name }}</h3>
               <div class="flex flex-wrap gap-1.5">
                 <span
@@ -77,7 +78,7 @@ const scents = [
               <!-- Shop Now — fill-on-hover button -->
               <span class="relative flex items-center justify-center gap-2 w-full mt-1 py-3 overflow-hidden border border-plum font-body text-[11px] font-semibold tracking-[0.2em] uppercase text-plum transition-colors duration-300 group-hover:text-white">
                 <span class="absolute inset-0 bg-plum -translate-x-full group-hover:translate-x-0 transition-transform duration-300 ease-out"></span>
-                <span class="relative">Shop Now</span>
+                <span class="relative">{{ t('home.scent.shopNow') }}</span>
                 <span class="relative transition-transform duration-300 group-hover:translate-x-1">→</span>
               </span>
             </div>
@@ -88,5 +89,10 @@ const scents = [
   `,
 })
 export class ScentHighlightsComponent {
+  private readonly i18n = inject(TranslationService);
   readonly scents = scents;
+
+  t(key: string): string {
+    return this.i18n.t(key);
+  }
 }

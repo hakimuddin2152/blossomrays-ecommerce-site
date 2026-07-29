@@ -1,22 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslationService } from '../../services/translation.service';
 
 const steps = [
-  {
-    step: '01',
-    title: 'Choose Your Scent',
-    desc: 'Browse our collection of Lavender, Rose, and Millennium — or discover our full range of fragrances.',
-  },
-  {
-    step: '02',
-    title: 'Install in Seconds',
-    desc: 'Clip onto your air vent or hang from the rearview mirror. No tools needed, no mess.',
-  },
-  {
-    step: '03',
-    title: 'Enjoy 120+ Days',
-    desc: 'Our botanical formula delivers consistent fragrance release for over 120 days of blissful driving.',
-  },
+  { step: '01', titleKey: 'home.how.step1.title', descKey: 'home.how.step1.desc' },
+  { step: '02', titleKey: 'home.how.step2.title', descKey: 'home.how.step2.desc' },
+  { step: '03', titleKey: 'home.how.step3.title', descKey: 'home.how.step3.desc' },
 ];
 
 @Component({
@@ -27,8 +16,8 @@ const steps = [
     <section class="py-16 sm:py-24 bg-cream-light">
       <div class="max-w-7xl mx-auto px-4 sm:px-6">
         <div class="text-center max-w-xl mx-auto mb-16 space-y-3">
-          <p class="section-eyebrow">Simple as 1-2-3</p>
-          <h2 class="section-title">How It Works</h2>
+          <p class="section-eyebrow">{{ t('home.how.eyebrow') }}</p>
+          <h2 class="section-title">{{ t('home.how.title') }}</h2>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-10 relative">
@@ -39,8 +28,8 @@ const steps = [
             <div class="w-14 h-14 mx-auto border border-gold/40 flex items-center justify-center bg-white relative z-10">
               <span class="font-display text-lg font-semibold text-gold">{{ s.step }}</span>
             </div>
-            <h3 class="font-display text-xl font-semibold text-plum">{{ s.title }}</h3>
-            <p class="font-body text-[13px] text-muted leading-relaxed max-w-xs mx-auto">{{ s.desc }}</p>
+            <h3 class="font-display text-xl font-semibold text-plum">{{ t(s.titleKey) }}</h3>
+            <p class="font-body text-[13px] text-muted leading-relaxed max-w-xs mx-auto">{{ t(s.descKey) }}</p>
           </div>
         </div>
       </div>
@@ -48,5 +37,10 @@ const steps = [
   `,
 })
 export class HowItWorksComponent {
+  private readonly i18n = inject(TranslationService);
   readonly steps = steps;
+
+  t(key: string): string {
+    return this.i18n.t(key);
+  }
 }

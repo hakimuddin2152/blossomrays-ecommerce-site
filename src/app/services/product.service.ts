@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import type { Product, ProductCategory } from '../types';
+import type { Product, ProductCategory, ProductTranslation } from '../types';
 import { SupabaseService } from './supabase.service';
+import { LocaleService } from './locale.service';
 
 const PLACEHOLDER_IMAGE = '/images/lavender/1.jpg';
 
@@ -108,6 +109,7 @@ export const CAR_FRESHENER_CATEGORIES: ProductCategory[] = ['lavender', 'rose', 
 @Injectable({ providedIn: 'root' })
 export class ProductService {
   private readonly supabase = inject(SupabaseService).client;
+  private readonly locale = inject(LocaleService);
 
   async getProducts(category?: string): Promise<Product[]> {
     try {
@@ -125,7 +127,7 @@ export class ProductService {
 
       const { data, error } = await query;
       if (error || !data?.length) return this._filterStatic(category);
-      return data as Product[];
+      return this._withTranslations(data as Product[]);
     } catch {
       return this._filterStatic(category);
     }
@@ -144,7 +146,10 @@ export class ProductService {
      * added dynamically via the admin panel.
      */
     const staticMatch = STATIC_PRODUCTS.find((p) => p.slug === slug);
-    if (staticMatch) return staticMatch;
+    if (staticMatch) {
+      const [translated] = await this._withTranslations([staticMatch]);
+      return translated;
+    }
 
     try {
       const { data } = await this.supabase
@@ -152,9 +157,120 @@ export class ProductService {
         .select('*')
         .eq('slug', slug)
         .single();
-      if (data) return data as Product;
+      if (data) {
+        const [translated] = await this._withTranslations([data as Product]);
+        return translated;
+      }
     } catch { /* fall through */ }
     return null;
+  }
+
+  /** Admin-only: returns every product regardless of active status, English
+   * (canonical) fields only — the admin UI edits translations separately. */
+  async getAllProductsAdmin(): Promise<Product[]> {
+    const { data, error } = await this.supabase
+      .from('products')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error || !data) return STATIC_PRODUCTS;
+    return data as Product[];
+  }
+
+  /** Fetches the French translation row for a product, if one exists. */
+  async getTranslation(productId: string): Promise<ProductTranslation | null> {
+    const { data } = await this.supabase
+      .from('product_translations')
+      .select('*')
+      .eq('product_id', productId)
+      .eq('language', 'fr')
+      .maybeSingle();
+    return (data as ProductTranslation) ?? null;
+  }
+
+  /** Creates a new product (admin). */
+  async createProduct(product: Omit<Product, 'id' | 'created_at' | 'updated_at'>): Promise<Product> {
+    const { data, error } = await this.supabase
+      .from('products')
+      .insert(product)
+      .select('*')
+      .single();
+    if (error || !data) throw error ?? new Error('Failed to create product');
+    return data as Product;
+  }
+
+  /** Updates an existing product's canonical (English) fields (admin). */
+  async updateProduct(id: string, patch: Partial<Product>): Promise<Product> {
+    const { data, error } = await this.supabase
+      .from('products')
+      .update({ ...patch, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select('*')
+      .single();
+    if (error || !data) throw error ?? new Error('Failed to update product');
+    return data as Product;
+  }
+
+  /** Creates/updates the French translation row for a product (admin). */
+  async upsertTranslation(
+    productId: string,
+    fields: Pick<ProductTranslation, 'name' | 'tagline' | 'description' | 'seo_title' | 'seo_description'>
+  ): Promise<void> {
+    const { error } = await this.supabase
+      .from('product_translations')
+      .upsert(
+        { product_id: productId, language: 'fr', ...fields, updated_at: new Date().toISOString() },
+        { onConflict: 'product_id,language' }
+      );
+    if (error) throw error;
+  }
+
+  /** Uploads an image file to the `product-images` Supabase Storage bucket
+   * (admin) and returns its public URL. See
+   * supabase/migrations/012_product_images_storage.sql. */
+  async uploadProductImage(file: File): Promise<string> {
+    const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+    const path = `${crypto.randomUUID()}.${ext}`;
+    const { error } = await this.supabase.storage
+      .from('product-images')
+      .upload(path, file, { cacheControl: '3600', upsert: false });
+    if (error) throw error;
+    const { data } = this.supabase.storage.from('product-images').getPublicUrl(path);
+    return data.publicUrl;
+  }
+
+  /** Permanently deletes a product (admin). Fails if referenced by any
+   * existing order (FK ON DELETE RESTRICT) — deactivate instead in that case. */
+  async deleteProduct(id: string): Promise<void> {
+    const { error } = await this.supabase.from('products').delete().eq('id', id);
+    if (error) throw error;
+  }
+
+  /** Merges the current-language translation (name/tagline/description/SEO)
+   * into each product, falling back to the English canonical value when no
+   * translation row exists or a field is blank. No-op for English visitors. */
+  private async _withTranslations(products: Product[]): Promise<Product[]> {
+    if (this.locale.language() !== 'fr' || products.length === 0) return products;
+
+    const ids = products.map((p) => p.id);
+    const { data } = await this.supabase
+      .from('product_translations')
+      .select('*')
+      .eq('language', 'fr')
+      .in('product_id', ids);
+
+    const byProductId = new Map((data as ProductTranslation[] | null)?.map((t) => [t.product_id, t]) ?? []);
+    return products.map((product) => {
+      const translation = byProductId.get(product.id);
+      if (!translation) return product;
+      return {
+        ...product,
+        name: translation.name || product.name,
+        tagline: translation.tagline || product.tagline,
+        description: translation.description || product.description,
+        seo_title: translation.seo_title || product.seo_title,
+        seo_description: translation.seo_description || product.seo_description,
+      };
+    });
   }
 
   private _filterStatic(category?: string): Product[] {
@@ -165,3 +281,4 @@ export class ProductService {
     return STATIC_PRODUCTS.filter((p) => p.category === category);
   }
 }
+

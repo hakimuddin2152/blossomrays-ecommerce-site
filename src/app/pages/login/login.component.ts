@@ -3,6 +3,7 @@ import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
+import { TranslationService } from '../../services/translation.service';
 
 @Component({
   selector: 'app-login',
@@ -14,24 +15,24 @@ import { AuthService } from '../../services/auth.service';
         <div class="bg-white border border-cream-dark p-8 space-y-6">
           <div class="text-center">
             <a routerLink="/" class="font-display text-2xl font-semibold italic text-plum">BlossomRays</a>
-            <h1 class="font-display text-3xl font-semibold text-plum mt-4">Welcome Back</h1>
-            <p class="font-body text-muted text-sm mt-1">Sign in to your account</p>
+            <h1 class="font-display text-3xl font-semibold text-plum mt-4">{{ t('login.title') }}</h1>
+            <p class="font-body text-muted text-sm mt-1">{{ t('login.subtitle') }}</p>
           </div>
 
           <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
             <div>
-              <label class="block font-body text-[11px] uppercase tracking-widest text-muted mb-1.5">Email</label>
+              <label class="block font-body text-[11px] uppercase tracking-widest text-muted mb-1.5">{{ t('auth.email') }}</label>
               <!-- #emailInput — template reference variable grabbed by @ViewChild below -->
               <input #emailInput formControlName="email" type="email" placeholder="you@example.com" class="input-field"
                 [class.border-red-400]="fieldInvalid('email')" />
-              <p *ngIf="fieldInvalid('email')" class="font-body text-xs text-red-500 mt-1">Enter a valid email</p>
+              <p *ngIf="fieldInvalid('email')" class="font-body text-xs text-red-500 mt-1">{{ t('auth.emailInvalid') }}</p>
             </div>
 
             <div>
-              <label class="block font-body text-[11px] uppercase tracking-widest text-muted mb-1.5">Password</label>
+              <label class="block font-body text-[11px] uppercase tracking-widest text-muted mb-1.5">{{ t('auth.password') }}</label>
               <input formControlName="password" type="password" placeholder="••••••••" class="input-field"
                 [class.border-red-400]="fieldInvalid('password')" />
-              <p *ngIf="fieldInvalid('password')" class="font-body text-xs text-red-500 mt-1">Minimum 6 characters</p>
+              <p *ngIf="fieldInvalid('password')" class="font-body text-xs text-red-500 mt-1">{{ t('login.passwordHint') }}</p>
             </div>
 
             <div *ngIf="error()" class="bg-red-50 border border-red-200 text-red-600 px-4 py-2.5 font-body text-sm">
@@ -39,14 +40,14 @@ import { AuthService } from '../../services/auth.service';
             </div>
 
             <button type="submit" [disabled]="loading()" class="btn-primary w-full">
-              {{ loading() ? 'Signing in...' : 'Sign In' }}
+              {{ loading() ? t('login.signingIn') : t('login.signIn') }}
             </button>
           </form>
 
           <!-- OAuth divider -->
           <div class="relative flex items-center gap-3">
             <div class="flex-1 h-px bg-cream-dark"></div>
-            <span class="font-body text-xs text-muted uppercase tracking-wider">or continue with</span>
+            <span class="font-body text-xs text-muted uppercase tracking-wider">{{ t('auth.orContinueWith') }}</span>
             <div class="flex-1 h-px bg-cream-dark"></div>
           </div>
 
@@ -60,7 +61,7 @@ import { AuthService } from '../../services/auth.service';
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
               </svg>
-              {{ oauthLoading() === 'google' ? 'Redirecting...' : 'Google' }}
+              {{ oauthLoading() === 'google' ? t('auth.redirecting') : t('auth.google') }}
             </button>
 
             <button type="button" (click)="signInWithGitHub()" [disabled]="oauthLoading()"
@@ -68,13 +69,13 @@ import { AuthService } from '../../services/auth.service';
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
               </svg>
-              {{ oauthLoading() === 'github' ? 'Redirecting...' : 'GitHub' }}
+              {{ oauthLoading() === 'github' ? t('auth.redirecting') : t('auth.github') }}
             </button>
           </div>
 
           <p class="font-body text-sm text-center text-muted">
-            Don't have an account?
-            <a routerLink="/register" class="text-plum hover:text-gold transition-colors ml-1">Register</a>
+            {{ t('login.noAccount') }}
+            <a routerLink="/register" class="text-plum hover:text-gold transition-colors ml-1">{{ t('login.register') }}</a>
           </p>
         </div>
       </div>
@@ -85,6 +86,11 @@ export class LoginComponent implements AfterViewInit {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
+  private readonly i18n = inject(TranslationService);
+
+  t(key: string): string {
+    return this.i18n.t(key);
+  }
 
   /**
    * INTERVIEW: @ViewChild + ElementRef

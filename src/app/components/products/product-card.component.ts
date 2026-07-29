@@ -3,6 +3,9 @@ import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { CartService } from '../../services/cart.service';
 import { FormatPricePipe } from '../../pipes/format-price.pipe';
+import { TranslationService } from '../../services/translation.service';
+import { LocaleService } from '../../services/locale.service';
+import { categoryLabelKey } from '../../utils/category-label';
 import type { Product } from '../../types';
 
 /**
@@ -41,7 +44,7 @@ import type { Product } from '../../types';
 
       <!-- Info -->
       <div class="p-3 sm:p-5 flex flex-col gap-1.5">
-        <p class="font-body text-[10px] font-semibold tracking-[0.22em] uppercase text-gold">{{ product.category }}</p>
+        <p class="font-body text-[10px] font-semibold tracking-[0.22em] uppercase text-gold">{{ categoryLabel(product.category) }}</p>
         <a [routerLink]="['/products', product.slug]">
           <h3 class="font-display text-[0.95rem] sm:text-[1.05rem] font-semibold text-plum leading-snug group-hover:text-gold transition-colors duration-200">
             {{ product.name }}
@@ -50,10 +53,10 @@ import type { Product } from '../../types';
         <p *ngIf="product.tagline" class="font-body text-[11px] text-muted leading-relaxed">{{ product.tagline }}</p>
 
         <!-- Price row -->
-        <div class="flex items-baseline gap-2 mt-1">
-          <span class="font-body text-sm font-semibold text-plum">{{ product.price | formatPrice }}</span>
+        <div class="flex items-baseline gap-2 mt-1 flex-wrap">
+          <span class="font-body text-sm font-semibold text-plum">{{ product.price | formatPrice: locale.currency() }}</span>
           <span *ngIf="product.compare_at_price" class="font-body text-xs text-stone line-through">
-            {{ product.compare_at_price | formatPrice }}
+            {{ product.compare_at_price | formatPrice: locale.currency() }}
           </span>
           <span
             *ngIf="product.compare_at_price"
@@ -69,7 +72,7 @@ import type { Product } from '../../types';
           [disabled]="product.stock === 0"
           class="btn-primary w-full mt-3 py-2.5 text-[10px]"
         >
-          {{ product.stock === 0 ? 'Out of Stock' : 'Add to Cart' }}
+          {{ product.stock === 0 ? t('common.outOfStock') : t('common.addToCart') }}
         </button>
       </div>
     </div>
@@ -87,6 +90,17 @@ export class ProductCardComponent {
   @Output() cartAdded = new EventEmitter<Product>();
 
   private readonly cart = inject(CartService);
+  private readonly i18n = inject(TranslationService);
+  readonly locale = inject(LocaleService);
+
+  t(key: string): string {
+    return this.i18n.t(key);
+  }
+
+  categoryLabel(category: string): string {
+    const key = categoryLabelKey(category);
+    return key ? this.t(key) : category;
+  }
 
   discount(): number {
     if (!this.product.compare_at_price) return 0;

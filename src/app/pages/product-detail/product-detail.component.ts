@@ -5,6 +5,9 @@ import { CommonModule } from '@angular/common';
 import { ProductService } from '../../services/product.service';
 import { CartService } from '../../services/cart.service';
 import { formatPrice } from '../../utils/format-price';
+import { TranslationService } from '../../services/translation.service';
+import { LocaleService } from '../../services/locale.service';
+import { categoryLabelKey } from '../../utils/category-label';
 import type { Product } from '../../types';
 
 @Component({
@@ -28,9 +31,9 @@ import type { Product } from '../../types';
       <!-- Not found -->
       <ng-container *ngIf="!loading() && !product()">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 py-20 text-center space-y-4">
-          <h1 class="font-display text-3xl font-semibold text-plum">Product Not Found</h1>
-          <p class="font-body text-muted">The product you're looking for doesn't exist.</p>
-          <a routerLink="/products" class="btn-primary inline-flex mt-4">Browse All Products</a>
+          <h1 class="font-display text-3xl font-semibold text-plum">{{ t('productDetail.notFound') }}</h1>
+          <p class="font-body text-muted">{{ t('productDetail.notFoundDesc') }}</p>
+          <a routerLink="/products" class="btn-primary inline-flex mt-4">{{ t('common.browseAllProducts') }}</a>
         </div>
       </ng-container>
 
@@ -39,9 +42,9 @@ import type { Product } from '../../types';
         <div class="max-w-7xl mx-auto px-4 sm:px-6 py-10">
           <!-- Breadcrumb -->
           <nav class="flex items-center gap-2 font-body text-[11px] text-muted mb-8 uppercase tracking-widest">
-            <a routerLink="/" class="hover:text-plum">Home</a>
+            <a routerLink="/" class="hover:text-plum">{{ t('common.home') }}</a>
             <span>/</span>
-            <a routerLink="/products" class="hover:text-plum">Products</a>
+            <a routerLink="/products" class="hover:text-plum">{{ t('common.products') }}</a>
             <span>/</span>
             <span class="text-plum">{{ p.name }}</span>
           </nav>
@@ -71,16 +74,16 @@ import type { Product } from '../../types';
             <!-- Info -->
             <div class="space-y-6">
               <div>
-                <p class="section-eyebrow mb-1">{{ p.category }}</p>
+                <p class="section-eyebrow mb-1">{{ categoryLabel(p.category) }}</p>
                 <h1 class="font-display text-3xl sm:text-4xl font-semibold text-plum leading-tight">{{ p.name }}</h1>
                 <p *ngIf="p.tagline" class="font-body text-muted mt-2">{{ p.tagline }}</p>
               </div>
 
               <!-- Price -->
-              <div class="flex items-baseline gap-3">
-                <span class="font-body text-2xl font-semibold text-plum">{{ formatPrice(p.price) }}</span>
+              <div class="flex items-baseline gap-3 flex-wrap">
+                <span class="font-body text-2xl font-semibold text-plum">{{ formatPrice(p.price, locale.currency()) }}</span>
                 <span *ngIf="p.compare_at_price" class="font-body text-base text-muted line-through">
-                  {{ formatPrice(p.compare_at_price) }}
+                  {{ formatPrice(p.compare_at_price, locale.currency()) }}
                 </span>
               </div>
 
@@ -93,14 +96,14 @@ import type { Product } from '../../types';
               <div class="grid grid-cols-2 gap-3">
                 <div *ngFor="let mark of trustMarks" class="flex items-center gap-2">
                   <span class="text-lg">{{ mark.icon }}</span>
-                  <span class="font-body text-[12px] text-muted">{{ mark.text }}</span>
+                  <span class="font-body text-[12px] text-muted">{{ t(mark.textKey) }}</span>
                 </div>
               </div>
 
               <!-- Quantity + Add to cart -->
               <div class="space-y-3">
                 <div class="flex items-center gap-3">
-                  <label class="font-body text-[11px] uppercase tracking-widest text-muted">Qty</label>
+                  <label class="font-body text-[11px] uppercase tracking-widest text-muted">{{ t('checkout.qty') }}</label>
                   <div class="flex items-center border border-cream-dark">
                     <button (click)="decQty()" class="w-10 h-10 flex items-center justify-center text-plum hover:bg-cream transition-colors">−</button>
                     <span class="w-12 text-center font-body text-sm text-plum">{{ qty() }}</span>
@@ -113,7 +116,7 @@ import type { Product } from '../../types';
                   [disabled]="p.stock === 0 || added()"
                   class="btn-primary w-full"
                 >
-                  {{ added() ? '✓ Added to Cart' : p.stock === 0 ? 'Out of Stock' : 'Add to Cart' }}
+                  {{ added() ? '✓ ' + t('common.addedToCart') : p.stock === 0 ? t('common.outOfStock') : t('common.addToCart') }}
                 </button>
               </div>
             </div>
@@ -128,6 +131,8 @@ export class ProductDetailComponent implements OnInit {
   private readonly productService = inject(ProductService);
   private readonly cart = inject(CartService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly i18n = inject(TranslationService);
+  readonly locale = inject(LocaleService);
 
   readonly formatPrice = formatPrice;
   readonly product = signal<Product | null>(null);
@@ -137,11 +142,20 @@ export class ProductDetailComponent implements OnInit {
   readonly added = signal(false);
 
   readonly trustMarks = [
-    { icon: '🍁', text: 'Made in Canada' },
-    { icon: '✓', text: '120+ Days Lasting' },
-    { icon: '🌿', text: '100% Alcohol-Free' },
-    { icon: '↩', text: '30-Day Returns' },
+    { icon: '🍁', textKey: 'common.madeInCanada' },
+    { icon: '✓', textKey: 'common.daysLasting120' },
+    { icon: '🌿', textKey: 'common.alcoholFree100' },
+    { icon: '↩', textKey: 'common.returns30Day' },
   ];
+
+  t(key: string): string {
+    return this.i18n.t(key);
+  }
+
+  categoryLabel(category: string): string {
+    const key = categoryLabelKey(category);
+    return key ? this.t(key) : category;
+  }
 
   ngOnInit(): void {
     /**

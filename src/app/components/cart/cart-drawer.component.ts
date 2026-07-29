@@ -3,6 +3,8 @@ import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { CartService } from '../../services/cart.service';
 import { formatPrice } from '../../utils/format-price';
+import { TranslationService } from '../../services/translation.service';
+import { LocaleService } from '../../services/locale.service';
 import type { CartItem } from '../../types';
 
 @Component({
@@ -22,15 +24,15 @@ import type { CartItem } from '../../types';
       <aside
         class="fixed right-0 top-0 bottom-0 z-50 w-full max-w-md bg-white shadow-soft-xl flex flex-col"
         role="dialog"
-        aria-label="Shopping cart"
+        [attr.aria-label]="t('cart.ariaShoppingCart')"
       >
         <!-- Header -->
         <div class="flex items-center justify-between px-6 py-5 border-b border-cream-dark">
-          <h2 class="font-display text-2xl font-semibold text-plum">Your Cart</h2>
+          <h2 class="font-display text-2xl font-semibold text-plum">{{ t('cart.title') }}</h2>
           <button
             (click)="closeEvent.emit()"
             class="p-2 rounded-full text-muted hover:text-plum hover:bg-cream-dark transition-colors"
-            aria-label="Close cart"
+            [attr.aria-label]="t('cart.ariaCloseCart')"
           >
             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
@@ -43,12 +45,12 @@ import type { CartItem } from '../../types';
           <ng-container *ngIf="items().length === 0; else itemList">
             <div class="flex flex-col items-center justify-center h-full gap-4 text-center py-16">
               <span class="text-6xl">🛒</span>
-              <p class="font-body text-muted">Your cart is empty</p>
+              <p class="font-body text-muted">{{ t('cart.empty') }}</p>
               <a
                 routerLink="/products"
                 (click)="closeEvent.emit()"
                 class="btn-outline text-xs px-6 py-2.5"
-              >Start Shopping</a>
+              >{{ t('cart.startShopping') }}</a>
             </div>
           </ng-container>
           <ng-template #itemList>
@@ -60,23 +62,23 @@ import type { CartItem } from '../../types';
               />
               <div class="flex-1 min-w-0">
                 <h4 class="font-display text-base font-medium text-plum leading-tight truncate">{{ item.product.name }}</h4>
-                <p class="font-body text-xs text-muted mt-0.5">{{ formatPrice(item.product.price) }} each</p>
+                <p class="font-body text-xs text-muted mt-0.5">{{ formatPrice(item.product.price, locale.currency()) }} {{ t('cart.each') }}</p>
                 <div class="flex items-center gap-2 mt-2">
                   <button
                     (click)="decrement(item)"
                     class="w-7 h-7 border border-cream-dark flex items-center justify-center text-plum hover:bg-cream transition-colors"
-                    aria-label="Decrease quantity"
+                    [attr.aria-label]="t('cart.decreaseQty')"
                   >−</button>
                   <span class="font-body text-sm text-plum w-6 text-center">{{ item.quantity }}</span>
                   <button
                     (click)="increment(item)"
                     class="w-7 h-7 border border-cream-dark flex items-center justify-center text-plum hover:bg-cream transition-colors"
-                    aria-label="Increase quantity"
+                    [attr.aria-label]="t('cart.increaseQty')"
                   >+</button>
                   <button
                     (click)="remove(item.product.id)"
                     class="ml-auto text-muted hover:text-red-500 transition-colors"
-                    aria-label="Remove item"
+                    [attr.aria-label]="t('cart.removeItem')"
                   >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
@@ -86,7 +88,7 @@ import type { CartItem } from '../../types';
               </div>
               <div class="text-right flex-shrink-0">
                 <span class="font-body text-sm font-semibold text-plum">
-                  {{ formatPrice(item.product.price * item.quantity) }}
+                  {{ formatPrice(item.product.price * item.quantity, locale.currency()) }}
                 </span>
               </div>
             </div>
@@ -96,16 +98,16 @@ import type { CartItem } from '../../types';
         <!-- Footer -->
         <div *ngIf="items().length > 0" class="px-6 py-5 border-t border-cream-dark space-y-4 bg-cream">
           <div class="flex justify-between font-body text-sm">
-            <span class="text-muted">Subtotal</span>
-            <span class="font-semibold text-plum">{{ formatPrice(subtotal()) }}</span>
+            <span class="text-muted">{{ t('cart.subtotalItems') }}</span>
+            <span class="font-semibold text-plum">{{ formatPrice(subtotal(), locale.currency()) }}</span>
           </div>
-          <p class="font-body text-[11px] text-muted/70">Shipping calculated at checkout</p>
+          <p class="font-body text-[11px] text-muted/70">{{ t('cart.shippingCalcCheckout') }}</p>
           <a
             routerLink="/checkout"
             (click)="closeEvent.emit()"
             class="btn-primary w-full flex items-center justify-center gap-2"
           >
-            Proceed to Checkout
+            {{ t('cart.proceedToCheckout') }}
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
             </svg>
@@ -120,9 +122,15 @@ export class CartDrawerComponent {
   @Output() closeEvent = new EventEmitter<void>();
 
   private readonly cart = inject(CartService);
+  private readonly i18n = inject(TranslationService);
+  readonly locale = inject(LocaleService);
   readonly items = this.cart.items;
   readonly subtotal = this.cart.subtotal;
   readonly formatPrice = formatPrice;
+
+  t(key: string): string {
+    return this.i18n.t(key);
+  }
 
   @HostListener('document:keydown.escape')
   onEscape(): void {
