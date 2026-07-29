@@ -51,6 +51,11 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/account-order-detail/account-order-detail.component').then((m) => m.AccountOrderDetailComponent),
   },
   {
+    path: 'account/profile',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/account-profile/account-profile.component').then((m) => m.AccountProfileComponent),
+  },
+  {
     path: 'admin',
     canActivate: [authGuard, adminGuard],
     loadComponent: () => import('./pages/admin/admin.component').then((m) => m.AdminComponent),

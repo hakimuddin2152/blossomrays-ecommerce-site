@@ -72,6 +72,7 @@ export interface Profile {
   email: string
   phone: string | null
   role: UserRole
+  default_shipping_address: ShippingAddress | null
   created_at: string
   updated_at: string
 }

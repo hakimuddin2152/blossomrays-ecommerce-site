@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, inject, signal, effect } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
@@ -9,13 +9,13 @@ import { AuthService } from '../../services/auth.service';
 import { OrderService } from '../../services/order.service';
 import { formatPrice } from '../../utils/format-price';
 import { APP_CONFIG } from '../../tokens/app-config.token';
+import type { Profile } from '../../types';
 
 @Component({
   selector: 'app-checkout',
   standalone: true,
   imports: [RouterLink, CommonModule, ReactiveFormsModule],
-  template: `
-    <div class="bg-cream min-h-screen">
+  template: `    <div class="bg-cream min-h-screen">
       <!-- Empty cart redirect -->
       <ng-container *ngIf="items().length === 0">
         <div class="min-h-screen flex items-center justify-center">
@@ -158,26 +158,12 @@ import { APP_CONFIG } from '../../tokens/app-config.token';
     </div>
   `,
 })
-export class CheckoutComponent implements OnInit {
+export class CheckoutComponent {
   private readonly cartService = inject(CartService);
   private readonly authService = inject(AuthService);
   private readonly orderService = inject(OrderService);
   private readonly fb = inject(FormBuilder);
-
-  /**
-   * INTERVIEW: HttpClient
-   * Provided via provideHttpClient() in app.config.ts.
-   * Returns Observables; firstValueFrom() converts to Promise for async/await.
-   * The authInterceptor automatically attaches the Bearer token to this call.
-   */
   private readonly http = inject(HttpClient);
-
-  /**
-   * INTERVIEW: InjectionToken
-   * APP_CONFIG is not a class — it's a typed config object provided via token.
-   * inject(APP_CONFIG) reads from the root injector (factory default applies).
-   * This avoids magic numbers scattered across components.
-   */
   readonly config = inject(APP_CONFIG);
 
   readonly items = this.cartService.items;
@@ -197,32 +183,64 @@ export class CheckoutComponent implements OnInit {
     country: ['CA', [Validators.required]],
   });
 
-  async ngOnInit(): Promise<void> {
-    const user = this.authService.user();
-    const profile = this.authService.profile();
-    if (user) {
+  /** Prevents the effect from prefilling more than once per component lifetime. */
+  private hasPrefilled = false;
+
+  constructor() {
+    // Reactively prefill the form once the profile finishes loading.
+    // This fixes the race condition where ngOnInit ran before _loadProfile() resolved.
+    effect(() => {
+      const user = this.authService.user();
+      const profileLoaded = this.authService.profileLoaded();
+
+      if (!user || !profileLoaded || this.hasPrefilled) return;
+      this.hasPrefilled = true;
+
+      const profile = this.authService.profile();
+
+      // Always set email + name
       this.form.patchValue({
-        email: user.email ?? '',
+        email:     user.email ?? '',
         full_name: profile?.full_name ?? '',
       });
-      // Pre-fill shipping from the most recent order
-      try {
-        const orders = await this.orderService.getMyOrders();
-        const last = orders.find((o) => o.shipping_address?.street_line_1);
-        if (last?.shipping_address) {
-          const a = last.shipping_address;
-          this.form.patchValue({
-            full_name: a.full_name || profile?.full_name || '',
-            street_line_1: a.street_line_1,
-            street_line_2: a.street_line_2 ?? '',
-            city: a.city,
-            state: a.state,
-            zip: a.zip,
-            country: a.country || 'CA',
-          });
-        }
-      } catch { /* ignore — pre-fill is best-effort */ }
-    }
+
+      // Saved profile address takes priority
+      const saved = profile?.default_shipping_address;
+      if (saved?.street_line_1) {
+        this.form.patchValue({
+          full_name:     saved.full_name || profile?.full_name || '',
+          street_line_1: saved.street_line_1,
+          street_line_2: saved.street_line_2 ?? '',
+          city:          saved.city,
+          state:         saved.state,
+          zip:           saved.zip,
+          country:       saved.country || 'CA',
+        });
+        return;
+      }
+
+      // Fall back to last order's shipping address (async, best-effort)
+      this._prefillFromLastOrder(profile);
+    });
+  }
+
+  private async _prefillFromLastOrder(profile: Profile | null): Promise<void> {
+    try {
+      const orders = await this.orderService.getMyOrders();
+      const last = orders.find((o) => o.shipping_address?.street_line_1);
+      if (last?.shipping_address) {
+        const a = last.shipping_address;
+        this.form.patchValue({
+          full_name:     a.full_name || profile?.full_name || '',
+          street_line_1: a.street_line_1,
+          street_line_2: a.street_line_2 ?? '',
+          city:          a.city,
+          state:         a.state,
+          zip:           a.zip,
+          country:       a.country || 'CA',
+        });
+      }
+    } catch { /* best-effort */ }
   }
 
   fieldInvalid(field: string): boolean {
@@ -262,6 +280,10 @@ export class CheckoutComponent implements OnInit {
           items: this.items(),
           shipping,
           email,
+        }, {
+          // Tell the function our actual origin so it builds the correct
+          // success_url regardless of what Netlify CLI injects as URL env var.
+          headers: { 'X-Origin': window.location.origin },
         }),
       );
 

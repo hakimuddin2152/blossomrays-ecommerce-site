@@ -80,7 +80,7 @@ const allCategories = [
               src="/images/logo.png"
               alt="BlossomRays"
               width="180"
-              height="148"
+              height="60"
               class="h-14 sm:h-20 w-auto max-w-[100px] sm:max-w-none object-contain"
             />
           </a>

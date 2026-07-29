@@ -3,6 +3,17 @@
   publish = "dist/blossomrays/browser"
   functions = "netlify/functions"
 
+# Local development — run these two commands separately instead of netlify dev:
+#   Terminal 1: npm run dev:local   (Angular on :3000 with proxy to functions)
+#   Terminal 2: netlify functions:serve --port 9999
+#   Terminal 3: stripe listen --forward-to http://localhost:3000/.netlify/functions/stripe-webhook
+#   Browser:    http://localhost:3000
+[dev]
+  command = "npm run dev:local"
+  targetPort = 3000
+  port = 8888
+  autoLaunch = false
+
 [build.environment]
   NODE_VERSION = "22"
   NPM_FLAGS = "--registry https://registry.npmjs.org/ --legacy-peer-deps"

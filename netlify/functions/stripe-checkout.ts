@@ -88,8 +88,17 @@ export const handler: Handler = async (event: HandlerEvent) => {
     quantity: item.quantity,
   }));
 
-  // Resolution order: SITE_URL (manual) → URL (Netlify built-in) → NEXT_PUBLIC_SITE_URL (local .env.local)
-  const siteUrl = process.env.SITE_URL ?? process.env.URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:4200';
+  // Use the X-Origin header sent explicitly by the Angular app so that
+  // local dev always redirects back to localhost instead of the production URL.
+  // Netlify CLI injects URL=<prod-url> even during local dev, so env vars
+  // alone are unreliable. The Angular client knows its own origin for certain.
+  const siteUrl =
+    event.headers['x-origin'] ||
+    event.headers['origin'] ||
+    process.env.SITE_URL ||
+    process.env.URL ||
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    'http://localhost:4200';
 
   try {
     const session = await stripe.checkout.sessions.create({

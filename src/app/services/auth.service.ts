@@ -12,6 +12,8 @@ export class AuthService {
   readonly user = signal<User | null>(null);
   readonly profile = signal<Profile | null>(null);
   readonly loading = signal(true);
+  /** True once _loadProfile has finished (profile may still be null if no row exists). */
+  readonly profileLoaded = signal(false);
 
   constructor() {
     // Initialize session — .catch() prevents a failed network call (e.g.
@@ -28,9 +30,11 @@ export class AuthService {
     this.supabase.auth.onAuthStateChange((_event: string, session: Session | null) => {
       this.user.set(session?.user ?? null);
       if (session?.user) {
+        this.profileLoaded.set(false);
         this._loadProfile(session.user.id);
       } else {
         this.profile.set(null);
+        this.profileLoaded.set(false);
       }
     });
   }
@@ -86,6 +90,23 @@ export class AuthService {
     return this.profile()?.role === 'admin';
   }
 
+  async updateProfile(data: { full_name?: string; phone?: string; default_shipping_address?: Record<string, string> }): Promise<string | null> {
+    const user = this.user();
+    if (!user) return 'Not authenticated';
+    // Use upsert so a missing profile row (trigger didn't fire at signup) is
+    // created rather than silently succeeding with 0 rows updated.
+    const { error } = await this.supabase
+      .from('profiles')
+      .upsert(
+        { id: user.id, email: user.email ?? '', ...data, updated_at: new Date().toISOString() },
+        { onConflict: 'id' },
+      );
+    if (error) return error.message;
+    // Refresh the in-memory profile signal
+    await this._loadProfile(user.id);
+    return null;
+  }
+
   private async _loadProfile(userId: string): Promise<void> {
     const { data } = await this.supabase
       .from('profiles')
@@ -93,5 +114,6 @@ export class AuthService {
       .eq('id', userId)
       .maybeSingle();
     this.profile.set(data ?? null);
+    this.profileLoaded.set(true);
   }
 }

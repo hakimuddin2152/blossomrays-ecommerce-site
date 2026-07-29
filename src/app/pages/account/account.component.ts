@@ -30,6 +30,11 @@ import type { Order } from '../../types';
             <h3 class="font-display text-lg font-semibold text-plum group-hover:text-gold transition-colors">Orders</h3>
             <p class="font-body text-sm text-muted mt-1">Track and view your order history</p>
           </a>
+          <a routerLink="/account/profile" class="bg-white border border-cream-dark p-6 hover:shadow-soft transition-shadow group">
+            <div class="text-3xl mb-3">👤</div>
+            <h3 class="font-display text-lg font-semibold text-plum group-hover:text-gold transition-colors">Profile</h3>
+            <p class="font-body text-sm text-muted mt-1">Edit your name, phone & details</p>
+          </a>
           <a routerLink="/products" class="bg-white border border-cream-dark p-6 hover:shadow-soft transition-shadow group">
             <div class="text-3xl mb-3">🛍️</div>
             <h3 class="font-display text-lg font-semibold text-plum group-hover:text-gold transition-colors">Shop</h3>
