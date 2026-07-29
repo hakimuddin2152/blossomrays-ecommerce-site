@@ -20,12 +20,19 @@ import type { Order } from '../../types';
         </div>
 
         <div class="space-y-2">
-          <h1 class="font-display text-4xl font-semibold text-plum">Order Confirmed!</h1>
+          <h1 class="font-display text-3xl sm:text-4xl font-semibold text-plum">Order Confirmed!</h1>
           <p class="font-body text-muted">Thank you for your purchase. We'll send you a shipping confirmation soon.</p>
         </div>
 
-        <!-- Order details -->
-        <div *ngIf="order() as o" class="bg-white border border-cream-dark p-6 text-left space-y-4">
+        <!-- Loading state while polling for the order -->
+        <div *ngIf="loading()" class="bg-white border border-cream-dark p-6 space-y-3 animate-pulse">
+          <div class="h-4 bg-cream-dark rounded w-3/4 mx-auto"></div>
+          <div class="h-4 bg-cream-dark rounded w-1/2 mx-auto"></div>
+          <div class="h-4 bg-cream-dark rounded w-2/3 mx-auto"></div>
+        </div>
+
+        <!-- Order details (shown once the webhook creates the order) -->
+        <div *ngIf="!loading() && order() as o" class="bg-white border border-cream-dark p-6 text-left space-y-4">
           <div class="flex justify-between font-body text-sm">
             <span class="text-muted">Order ID</span>
             <span class="text-plum font-mono text-xs">{{ o.id.slice(0, 8).toUpperCase() }}</span>
@@ -40,6 +47,12 @@ import type { Order } from '../../types';
           </div>
         </div>
 
+        <!-- If polling finished and order still not found -->
+        <p *ngIf="!loading() && !order()" class="font-body text-sm text-muted">
+          Your order is being processed — check your email for confirmation or visit
+          <a routerLink="/account/orders" class="text-plum hover:text-gold">your orders</a>.
+        </p>
+
         <div class="flex flex-col sm:flex-row gap-3 justify-center">
           <a routerLink="/account/orders" class="btn-primary">View Orders</a>
           <a routerLink="/products" class="btn-outline">Continue Shopping</a>
@@ -53,15 +66,38 @@ export class OrderConfirmationComponent implements OnInit {
   private readonly orderService = inject(OrderService);
 
   readonly order = signal<Order | null>(null);
+  readonly loading = signal(true);
   readonly formatPrice = formatPrice;
 
   async ngOnInit(): Promise<void> {
     const orderId = this.route.snapshot.paramMap.get('orderId');
-    if (orderId) {
+    if (!orderId) {
+      this.loading.set(false);
+      return;
+    }
+    await this.pollForOrder(orderId);
+  }
+
+  /**
+   * The Stripe success redirect fires before the webhook creates the order.
+   * Poll up to 5 times (every 2 s) so the order details appear as soon as
+   * the webhook completes — no manual refresh needed.
+   */
+  private async pollForOrder(orderId: string, attempts = 5, delayMs = 2000): Promise<void> {
+    for (let i = 0; i < attempts; i++) {
       try {
         const order = await this.orderService.getOrderById(orderId);
-        this.order.set(order);
-      } catch { /* not critical */ }
+        if (order) {
+          this.order.set(order);
+          break;
+        }
+      } catch { /* ignore — will retry */ }
+
+      if (i < attempts - 1) {
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+      }
     }
+    this.loading.set(false);
   }
 }
+
