@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { NavbarComponent } from './components/layout/navbar.component';
 import { FooterComponent } from './components/layout/footer.component';
 import { AnnouncementBarComponent } from './components/layout/announcement-bar.component';
+import { AnalyticsService } from './services/analytics.service';
 
 @Component({
   selector: 'app-root',
@@ -17,4 +18,10 @@ import { AnnouncementBarComponent } from './components/layout/announcement-bar.c
     <app-footer />
   `,
 })
-export class AppComponent {}
+export class AppComponent implements OnInit {
+  private readonly analytics = inject(AnalyticsService);
+
+  ngOnInit(): void {
+    this.analytics.init();
+  }
+}

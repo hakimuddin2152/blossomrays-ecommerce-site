@@ -11,7 +11,7 @@ export const STATIC_PRODUCTS: Product[] = [
     price: 1799, compare_at_price: null,
     stock: 100, category: 'rose', is_active: true,
     images: [
-      '/images/rose/Main_Image_Rose.jpeg',
+      '/images/rose/Main_Image.jpeg',
       '/images/rose/Main_Image_Rose1.jpg',
       '/images/rose/Dual_Ways.jpg',
       '/images/rose/Fragrance_Details.jpeg',

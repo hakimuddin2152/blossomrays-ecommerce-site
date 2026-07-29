@@ -29,6 +29,21 @@
                 "glob": "**/*",
                 "input": "src/assets",
                 "output": "assets"
+              },
+              {
+                "glob": "**/*.{jpg,jpeg,png,webp,gif,svg}",
+                "input": "Images/Lavender",
+                "output": "images/lavender"
+              },
+              {
+                "glob": "**/*.{jpg,jpeg,png,webp,gif,svg}",
+                "input": "Images/Millenium",
+                "output": "images/millenium"
+              },
+              {
+                "glob": "**/*.{jpg,jpeg,png,webp,gif,svg}",
+                "input": "Images/Rose",
+                "output": "images/rose"
               }
             ],
             "styles": [

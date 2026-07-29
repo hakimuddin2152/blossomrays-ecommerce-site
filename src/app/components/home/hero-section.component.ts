@@ -5,27 +5,19 @@ import { CommonModule } from '@angular/common';
 const slides = [
   {
     image: '/images/banner_image.png',
-    badge: 'New Season · Limited Offer',
+    badge: 'Handcrafted in Canada · Alcohol-Free',
     headline: ['Elevate', 'Every Drive'],
     accentLine: 1,
-    sub: 'Premium botanical car air fresheners — alcohol-free, handcrafted in Canada. Lavender, Rose & Millennium. Lasting 120+ days.',
+    sub: 'Hang it, forget it. A single drop-free bottle fills your car with a calming, long-lasting fragrance that turns your daily commute into a little escape — lasting 120+ days.',
     cta: { label: 'Shop Collection', href: '/products' },
   },
   {
-    image: '/images/banner_image.png',
-    badge: 'Signature Scent · Rose',
-    headline: ['Bloom', 'On the Road'],
-    accentLine: 1,
-    sub: 'Bulgarian rose · peony · soft musk. Romance in every mile.',
-    cta: { label: 'Shop Rose', href: '/products/rose-car-air-freshener' },
-  },
-  {
-    image: '/images/banner_image.png',
-    badge: 'Signature Scent · Lavender',
-    headline: ['Calm', 'Your Commute'],
-    accentLine: 1,
-    sub: 'French lavender · bergamot · cedarwood. Serenity from the first breath.',
-    cta: { label: 'Shop Lavender', href: '/products/lavender-car-air-freshener' },
+    image: '/images/banner_image_2.png',
+    badge: 'Clip It. Drive Happy.',
+    headline: ['Fresh Air', 'On Demand'],
+    accentLine: 0,
+    sub: 'Clips right onto your vent for an instant mood boost — steady, even fragrance flow whenever the air is on, so every ride feels a little brighter.',
+    cta: { label: 'Shop Collection', href: '/products' },
   },
 ];
 
@@ -44,7 +36,7 @@ const stats = [
     <section>
       <!-- Carousel banner -->
       <div
-        class="relative min-h-[60vh] sm:min-h-[82vh] overflow-hidden"
+        class="relative min-h-[42vh] sm:min-h-[56vh] max-h-[560px] overflow-hidden"
         (mouseenter)="paused = true"
         (mouseleave)="paused = false"
       >
@@ -57,12 +49,14 @@ const stats = [
           />
         </div>
 
-        <!-- Gradient overlays — let the image breathe a bit more -->
-        <div class="absolute inset-0 bg-gradient-to-r from-[#0a0a09]/90 via-[#0a0a09]/60 to-transparent"></div>
-        <div class="absolute inset-0 bg-gradient-to-t from-[#0a0a09]/50 via-transparent to-transparent"></div>
+        <!-- Darken overlay — uniform, keeps the full image visible but readable -->
+        <div class="absolute inset-0 bg-black/45"></div>
+
+        <!-- Extra left-side scrim — guarantees text contrast regardless of what's behind it -->
+        <div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/35 to-transparent"></div>
 
         <!-- Content -->
-        <div class="relative z-10 h-full min-h-[60vh] sm:min-h-[82vh] flex items-center">
+        <div class="relative z-10 h-full min-h-[42vh] sm:min-h-[56vh] max-h-[560px] flex items-center">
           <div class="w-full max-w-7xl mx-auto px-5 sm:px-10 lg:px-14">
             <div class="max-w-2xl space-y-5 sm:space-y-6">
               <!-- Badge — clean text eyebrow, no border box -->
@@ -80,7 +74,7 @@ const stats = [
               </h1>
 
               <!-- Sub -->
-              <p class="font-body text-[15px] text-white/55 leading-relaxed max-w-md">
+              <p class="font-body text-[15px] text-white/90 leading-relaxed max-w-md">
                 {{ current().sub }}
               </p>
 

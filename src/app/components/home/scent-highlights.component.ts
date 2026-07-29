@@ -8,8 +8,6 @@ const scents = [
     name: 'Lavender',
     tagline: 'Calm your commute',
     notes: ['French Lavender', 'Bergamot', 'Cedarwood'],
-    color: '#8B89C8',
-    bg: '#ECEDF7',
     href: '/products/lavender-car-air-freshener',
     image: '/images/lavender/1.jpg',
   },
@@ -18,18 +16,14 @@ const scents = [
     name: 'Rose',
     tagline: 'Bloom on the road',
     notes: ['Bulgarian Rose', 'Peony', 'Soft Musk'],
-    color: '#C87868',
-    bg: '#F5ECE9',
     href: '/products/rose-car-air-freshener',
-    image: '/images/rose/Main_Image_Rose.jpeg',
+    image: '/images/rose/Main_Image.jpeg',
   },
   {
     id: 'millennium',
     name: 'Millennium',
     tagline: 'A scent beyond time',
     notes: ['Amber', 'Sandalwood', 'Warm Vanilla'],
-    color: '#C49A6C',
-    bg: '#F5F0E8',
     href: '/products/millennium-car-air-freshener',
     image: '/images/millenium/1.jpg',
   },
@@ -61,18 +55,17 @@ const scents = [
             class="group block bg-white border border-cream-dark hover:border-gold/30 hover:shadow-soft-lg transition-all duration-300 overflow-hidden"
           >
             <!-- Image -->
-            <div class="aspect-[4/3] sm:aspect-[3/4] overflow-hidden" [style.background]="scent.bg">
+            <div class="aspect-[4/3] overflow-hidden bg-white">
               <img
                 [src]="scent.image"
                 [alt]="scent.name"
-                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-700"
               />
             </div>
 
             <!-- Content — clean card below image -->
-            <div class="p-5 sm:p-6 space-y-3" [style.borderTop]="'2px solid ' + scent.color">
-              <p class="font-body text-[10px] font-semibold tracking-[0.28em] uppercase"
-                 [style.color]="scent.color">{{ scent.tagline }}</p>
+            <div class="p-5 sm:p-6 space-y-3 border-t border-cream-dark">
+              <p class="font-body text-[10px] font-semibold tracking-[0.28em] uppercase text-gold">{{ scent.tagline }}</p>
               <h3 class="font-display text-xl sm:text-2xl font-semibold text-plum">{{ scent.name }}</h3>
               <div class="flex flex-wrap gap-1.5">
                 <span
@@ -80,10 +73,13 @@ const scents = [
                   class="font-body text-[10px] text-muted border border-cream-dark px-2.5 py-1"
                 >{{ note }}</span>
               </div>
-              <div class="flex items-center gap-2 pt-1 font-body text-[10px] font-semibold tracking-[0.18em] uppercase text-muted group-hover:text-plum transition-colors duration-300">
-                Shop {{ scent.name }}
-                <span class="block h-px w-5 bg-current transition-all duration-300 group-hover:w-9"></span>
-              </div>
+
+              <!-- Shop Now — fill-on-hover button -->
+              <span class="relative flex items-center justify-center gap-2 w-full mt-1 py-3 overflow-hidden border border-plum font-body text-[11px] font-semibold tracking-[0.2em] uppercase text-plum transition-colors duration-300 group-hover:text-white">
+                <span class="absolute inset-0 bg-plum -translate-x-full group-hover:translate-x-0 transition-transform duration-300 ease-out"></span>
+                <span class="relative">Shop Now</span>
+                <span class="relative transition-transform duration-300 group-hover:translate-x-1">→</span>
+              </span>
             </div>
           </a>
         </div>
