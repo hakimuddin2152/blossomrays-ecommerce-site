@@ -5,7 +5,7 @@
 
 [build.environment]
   NODE_VERSION = "22"
-  NPM_FLAGS = "--registry https://registry.npmjs.org/"
+  NPM_FLAGS = "--registry https://registry.npmjs.org/ --legacy-peer-deps"
   NETLIFY_NEXT_PLUGIN_SKIP = "true"
 
 [functions]
