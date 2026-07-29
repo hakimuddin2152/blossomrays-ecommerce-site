@@ -18,7 +18,7 @@ import type { Order } from '../../types';
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.75 19.5L8.25 12l7.5-7.5"/>
             </svg>
           </a>
-          <h1 class="font-display text-4xl font-semibold text-plum">Order History</h1>
+          <h1 class="font-display text-3xl sm:text-4xl font-semibold text-plum">Order History</h1>
         </div>
 
         <ng-container *ngIf="loading()">

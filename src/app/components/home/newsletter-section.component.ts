@@ -10,7 +10,7 @@ import { FormsModule } from '@angular/forms';
     <section class="bg-plum py-20 px-4 sm:px-6">
       <div class="max-w-2xl mx-auto text-center space-y-6">
         <p class="font-body text-[10px] font-semibold tracking-[0.28em] uppercase text-gold">Stay in the Loop</p>
-        <h2 class="font-display text-4xl md:text-5xl font-semibold text-white leading-tight">
+        <h2 class="font-display text-3xl sm:text-4xl md:text-5xl font-semibold text-white leading-tight">
           Scent Stories & <span class="text-gold italic">Exclusive Offers</span>
         </h2>
         <p class="font-body text-[15px] text-white/50 leading-relaxed">

@@ -61,7 +61,7 @@ const scents = [
             class="group block bg-white border border-cream-dark hover:border-gold/30 hover:shadow-soft-lg transition-all duration-300 overflow-hidden"
           >
             <!-- Image -->
-            <div class="aspect-[3/4] overflow-hidden" [style.background]="scent.bg">
+            <div class="aspect-[4/3] sm:aspect-[3/4] overflow-hidden" [style.background]="scent.bg">
               <img
                 [src]="scent.image"
                 [alt]="scent.name"

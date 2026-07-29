@@ -11,23 +11,22 @@ import type { Product } from '../../types';
   imports: [RouterLink, CommonModule],
   template: `
     <div class="bg-cream min-h-screen">
+      <!-- Mobile top nav (shown below md where sidebar is hidden) -->
+      <nav class="md:hidden bg-white border-b border-cream-dark px-4 py-2 flex gap-1 overflow-x-auto">
+        <a routerLink="/admin" class="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 font-body text-[11px] uppercase tracking-wide text-muted hover:text-plum rounded transition-colors">
+          📊 Overview
+        </a>
+        <a routerLink="/admin/orders" class="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 font-body text-[11px] uppercase tracking-wide text-muted hover:text-plum rounded transition-colors">
+          📦 Orders
+        </a>
+        <a routerLink="/admin/products" class="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 font-body text-[11px] font-semibold uppercase tracking-wide bg-cream text-plum rounded">
+          🏷️ Products
+        </a>
+        <a routerLink="/account" class="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 font-body text-[11px] uppercase tracking-wide text-muted hover:text-plum rounded transition-colors">
+          ← Store
+        </a>
+      </nav>
       <div class="flex h-screen">
-        <!-- Sidebar -->
-        <aside class="w-64 bg-white border-r border-cream-dark flex-shrink-0 hidden md:flex flex-col py-6 px-4 space-y-2">
-          <p class="section-eyebrow px-3 mb-4">Admin Panel</p>
-          <a routerLink="/admin" class="flex items-center gap-3 px-3 py-2 font-body text-sm text-muted hover:text-plum hover:bg-cream rounded-lg transition-colors">
-            <span>📊</span> Overview
-          </a>
-          <a routerLink="/admin/orders" class="flex items-center gap-3 px-3 py-2 font-body text-sm text-muted hover:text-plum hover:bg-cream rounded-lg transition-colors">
-            <span>📦</span> Orders
-          </a>
-          <a routerLink="/admin/products" class="flex items-center gap-3 px-3 py-2 font-body text-sm text-plum bg-cream rounded-lg">
-            <span>🏷️</span> Products
-          </a>
-          <hr class="border-cream-dark" />
-          <a routerLink="/account" class="flex items-center gap-3 px-3 py-2 font-body text-sm text-muted hover:text-plum hover:bg-cream rounded-lg transition-colors">
-            <span>←</span> Back to Store
-          </a>
         </aside>
 
         <!-- Main -->

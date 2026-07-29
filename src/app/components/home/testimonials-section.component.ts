@@ -39,7 +39,7 @@ const testimonials = [
   standalone: true,
   imports: [CommonModule],
   template: `
-    <section class="bg-cream-light py-28 px-4 sm:px-6">
+    <section class="bg-cream-light py-16 sm:py-24 px-4 sm:px-6">
       <div class="max-w-7xl mx-auto">
         <!-- Header -->
         <div class="text-center max-w-xl mx-auto mb-16 space-y-3">

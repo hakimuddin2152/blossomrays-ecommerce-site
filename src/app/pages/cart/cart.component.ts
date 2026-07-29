@@ -12,7 +12,7 @@ import type { CartItem } from '../../types';
   template: `
     <div class="bg-cream min-h-screen">
       <div class="max-w-5xl mx-auto px-4 sm:px-6 py-14">
-        <h1 class="font-display text-4xl font-semibold text-plum mb-10">Your Cart</h1>
+        <h1 class="font-display text-3xl sm:text-4xl font-semibold text-plum mb-10">Your Cart</h1>
 
         <!-- Empty state -->
         <ng-container *ngIf="items().length === 0">

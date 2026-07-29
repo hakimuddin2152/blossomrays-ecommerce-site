@@ -57,11 +57,11 @@ import type { Product } from '../../types';
                 />
               </div>
               <!-- Thumbnails -->
-              <div *ngIf="p.images.length > 1" class="flex gap-2">
+              <div *ngIf="p.images.length > 1" class="flex flex-wrap gap-2">
                 <button
                   *ngFor="let img of p.images; let i = index"
                   (click)="selectedImage.set(img)"
-                  [class]="selectedImage() === img ? 'w-16 h-16 border-2 border-plum overflow-hidden' : 'w-16 h-16 border border-cream-dark overflow-hidden opacity-60 hover:opacity-100 transition-opacity'"
+                  [class]="selectedImage() === img ? 'w-14 h-14 sm:w-16 sm:h-16 border-2 border-plum overflow-hidden' : 'w-14 h-14 sm:w-16 sm:h-16 border border-cream-dark overflow-hidden opacity-60 hover:opacity-100 transition-opacity'"
                 >
                   <img [src]="img" [alt]="p.name + ' ' + (i + 1)" class="w-full h-full object-cover" />
                 </button>
@@ -72,7 +72,7 @@ import type { Product } from '../../types';
             <div class="space-y-6">
               <div>
                 <p class="section-eyebrow mb-1">{{ p.category }}</p>
-                <h1 class="font-display text-4xl font-semibold text-plum leading-tight">{{ p.name }}</h1>
+                <h1 class="font-display text-3xl sm:text-4xl font-semibold text-plum leading-tight">{{ p.name }}</h1>
                 <p *ngIf="p.tagline" class="font-body text-muted mt-2">{{ p.tagline }}</p>
               </div>
 

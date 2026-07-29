@@ -74,9 +74,8 @@ const stats = [
               <h1 class="font-display font-semibold text-white leading-none">
                 <span
                   *ngFor="let line of current().headline; let i = index"
-                  class="block"
+                  class="block text-[2rem] sm:text-[2.8rem] md:text-[4rem] lg:text-[5rem]"
                   [class.text-gold]="i === current().accentLine"
-                  [ngStyle]="{ fontSize: 'clamp(2.8rem, 6vw, 5rem)' }"
                 >{{ line }}</span>
               </h1>
 

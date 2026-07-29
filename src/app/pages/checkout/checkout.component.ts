@@ -26,7 +26,7 @@ import { APP_CONFIG } from '../../tokens/app-config.token';
 
       <ng-container *ngIf="items().length > 0">
         <div class="max-w-5xl mx-auto px-4 sm:px-6 py-14">
-          <h1 class="font-display text-4xl font-semibold text-plum mb-10">Checkout</h1>
+          <h1 class="font-display text-3xl sm:text-4xl font-semibold text-plum mb-10">Checkout</h1>
 
           <form [formGroup]="form" (ngSubmit)="onSubmit()">
             <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
