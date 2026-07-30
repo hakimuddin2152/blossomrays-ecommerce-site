@@ -4,4 +4,5 @@ export const environment = {
   supabaseUrl: 'https://ujppjsblwfmwlmucxmet.supabase.co',
   supabaseAnonKey: 'sb_publishable_v4TQ0TtQxLxAgDMZekK_iQ_vVqEbINb',
   gaMeasurementId: 'G-7S7MR1JGNT',
+  gaAdsId: 'AW-18195380687',
 };

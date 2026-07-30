@@ -36,11 +36,27 @@ export class AppComponent {
   private readonly consent = inject(ConsentService);
 
   constructor() {
-    // Analytics only loads once the visitor has opted in — gated on the
-    // cookie consent choice rather than firing unconditionally on load.
+    // Analytics/Ads tags are always started (Consent Mode v2 default-denied)
+    // so the tag is present from first load — see AnalyticsService for why
+    // the previous "only load after explicit accept" approach silently
+    // recorded almost no real traffic. Consent is granted/revoked
+    // reactively as the visitor's cookie choice changes: "analytics" gates
+    // GA4, "marketing" gates the Google Ads conversion tag.
+    this.analytics.start();
+
     effect(() => {
       if (this.consent.analyticsAllowed()) {
-        this.analytics.init();
+        this.analytics.grantAnalyticsConsent();
+      } else if (this.consent.hasDecidedCookies()) {
+        this.analytics.revokeAnalyticsConsent();
+      }
+    });
+
+    effect(() => {
+      if (this.consent.marketingAllowed()) {
+        this.analytics.grantMarketingConsent();
+      } else if (this.consent.hasDecidedCookies()) {
+        this.analytics.revokeMarketingConsent();
       }
     });
   }

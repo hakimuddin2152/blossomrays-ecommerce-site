@@ -41,6 +41,7 @@ export class ConsentService {
   readonly cookiePrefs = signal<CookiePreferences | null>(this.stored?.prefs ?? null);
   readonly hasDecidedCookies = computed(() => this.cookiePrefs() !== null);
   readonly analyticsAllowed = computed(() => this.cookiePrefs()?.analytics === true);
+  readonly marketingAllowed = computed(() => this.cookiePrefs()?.marketing === true);
 
   savePreferences(prefs: CookiePreferences, choice: CookieChoice): void {
     this.cookiePrefs.set(prefs);
