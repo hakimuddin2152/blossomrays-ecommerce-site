@@ -37,6 +37,15 @@ export class AnalyticsService {
       window.dataLayer.push(args);
     };
     window.gtag('js', new Date());
+    // We only ever load/init gtag.js after the user has already granted
+    // analytics consent via our own cookie banner (see app.component.ts),
+    // so explicitly tell Google's consent-mode-aware runtime that storage
+    // is granted. Without this, gtag.js can silently withhold every hit
+    // (no console error, dataLayer still looks correct) if the GA4
+    // property has Consent Mode enforcement and never received any signal.
+    window.gtag('consent', 'update', {
+      analytics_storage: 'granted',
+    });
     // send_page_view is disabled here — page views are sent manually below
     // on each NavigationEnd so SPA route changes are tracked correctly.
     window.gtag('config', measurementId, {
