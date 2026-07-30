@@ -44,6 +44,12 @@ export class AnalyticsService {
       debug_mode: isDevMode(),
     });
 
+    // Track the current page immediately — analytics can start well after the
+    // initial navigation already happened (e.g. gated behind cookie consent,
+    // granted after the user has already landed on a page), so relying only
+    // on *future* NavigationEnd events would silently skip that first page.
+    this.trackPageView(this.router.url);
+
     this.router.events
       .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
       .subscribe((event) => this.trackPageView(event.urlAfterRedirects));
