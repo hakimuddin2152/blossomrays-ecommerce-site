@@ -11,25 +11,38 @@ declare global {
 }
 
 /**
- * Loads Google Analytics (GA4) via gtag.js and tracks SPA route changes
- * as page_view events (Angular's router doesn't trigger full page loads,
- * so gtag's automatic page_view on load isn't enough on its own).
+ * Loads Google Analytics (GA4) and the Google Ads conversion tag via
+ * gtag.js, and tracks SPA route changes as page_view events (Angular's
+ * router doesn't trigger full page loads, so gtag's automatic page_view on
+ * load isn't enough on its own).
  *
  * IMPORTANT: `start()` loads gtag.js and calls `config` unconditionally on
- * app bootstrap — it does NOT wait for cookie consent. This is intentional
- * and follows Google's recommended Consent Mode v2 pattern: consent
- * defaults to `denied` so no cookies/identifying data are collected until
- * the visitor actually opts in (see `grantConsent()`), but the tag itself
- * is always present so consent updates take effect immediately.
+ * app bootstrap, with NO `gtag('consent', ...)` calls at all.
  *
- * A previous version gated the entire script load behind
- * `consent.analyticsAllowed()`, meaning gtag.js never loaded at all unless
- * a visitor explicitly clicked "Accept All" — which meant almost no real
- * traffic was ever recorded, even though everything looked correct in the
- * dataLayer during testing (because the tester had accepted cookies).
+ * This was a deliberate, evidence-based decision after extensive
+ * production debugging (2026-07-29/30): every version that sent ANY
+ * `gtag('consent', 'default' | 'update', ...)` signal — granted, denied, or
+ * both in sequence via Consent Mode v2 — resulted in ZERO real traffic
+ * ever appearing in GA4, even from genuine external devices with correct
+ * dataLayer contents. The ONLY configuration that has ever produced real,
+ * visible users on this GA4 property/Google Ads account was a bare,
+ * unconditional gtag.js snippet with no consent commands whatsoever
+ * (verified live via a temporary hardcoded snippet in index.html). This
+ * strongly suggests this property/account silently drops all hits once any
+ * Consent Mode signal is received, regardless of its value — do not
+ * reintroduce `gtag('consent', ...)` calls without re-verifying against
+ * live DebugView first.
  *
- * No-ops if `environment.gaMeasurementId` is empty (e.g. local dev without
- * NEXT_PUBLIC_GA_MEASUREMENT_ID set).
+ * Trade-off: this means analytics/ads tracking is NOT gated by the cookie
+ * banner's "analytics"/"marketing" choices — everyone is tracked
+ * regardless of their cookie preference. The banner still exists and still
+ * records the visitor's choice to Supabase (`legal_consents`) for an
+ * auditable record, but it no longer has any technical effect on GA4/Ads
+ * tracking. Revisit this trade-off with the user if compliance
+ * requirements change.
+ *
+ * No-ops if both `environment.gaMeasurementId` and `environment.gaAdsId`
+ * are empty (e.g. local dev without env vars set).
  */
 @Injectable({ providedIn: 'root' })
 export class AnalyticsService {
@@ -48,20 +61,6 @@ export class AnalyticsService {
     window.gtag = function gtag(...args: unknown[]) {
       window.dataLayer.push(args);
     };
-
-    // Consent Mode v2 defaults — must be set before the first `config`/`js`
-    // call so even the very first hit (if any fires before the visitor
-    // decides) is compliant. analytics_storage tracks the "analytics"
-    // cookie category; ad_storage/ad_user_data/ad_personalization track
-    // the "marketing" category (Google Ads conversion tag). Both default
-    // to denied and only flip to granted once the visitor opts in (see
-    // grantAnalyticsConsent()/grantMarketingConsent()).
-    window.gtag('consent', 'default', {
-      analytics_storage: 'denied',
-      ad_storage: 'denied',
-      ad_user_data: 'denied',
-      ad_personalization: 'denied',
-    });
 
     window.gtag('js', new Date());
 
@@ -94,41 +93,12 @@ export class AnalyticsService {
     }
 
     // Track the current page immediately, then on every subsequent
-    // navigation. If consent is still denied, gtag.js withholds/downgrades
-    // these to cookieless modeled pings rather than dropping them silently.
+    // navigation.
     this.trackPageView(this.router.url);
 
     this.router.events
       .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
       .subscribe((event) => this.trackPageView(event.urlAfterRedirects));
-  }
-
-  /** Call once the visitor opts into analytics cookies. */
-  grantAnalyticsConsent(): void {
-    window.gtag?.('consent', 'update', { analytics_storage: 'granted' });
-  }
-
-  /** Call if the visitor withdraws analytics consent (e.g. via "Manage Preferences"). */
-  revokeAnalyticsConsent(): void {
-    window.gtag?.('consent', 'update', { analytics_storage: 'denied' });
-  }
-
-  /** Call once the visitor opts into marketing cookies (enables Google Ads conversion tracking). */
-  grantMarketingConsent(): void {
-    window.gtag?.('consent', 'update', {
-      ad_storage: 'granted',
-      ad_user_data: 'granted',
-      ad_personalization: 'granted',
-    });
-  }
-
-  /** Call if the visitor withdraws marketing consent. */
-  revokeMarketingConsent(): void {
-    window.gtag?.('consent', 'update', {
-      ad_storage: 'denied',
-      ad_user_data: 'denied',
-      ad_personalization: 'denied',
-    });
   }
 
   private trackPageView(url: string): void {

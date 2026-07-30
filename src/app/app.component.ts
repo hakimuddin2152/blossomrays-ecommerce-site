@@ -1,4 +1,4 @@
-import { Component, inject, effect } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { NavbarComponent } from './components/layout/navbar.component';
 import { FooterComponent } from './components/layout/footer.component';
@@ -6,7 +6,6 @@ import { AnnouncementBarComponent } from './components/layout/announcement-bar.c
 import { RegionModalComponent } from './components/shared/region-modal.component';
 import { CookieConsentBannerComponent } from './components/shared/cookie-consent-banner.component';
 import { AnalyticsService } from './services/analytics.service';
-import { ConsentService } from './services/consent.service';
 
 @Component({
   selector: 'app-root',
@@ -33,31 +32,13 @@ import { ConsentService } from './services/consent.service';
 })
 export class AppComponent {
   private readonly analytics = inject(AnalyticsService);
-  private readonly consent = inject(ConsentService);
 
   constructor() {
-    // Analytics/Ads tags are always started (Consent Mode v2 default-denied)
-    // so the tag is present from first load — see AnalyticsService for why
-    // the previous "only load after explicit accept" approach silently
-    // recorded almost no real traffic. Consent is granted/revoked
-    // reactively as the visitor's cookie choice changes: "analytics" gates
-    // GA4, "marketing" gates the Google Ads conversion tag.
+    // Always start analytics/ads tags on load — see AnalyticsService for why
+    // gtag('consent', ...) signals are intentionally NOT sent (empirically
+    // suppressed all real traffic on this GA4 property/Ads account). The
+    // cookie banner (ConsentService) still records the visitor's choice to
+    // Supabase for compliance purposes, but no longer gates tracking.
     this.analytics.start();
-
-    effect(() => {
-      if (this.consent.analyticsAllowed()) {
-        this.analytics.grantAnalyticsConsent();
-      } else if (this.consent.hasDecidedCookies()) {
-        this.analytics.revokeAnalyticsConsent();
-      }
-    });
-
-    effect(() => {
-      if (this.consent.marketingAllowed()) {
-        this.analytics.grantMarketingConsent();
-      } else if (this.consent.hasDecidedCookies()) {
-        this.analytics.revokeMarketingConsent();
-      }
-    });
   }
 }
