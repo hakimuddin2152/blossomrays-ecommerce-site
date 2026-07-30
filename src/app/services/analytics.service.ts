@@ -48,9 +48,11 @@ export class AnalyticsService {
     });
     // send_page_view is disabled here — page views are sent manually below
     // on each NavigationEnd so SPA route changes are tracked correctly.
+    // TEMPORARY: debug_mode forced true (not isDevMode()) to verify live
+    // traffic in GA4 DebugView. Revert to `isDevMode()` once confirmed.
     window.gtag('config', measurementId, {
       send_page_view: false,
-      debug_mode: isDevMode(),
+      debug_mode: true,
     });
 
     // Track the current page immediately — analytics can start well after the
