@@ -65,12 +65,18 @@ export class AnalyticsService {
 
     window.gtag('js', new Date());
 
+    // Debug mode is on in local dev, or on-demand in any environment via
+    // ?ga_debug=1 (e.g. https://blossomrays.com/?ga_debug=1) — lets us
+    // verify real traffic in GA4 DebugView without permanently forcing it
+    // for every visitor (which would otherwise flood DebugView forever).
+    const debugMode = isDevMode() || new URLSearchParams(window.location.search).get('ga_debug') === '1';
+
     if (measurementId) {
       // send_page_view is disabled here — page views are sent manually below
       // on each NavigationEnd so SPA route changes are tracked correctly.
       window.gtag('config', measurementId, {
         send_page_view: false,
-        debug_mode: isDevMode(),
+        debug_mode: debugMode,
       });
       this.loadGtagScript(measurementId);
     }
