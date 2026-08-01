@@ -1,8 +1,13 @@
 import type { Handler, HandlerEvent } from '@netlify/functions';
 import Stripe from 'stripe';
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { Resend } from 'resend';
+import { buildOrderConfirmationEmailHtml, type OrderConfirmationShippingAddress } from './lib/email-template';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2025-02-24.acacia' });
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+const EMAIL_FROM = process.env.RESEND_FROM_EMAIL ?? 'BlossomRays <orders@blossomrays.com>';
+const SITE_URL = process.env.SITE_URL ?? 'https://blossomrays.com';
 
 export const handler: Handler = async (event: HandlerEvent) => {
   if (event.httpMethod !== 'POST') {
@@ -148,6 +153,20 @@ export const handler: Handler = async (event: HandlerEvent) => {
       return { statusCode: 500, body: JSON.stringify({ error: 'Failed to insert order items' }) };
     }
     console.log('[webhook] Inserted', itemRows.length, 'order_items for order', orderId);
+
+    if (email) {
+      await sendOrderConfirmationEmail({
+        orderId,
+        email,
+        customerName: shippingAddress['full_name'] ?? 'there',
+        orderItems,
+        subtotal,
+        shippingCost,
+        total,
+        shippingAddress,
+        supabase,
+      });
+    }
   } else {
     console.warn('[webhook] No orderItems found in metadata or line items for session', session.id);
   }
@@ -155,3 +174,61 @@ export const handler: Handler = async (event: HandlerEvent) => {
   console.log('[webhook] Order created/recovered:', orderId);
   return { statusCode: 200, body: JSON.stringify({ received: true, orderId }) };
 };
+
+async function sendOrderConfirmationEmail(args: {
+  orderId: string;
+  email: string;
+  customerName: string;
+  orderItems: Array<{ product_id: string; quantity: number; unit_price: number }>;
+  subtotal: number;
+  shippingCost: number;
+  total: number;
+  shippingAddress: Record<string, string>;
+  supabase: SupabaseClient;
+}): Promise<void> {
+  if (!resend) {
+    console.warn('[webhook] RESEND_API_KEY not set — skipping order confirmation email');
+    return;
+  }
+
+  try {
+    const { data: products } = await args.supabase
+      .from('products')
+      .select('id, name')
+      .in('id', args.orderItems.map((i) => i.product_id));
+
+    const nameById = new Map((products ?? []).map((p: { id: string; name: string }) => [p.id, p.name]));
+    const items = args.orderItems.map((i) => ({
+      name: nameById.get(i.product_id) ?? 'Item',
+      quantity: i.quantity,
+      unitPrice: i.unit_price,
+    }));
+
+    const html = buildOrderConfirmationEmailHtml({
+      orderId: args.orderId,
+      customerName: args.customerName,
+      items,
+      subtotal: args.subtotal,
+      shippingCost: args.shippingCost,
+      total: args.total,
+      shippingAddress: args.shippingAddress as unknown as OrderConfirmationShippingAddress,
+      siteUrl: SITE_URL,
+    });
+
+    const { error } = await resend.emails.send({
+      from: EMAIL_FROM,
+      to: args.email,
+      subject: `Your BlossomRays order is confirmed — #${args.orderId.slice(0, 8).toUpperCase()}`,
+      html,
+    });
+
+    if (error) {
+      console.error('[webhook] Failed to send order confirmation email:', error);
+    } else {
+      console.log('[webhook] Order confirmation email sent to', args.email);
+    }
+  } catch (err) {
+    // Email failures must never fail the webhook — the order is already saved.
+    console.error('[webhook] Unexpected error sending order confirmation email:', err);
+  }
+}
