@@ -1,0 +1,12 @@
+# Supabase
+.branches
+.temp
+
+# Local dev-only dumps of prod schema/data — never commit (may contain PII)
+prod_schema_dump.sql
+prod_data_dump.sql
+
+# dotenvx
+.env.keys
+.env.local
+.env.*.local
