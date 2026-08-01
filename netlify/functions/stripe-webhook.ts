@@ -2,12 +2,14 @@ import type { Handler, HandlerEvent } from '@netlify/functions';
 import Stripe from 'stripe';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
-import { buildOrderConfirmationEmailHtml, type OrderConfirmationShippingAddress } from './lib/email-template';
+import { buildOrderConfirmationEmailHtml, buildAdminOrderNotificationEmailHtml, type OrderConfirmationShippingAddress } from './lib/email-template';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2025-02-24.acacia' });
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 const EMAIL_FROM = process.env.RESEND_FROM_EMAIL ?? 'BlossomRays <orders@blossomrays.com>';
 const SITE_URL = process.env.SITE_URL ?? 'https://blossomrays.com';
+// Store owner's own inbox — set on Netlify to get notified of every new order.
+const ADMIN_NOTIFICATION_EMAIL = process.env.ADMIN_NOTIFICATION_EMAIL ?? '';
 
 export const handler: Handler = async (event: HandlerEvent) => {
   if (event.httpMethod !== 'POST') {
@@ -167,6 +169,18 @@ export const handler: Handler = async (event: HandlerEvent) => {
         supabase,
       });
     }
+
+    await sendAdminOrderNotificationEmail({
+      orderId,
+      customerEmail: email || 'unknown',
+      customerName: shippingAddress['full_name'] ?? 'there',
+      orderItems,
+      subtotal,
+      shippingCost,
+      total,
+      shippingAddress,
+      supabase,
+    });
   } else {
     console.warn('[webhook] No orderItems found in metadata or line items for session', session.id);
   }
@@ -231,4 +245,71 @@ async function sendOrderConfirmationEmail(args: {
     // Email failures must never fail the webhook — the order is already saved.
     console.error('[webhook] Unexpected error sending order confirmation email:', err);
   }
+}
+
+async function sendAdminOrderNotificationEmail(args: {
+  orderId: string;
+  customerEmail: string;
+  customerName: string;
+  orderItems: Array<{ product_id: string; quantity: number; unit_price: number }>;
+  subtotal: number;
+  shippingCost: number;
+  total: number;
+  shippingAddress: Record<string, string>;
+  supabase: SupabaseClient;
+}): Promise<void> {
+  if (!resend) {
+    console.warn('[webhook] RESEND_API_KEY not set — skipping admin order notification email');
+    return;
+  }
+  if (!ADMIN_NOTIFICATION_EMAIL) {
+    console.warn('[webhook] ADMIN_NOTIFICATION_EMAIL not set — skipping admin order notification email');
+    return;
+  }
+
+  try {
+    const { data: products } = await args.supabase
+      .from('products')
+      .select('id, name')
+      .in('id', args.orderItems.map((i) => i.product_id));
+
+    const nameById = new Map((products ?? []).map((p: { id: string; name: string }) => [p.id, p.name]));
+    const items = args.orderItems.map((i) => ({
+      name: nameById.get(i.product_id) ?? 'Item',
+      quantity: i.quantity,
+      unitPrice: i.unit_price,
+    }));
+
+    const html = buildAdminOrderNotificationEmailHtml({
+      orderId: args.orderId,
+      customerEmail: args.customerEmail,
+      customerName: args.customerName,
+      items,
+      subtotal: args.subtotal,
+      shippingCost: args.shippingCost,
+      total: args.total,
+      shippingAddress: args.shippingAddress as unknown as OrderConfirmationShippingAddress,
+      siteUrl: SITE_URL,
+    });
+
+    const { error } = await resend.emails.send({
+      from: EMAIL_FROM,
+      to: ADMIN_NOTIFICATION_EMAIL,
+      subject: `New order #${args.orderId.slice(0, 8).toUpperCase()} — ${formatCentsForSubject(args.total)}`,
+      html,
+    });
+
+    if (error) {
+      console.error('[webhook] Failed to send admin order notification email:', error);
+    } else {
+      console.log('[webhook] Admin order notification email sent to', ADMIN_NOTIFICATION_EMAIL);
+    }
+  } catch (err) {
+    // Email failures must never fail the webhook — the order is already saved.
+    console.error('[webhook] Unexpected error sending admin order notification email:', err);
+  }
+}
+
+function formatCentsForSubject(cents: number): string {
+  return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD' }).format(cents / 100);
 }

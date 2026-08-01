@@ -22,6 +22,22 @@ npm run build     # Production build
 npm run type-check  # TypeScript check only
 ```
 
+## Local dev database (isolated from production)
+`.env.local` points at a **local Docker Supabase stack** by default so local
+testing never touches real customer data.
+```bash
+npm run supabase:start   # Start local Postgres/Auth/Storage/Studio (Docker)
+npm run supabase:stop    # Stop it
+npm run env:local        # Point .env.local at the local stack (default)
+npm run env:prod         # Point .env.local at real production Supabase (careful!)
+```
+Studio UI: http://127.0.0.1:54323 · DB: `postgresql://postgres:postgres@127.0.0.1:54322/postgres`
+
+The local DB schema/data is mirrored from production via
+`supabase db dump --linked` into `supabase/prod_schema_dump.sql` /
+`prod_data_dump.sql` (gitignored — re-run and reload if you need a fresh
+snapshot of prod data locally).
+
 ## Environment Variables
 Copy `.env.example` → `.env.local` and fill in Supabase + Stripe keys.
 
