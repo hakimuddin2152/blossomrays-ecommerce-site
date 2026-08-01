@@ -109,6 +109,24 @@ export class AnalyticsService {
     });
   }
 
+  /**
+   * Fires the Google Ads "Purchase" conversion event on the order
+   * confirmation page (Google Ads > Conversions > this conversion action's
+   * event snippet). `transactionId` is passed dynamically (the real order
+   * id) so each order is only ever counted once, per Google Ads' guidance —
+   * never hardcode/reuse a static transaction_id.
+   */
+  trackPurchaseConversion(params: { transactionId: string; value?: number; currency?: string }): void {
+    if (!this.started || !environment.gaAdsId) {
+      return;
+    }
+    window.gtag('event', 'conversion', {
+      send_to: `${environment.gaAdsId}/cZ6DCIuTkLccEM_zneRD`,
+      transaction_id: params.transactionId,
+      ...(params.value !== undefined ? { value: params.value, currency: params.currency ?? 'CAD' } : {}),
+    });
+  }
+
   private loadGtagScript(measurementId: string): void {
     const script = document.createElement('script');
     script.async = true;

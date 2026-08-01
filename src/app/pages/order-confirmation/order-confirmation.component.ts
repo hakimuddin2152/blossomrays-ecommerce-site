@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { OrderService } from '../../services/order.service';
+import { AnalyticsService } from '../../services/analytics.service';
 import { formatPrice } from '../../utils/format-price';
 import { TranslationService } from '../../services/translation.service';
 import type { Order } from '../../types';
@@ -65,6 +66,7 @@ import type { Order } from '../../types';
 export class OrderConfirmationComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly orderService = inject(OrderService);
+  private readonly analytics = inject(AnalyticsService);
   private readonly i18n = inject(TranslationService);
 
   readonly order = signal<Order | null>(null);
@@ -95,6 +97,13 @@ export class OrderConfirmationComponent implements OnInit {
         const order = await this.orderService.getOrderById(orderId);
         if (order) {
           this.order.set(order);
+          // Google Ads "Purchase" conversion — transaction_id is the real
+          // order id so Google Ads de-dupes if this page is ever reloaded.
+          this.analytics.trackPurchaseConversion({
+            transactionId: order.id,
+            value: order.total / 100,
+            currency: 'CAD',
+          });
           break;
         }
       } catch { /* ignore — will retry */ }
